@@ -5,7 +5,7 @@ from .managers import CustomUserManager
 from django.conf import settings
 from crews.models import Crew
 from races.models import Race
-
+from config.constants import CREW_CHOICES, GENDER_CHOICES, USER_TYPE_CHOICES, LOCATION_CITY_CHOICES
 
 class LevelStep(models.Model):
     number = models.IntegerField()
@@ -15,13 +15,7 @@ class LevelStep(models.Model):
 
     def __str__(self):
         return f"{self.number} / {self.title}"
-    
 
-CREW_CHOICES = (
-	('keeping', '심사중'),
-	('member', '승인'),
-	('not_member', '미승인'),
-)
 
 class JoinedCrew(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='crews')
@@ -55,31 +49,7 @@ class Record(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.distance}m"
-
-                             
-
-GENDER_CHOICES = (
-    ('none', '선택안함'),
-    ('female', '여자'),
-    ('male', '남자'),
-)
-
-USER_TYPE_CHOICES = (
-    ('normal', '일반'),
-    ('crew', '크루장'),
-)
-
-# [TO DO] 요거 crews에서도 쓰여야 할 듯 함. constants.py로 빼서 쓰는게 나을듯
-LOCATION_CITY_CHOICES = (
-    ('seoul', '서울'),
-    ('gyeonggi', '경기'),
-    ('gangwon', '강원'),
-    ('chungcheong', '충청'),
-    ('jeolla', '전라'),
-    ('gyeongsang', '경상'),
-    ('jeju', '제주'),
-    ('etc', '기타'),
-)
+                            
 
 class CustomUser(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
