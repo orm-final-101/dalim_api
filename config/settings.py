@@ -168,3 +168,10 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# swagger 설정
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'dalim_api',
+    'DESCRIPTION': '오름캠프 final project <dalim> API',
+    'VERSION': '1.0.0',
+}
