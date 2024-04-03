@@ -31,7 +31,6 @@ class JoinedCrew(models.Model):
 class JoinedRace(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='races')
     race = models.ForeignKey(Race, on_delete=models.CASCADE) # 유선 작업 race 모델과 연결
-    record = models.IntegerField(blank=True, null=True) # 기록
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     race_record = models.CharField(max_length=100, blank=True, null=True) # 대회 기록. 10:00:00 형식으로 들어감
