@@ -161,6 +161,9 @@ REST_FRAMEWORK = {
 REST_USE_JWT = True # JWT 사용 여부
 JWT_AUTH_COOKIE = 'my-app-auth' # 호출할 Cookie Key 값
 JWT_AUTH_REFRESH_COOKIE = 'my-refresh-token' # Refresh Token Cookie Key 값
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserSerializer',
+}
 
 # django-allauth
 SITE_ID = 1 # 해당 도메인 id
