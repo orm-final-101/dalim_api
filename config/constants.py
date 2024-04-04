@@ -25,3 +25,17 @@ LOCATION_CITY_CHOICES = (
     ('jeju', '제주'),
     ('etc', '기타'),
 )
+
+CATEGORY_CHOICES = (
+    ("general", "일반"),
+    ("training", "훈련"),
+    ("running_gear", "러닝용품"),
+    ("end_of_month_sale", "월말결산"),
+    ("course_recommendation", "코스추천"),
+)
+
+CLASSIFICATION_CHOICES = (
+    ("general", "일반"),
+    ("event", "이벤트"),
+    ("announcement", "공지"),
+)
