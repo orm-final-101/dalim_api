@@ -25,14 +25,25 @@ class JoinedCrewInline(admin.TabularInline):
 
 
 class CrewAdmin(admin.ModelAdmin):
-    list_display = ("name", "location_city", "location_district", "member_count")
+    list_display = ("name", "location_city", "location_district", "get_member_count", "get_status_display")
     inlines = [JoinedCrewInline]
     search_fields = ("name", "location_city", "location_district")
-    list_filter = ("location_city",)
+    list_filter = ("location_city", "is_opened")
+    readonly_fields = ("get_member_count",)
 
-    def member_count(self, obj):
-        return obj.members.count()
-    member_count.short_description = "멤버 수"
+    def get_member_count(self, obj):
+        return obj.members.filter(status="member").count()
+    get_member_count.short_description = "멤버 수"
+
+    def get_status_display(self, obj):
+        return "모집중" if obj.is_opened else "모집마감"
+    get_status_display.short_description = "모집상태"
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields["is_opened"].label = "모집여부"
+        return form
+
 
 admin.site.register(Crew, CrewAdmin)
 admin.site.register(CrewFavorite)
