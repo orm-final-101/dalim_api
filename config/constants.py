@@ -16,14 +16,28 @@ USER_TYPE_CHOICES = (
 )
 
 LOCATION_CITY_CHOICES = (
-    ("seoul", "서울"),
-    ("gyeonggi", "경기"),
-    ("gangwon", "강원"),
-    ("chungcheong", "충청"),
-    ("jeolla", "전라"),
-    ("gyeongsang", "경상"),
-    ("jeju", "제주"),
-    ("etc", "기타"),
+    ('seoul', '서울'),
+    ('gyeonggi', '경기'),
+    ('gangwon', '강원'),
+    ('chungcheong', '충청'),
+    ('jeolla', '전라'),
+    ('gyeongsang', '경상'),
+    ('jeju', '제주'),
+    ('etc', '기타'),
+)
+
+CATEGORY_CHOICES = (
+    ("general", "일반"),
+    ("training", "훈련"),
+    ("running_gear", "러닝용품"),
+    ("end_of_month_sale", "월말결산"),
+    ("course_recommendation", "코스추천"),
+)
+
+CLASSIFICATION_CHOICES = (
+    ("general", "일반"),
+    ("event", "이벤트"),
+    ("announcement", "공지"),
 )
 
 MEET_DAY_CHOICES = (
@@ -43,15 +57,15 @@ TIME_CHOICES = [
 ]
 
 COURSE_CHOICES = (
-        (42195, "Full"),
-        (21097, "Half"),
-        (10000, "10km"),
-        (5000, "5km"),
-        (3000, "3km"),
+    (42195, "Full"),
+    (21097, "Half"),
+    (10000, "10km"),
+    (5000, "5km"),
+    (3000, "3km"),
 )
 
 RACE_STATUS_CHOICES = (
-        (0, "모집중"),
-        (1, "모집예정"),
-        (2, "모집마감"),
+    (0, "모집중"),
+    (1, "모집예정"),
+    (2, "모집마감"),
 )

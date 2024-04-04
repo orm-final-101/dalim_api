@@ -1,14 +1,9 @@
 from django.db import models
 from django.conf import settings
+from config.constants import CLASSIFICATION_CHOICES, CATEGORY_CHOICES
 
 
 class PostClassification(models.Model):
-
-    CLASSIFICATION_CHOICES = [
-        ("general", "일반"),
-        ("event", "이벤트"),
-        ("announcement", "공지"),
-    ]
 
     classification = models.CharField(max_length=20, choices=CLASSIFICATION_CHOICES)
 
@@ -17,15 +12,7 @@ class PostClassification(models.Model):
     
 
 class Category(models.Model):
-
-    CATEGORY_CHOICES = [
-        ("general", "일반"),
-        ("training", "훈련"),
-        ("running_gear", "러닝용품"),
-        ("end_of_month_sale", "월말결산"),
-        ("course_recommendation", "코스추천"),
-    ]
-
+    
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
 
     def __str__(self):
@@ -37,7 +24,7 @@ class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
     contents = models.TextField()
     title = models.CharField(max_length=128)
-    thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True, blank=True, default="default_thumbnail_image.jpg") # 이미지 높이, 너비 조율필요
+    thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True, blank=True, default="default_thumbnail_image.jpg")
     post_classifications = models.ForeignKey(PostClassification, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     view_count = models.PositiveIntegerField(default=0)
