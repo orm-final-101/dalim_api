@@ -57,15 +57,9 @@ TIME_CHOICES = [
 ]
 
 COURSE_CHOICES = (
-    (42195, "Full"),
-    (21097, "Half"),
-    (10000, "10km"),
-    (5000, "5km"),
-    (3000, "3km"),
-)
-
-RACE_STATUS_CHOICES = (
-    (0, "모집중"),
-    (1, "모집예정"),
-    (2, "모집마감"),
+    ("Full", "Full"),
+    ("Half", "Half"),
+    ("10km", "10km"),
+    ("5km", "5km"),
+    ("3km", "3km"),
 )
