@@ -12,8 +12,8 @@ class Crew(models.Model):
     meet_days = MultiSelectField(choices=MEET_DAY_CHOICES)
     meet_time = models.CharField(max_length=10, choices=TIME_CHOICES)
     description = models.TextField("")
-    thumbnail_image = models.ImageField(upload_to="crews/thumbnail/%Y/%m/%d/", blank=True, null=True)
-    sns_link = models.URLField(blank=True, null=True)
+    thumbnail_image = models.ImageField(upload_to="crews/thumbnail/%Y/%m/%d/", null=True)
+    sns_link = models.URLField(null=True)
     is_opened = models.BooleanField(default=True)
 
     def __str__(self):
