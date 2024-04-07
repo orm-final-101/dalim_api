@@ -1,5 +1,5 @@
 from django.db import models
-from . import settings
+from django.conf import settings
 from config.constants import COURSE_CHOICES
 from multiselectfield import MultiSelectField
 
