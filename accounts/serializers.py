@@ -31,3 +31,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         # 모든 Record 객체의 distance를 합산합니다.
         # 이 코드는 distance 필드가 Record 모델에 있는 정수 필드라고 가정합니다.
         return Record.objects.filter(user=obj).aggregate(total_distance=Sum('distance'))['total_distance'] or 0
+    
+
+class RecordSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = Record
+        fields = ['id', 'created_at', 'description', 'distance']
+        read_only_fields = ['user']
