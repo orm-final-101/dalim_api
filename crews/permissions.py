@@ -1,18 +1,15 @@
 from rest_framework import permissions
 from accounts.models import JoinedCrew
 
+class IsCrewOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.owner == request.user
 
-class IsCrewMember(permissions.BasePermission):
+class IsCrewAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
-        crew_id = view.kwargs.get("crew_id")
+        return request.user.user_type == "crew"
+
+class IsCrewMemberOrQuit(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
         user = request.user
-
-        if user.is_authenticated:
-            if user.is_superuser or user.role == "crew":
-                return True
-            else:
-                return JoinedCrew.objects.filter(
-                    user=user, crew_id=crew_id, status__in=["member", "quit"]
-                ).exists()
-
-        return False
+        return JoinedCrew.objects.filter(user=user, crew=obj, status__in=["member", "quit"]).exists()

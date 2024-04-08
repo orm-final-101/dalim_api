@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Crew, CrewReview
 from accounts.models import JoinedCrew
+from config.constants import MEET_DAY_CHOICES, TIME_CHOICES
 
 
 # 크루 목록
@@ -67,6 +68,9 @@ class CrewReviewUpdateSerializer(serializers.ModelSerializer):
 
 # 크루 생성, 수정
 class CrewCreateSerializer(serializers.ModelSerializer):
+    meet_days = serializers.MultipleChoiceField(choices=MEET_DAY_CHOICES)
+    meet_time = serializers.ChoiceField(choices=TIME_CHOICES)
+
     class Meta:
         model = Crew
         fields = ["name", "location_city", "location_district", "meet_days", "meet_time", "description", "thumbnail_image", "sns_link", "is_opened"]
