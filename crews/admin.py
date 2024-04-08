@@ -45,6 +45,20 @@ class CrewAdmin(admin.ModelAdmin):
         return form
 
 
+class CrewReviewAdmin(admin.ModelAdmin):
+    list_display = ("author", "crew", "created_at", "updated_at")
+    search_fields = ("author__username", "author__email", "crew__name", "contents")
+    list_filter = ("crew",)
+    raw_id_fields = ("author", "crew")
+
+
+class CrewFavoriteAdmin(admin.ModelAdmin):
+    list_display = ("user", "crew", "created_at", "updated_at")
+    search_fields = ("user__username", "user__email", "crew__name")
+    list_filter = ("crew",)
+    raw_id_fields = ("user", "crew")
+
+
 admin.site.register(Crew, CrewAdmin)
-admin.site.register(CrewFavorite)
-admin.site.register(CrewReview)
+admin.site.register(CrewFavorite, CrewFavoriteAdmin)
+admin.site.register(CrewReview, CrewReviewAdmin)
