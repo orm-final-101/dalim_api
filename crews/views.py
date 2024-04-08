@@ -1,24 +1,41 @@
-from django.db.models import Count
+from django.db.models import Count, Q
+from accounts.models import JoinedCrew
+from .models import Crew, CrewReview, CrewFavorite
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
-from django.shortcuts import get_object_or_404
-from .models import Crew, CrewReview, CrewFavorite
 from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewListSerializer, CrewReviewCreateSerializer, CrewReviewUpdateSerializer, CrewCreateSerializer, JoinedCrewSerializer
-from accounts.models import JoinedCrew
+from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
+from django.shortcuts import get_object_or_404
 
 
 # 크루 리스트
 @api_view(["GET"])
 def crew_list(request):
     crews = Crew.objects.all()
-    
+
     search_keyword = request.GET.get("search", "")
+    selected_location_city = request.GET.get("location_city", "")
+    selected_meet_days = request.GET.getlist("meet_days", [])
+
     if search_keyword:
-        crews = crews.filter(name__icontains=search_keyword)
-    
+        crews = crews.filter(
+            Q(name__icontains=search_keyword) |
+            Q(description__icontains=search_keyword)
+        )
+
+    if selected_location_city:
+        selected_location_city = [city[0] for city in LOCATION_CITY_CHOICES if city[0] == selected_location_city]
+        if selected_location_city:
+            crews = crews.filter(location_city=selected_location_city[0])
+
+    if selected_meet_days:
+        selected_meet_days = [day[0] for day in MEET_DAY_CHOICES if day[0] in selected_meet_days]
+        for day in selected_meet_days:
+            crews = crews.filter(meet_days__contains=day)
+
     serializer = CrewListSerializer(crews, many=True, context={"request": request})
     return Response(serializer.data)
 
