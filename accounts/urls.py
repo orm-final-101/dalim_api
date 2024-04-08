@@ -15,4 +15,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("mypage/info/", views.mypage_info),
     path("mypage/record/", include(router.urls)),
+    path("mypage/crew/", views.mypage_crew),
 ]
