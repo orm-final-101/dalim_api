@@ -26,6 +26,7 @@ class CrewListViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
+
 class CrewDetailViewTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -37,6 +38,7 @@ class CrewDetailViewTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "Test Crew")
+
 
 class CrewJoinViewTestCase(APITestCase):
     def setUp(self):
@@ -52,6 +54,7 @@ class CrewJoinViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(JoinedCrew.objects.filter(user=self.user, crew=self.crew).exists())
 
+
 class CrewFavoriteViewTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -64,6 +67,7 @@ class CrewFavoriteViewTestCase(APITestCase):
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CrewFavorite.objects.filter(user=self.user, crew=self.crew).exists())
+
 
 class CrewReviewViewTestCase(APITestCase):
     def setUp(self):
@@ -98,6 +102,7 @@ class CrewReviewViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(CrewReview.objects.count(), 0)
 
+
 class CrewCreateUpdateTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -129,6 +134,7 @@ class CrewCreateUpdateTestCase(APITestCase):
         response = self.client.patch(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Crew.objects.get().name, "Updated Crew")
+
 
 class CrewMemberViewTestCase(APITestCase):
     def setUp(self):
