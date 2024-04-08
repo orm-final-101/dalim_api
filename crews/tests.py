@@ -12,19 +12,43 @@ class CrewListViewTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username="testuser", password="testpassword", email="test@example.com")
-        self.crew = Crew.objects.create(name="Test Crew", location_city="seoul", location_district="Gangnam", owner=self.user)
+        self.crew1 = Crew.objects.create(name="Test Crew 1", location_city="seoul", meet_days=["mon", "tue"], owner=self.user)
+        self.crew2 = Crew.objects.create(name="Test Crew 2", location_city="busan", meet_days=["wed", "thu"], owner=self.user)
+        self.crew3 = Crew.objects.create(name="Test Crew 3", location_city="seoul", meet_days=["fri", "sat"], owner=self.user)
 
     def test_crew_list_view(self):
         url = reverse("crews:crew_list")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 3)
 
     def test_crew_list_search(self):
         url = reverse("crews:crew_list") + "?search=Test"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
+    def test_filter_by_location_city(self):
+        url = reverse("crews:crew_list") + "?location_city=seoul"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertContains(response, self.crew1.name)
+        self.assertContains(response, self.crew3.name)
+
+    def test_filter_by_meet_days(self):
+        url = reverse("crews:crew_list") + "?meet_days=mon&meet_days=tue"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+        self.assertContains(response, self.crew1.name)
+
+    def test_filter_by_location_city_and_meet_days(self):
+        url = reverse("crews:crew_list") + "?location_city=seoul&meet_days=fri&meet_days=sat"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertContains(response, self.crew3.name)
 
 
 class CrewDetailViewTestCase(APITestCase):
