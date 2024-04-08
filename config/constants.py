@@ -2,6 +2,7 @@ CREW_CHOICES = (
 	("keeping", "심사중"),
 	("member", "승인"),
 	("not_member", "미승인"),
+  	("quit", "탈퇴"),
 )
 
 GENDER_CHOICES = (
