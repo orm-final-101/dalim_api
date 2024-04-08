@@ -1,24 +1,41 @@
-from django.db.models import Count
+from django.db.models import Count, Q
+from accounts.models import JoinedCrew
+from .models import Crew, CrewReview, CrewFavorite
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
-from django.shortcuts import get_object_or_404
-from .models import Crew, CrewReview, CrewFavorite
 from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewListSerializer, CrewReviewCreateSerializer, CrewReviewUpdateSerializer, CrewCreateSerializer, JoinedCrewSerializer
-from accounts.models import JoinedCrew
+from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
+from django.shortcuts import get_object_or_404
 
 
 # 크루 리스트
 @api_view(["GET"])
 def crew_list(request):
     crews = Crew.objects.all()
-    
+
     search_keyword = request.GET.get("search", "")
+    selected_location_city = request.GET.get("location_city", "")
+    selected_meet_days = request.GET.getlist("meet_days", [])
+
     if search_keyword:
-        crews = crews.filter(name__icontains=search_keyword)
-    
+        crews = crews.filter(
+            Q(name__icontains=search_keyword) |
+            Q(description__icontains=search_keyword)
+        )
+
+    if selected_location_city:
+        selected_location_city = [city[0] for city in LOCATION_CITY_CHOICES if city[0] == selected_location_city]
+        if selected_location_city:
+            crews = crews.filter(location_city=selected_location_city[0])
+
+    if selected_meet_days:
+        selected_meet_days = [day[0] for day in MEET_DAY_CHOICES if day[0] in selected_meet_days]
+        for day in selected_meet_days:
+            crews = crews.filter(meet_days__contains=day)
+
     serializer = CrewListSerializer(crews, many=True, context={"request": request})
     return Response(serializer.data)
 
@@ -38,42 +55,18 @@ def crew_join(request, crew_id):
     crew = Crew.objects.get(pk=crew_id)
     user = request.user
     
-    if request.data.get("action") == "apply":
-        if JoinedCrew.objects.filter(user=user, crew=crew).exists():
-            joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
-            
-            if joined_crew.status == "member":
-                return Response({"error": "이미 멤버입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            elif joined_crew.status == "keeping":
-                return Response({"error": "이미 신청했습니다."}, status=status.HTTP_400_BAD_REQUEST)
-            elif joined_crew.status == "non_keeping":
-                return Response({"error": "신청할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    if JoinedCrew.objects.filter(user=user, crew=crew).exists():
+        joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
         
-        JoinedCrew.objects.create(user=user, crew=crew)
-        return Response({"message": "크루 가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
+        if joined_crew.status == "member":
+            return Response({"error": "이미 회원입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        elif joined_crew.status == "non_keeping":
+            return Response({"error": "신청할 수 없는 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        elif joined_crew.status == "keeping":
+            return Response({"error": "이미 신청한 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
     
-    elif request.data.get("action") == "approve":
-        try:
-            joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
-            if joined_crew.status == "member":
-                return Response({"error": "이미 승인된 회원입니다."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            joined_crew.status = "member"
-            joined_crew.save()
-            return Response({"message": "크루 가입이 승인되었습니다."}, status=status.HTTP_200_OK)
-        except JoinedCrew.DoesNotExist:
-            return Response({"error": "가입 신청 내역이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    elif request.data.get("action") == "reject":
-        try:
-            joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
-            joined_crew.delete()
-            return Response({"message": "크루 가입이 거절되었습니다."}, status=status.HTTP_200_OK)
-        except JoinedCrew.DoesNotExist:
-            return Response({"error": "가입 신청 내역이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    else:
-        return Response({"error": "잘못된 요청입니다."}, status=status.HTTP_400_BAD_REQUEST)
+    JoinedCrew.objects.create(user=user, crew=crew, status="keeping")
+    return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
 
 
 # 크루 즐겨찾기
