@@ -49,10 +49,9 @@ class CrewJoinViewTestCase(APITestCase):
     def test_crew_join_apply(self):
         self.client.force_authenticate(user=self.user)
         url = reverse("crews:crew_join", args=[self.crew.id])
-        data = {"action": "apply"}
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(JoinedCrew.objects.filter(user=self.user, crew=self.crew).exists())
+        self.assertTrue(JoinedCrew.objects.filter(user=self.user, crew=self.crew, status="keeping").exists())
 
 
 class CrewFavoriteViewTestCase(APITestCase):
