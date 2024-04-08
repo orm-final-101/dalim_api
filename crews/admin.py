@@ -13,15 +13,19 @@ class JoinedCrewInline(admin.TabularInline):
     search_fields = ("user__username", "user__email")
     list_editable = ("status",)
 
-    actions = ["approve_members", "disapprove_members"]
+    actions = ["approve_members", "disapprove_members", "quit_members"]
 
     def approve_members(self, request, queryset):
         queryset.update(status="member")
     approve_members.short_description = "선택된 멤버 승인"
 
     def disapprove_members(self, request, queryset):
-        queryset.update(status="not_member")
-    disapprove_members.short_description = "선택된 멤버 미승인"
+        queryset.update(status="non_keeping")
+    disapprove_members.short_description = "선택된 멤버 거절"
+
+    def quit_members(self, request, queryset):
+        queryset.update(status="quit")
+    quit_members.short_description = "선택된 멤버 탈퇴 처리"
 
 
 class CrewAdmin(admin.ModelAdmin):
