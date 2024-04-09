@@ -1,7 +1,7 @@
 from dj_rest_auth.serializers import UserDetailsSerializer
-from .models import CustomUser, LevelStep, Record, JoinedCrew
 from rest_framework import serializers
 from django.db.models import Sum
+from .models import CustomUser, LevelStep, Record, JoinedCrew, JoinedRace
 
 
 class CustomUserSerializer(UserDetailsSerializer):
@@ -36,8 +36,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class RecordSerialiser(serializers.ModelSerializer):
     class Meta:
         model = Record
-        fields = ['id', 'created_at', 'description', 'distance']
-        read_only_fields = ['user']
+        fields = ['id', "user", 'created_at', 'description', 'distance']
 
 
 class JoinedCrewSerializer(serializers.ModelSerializer):

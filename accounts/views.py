@@ -7,17 +7,27 @@ from rest_framework.decorators import action
 from .models import CustomUser, Record, JoinedCrew
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.utils import extend_schema
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.openapi import OpenApiParameter
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
+from .models import CustomUser, Record, JoinedCrew, JoinedRace
+from races.models import Race
+from .serializers import (
+    ProfileSerializer,
+    RecordSerialiser,
+    JoinedCrewSerializer,
+    JoinedRaceGetSerializer,
+    JoinedRacePostSerializer
+)
+
+
 
 
 # mypage/info는 일단 fbv로 작업 - 완
 @extend_schema(
-    methods=['PATCH'],
+    methods=["PATCH"],
     request=ProfileSerializer
 )
-@api_view(['GET', 'PATCH'])
+@api_view(["GET", "PATCH"])
 @permission_classes([IsAuthenticated])
 def mypage_info(request):
     try:
@@ -25,11 +35,11 @@ def mypage_info(request):
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
     
-    if request.method == 'GET':
+    if request.method == "GET":
         user = CustomUser.objects.get(pk=request.user.pk)
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
-    elif request.method == 'PATCH':
+    elif request.method == "PATCH":
         serializer = ProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -41,7 +51,7 @@ def mypage_info(request):
 
 # mypage/record CRUD는 뷰셋으로 작업 - 완
 @extend_schema(
-    methods=['POST', 'PATCH'],
+    methods=["POST", "PATCH"],
     request=RecordSerialiser
 )
 class RecordViewSet(viewsets.ViewSet):
@@ -91,7 +101,7 @@ class RecordViewSet(viewsets.ViewSet):
 
 
 # /mypage/crew 내가 신청한 크루 현황
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def mypage_crew(request):
     try:
@@ -99,7 +109,7 @@ def mypage_crew(request):
     except CustomUser.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
 
-    if request.method == 'GET':
+    if request.method == "GET":
         joined_crews = JoinedCrew.objects.filter(user=user)
         serializer = JoinedCrewSerializer(joined_crews, many=True)
         return Response(serializer.data)
