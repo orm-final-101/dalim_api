@@ -1,5 +1,5 @@
 from dj_rest_auth.serializers import UserDetailsSerializer
-from .models import CustomUser, LevelStep, Record
+from .models import CustomUser, LevelStep, Record, JoinedCrew
 from rest_framework import serializers
 from django.db.models import Sum
 
@@ -38,3 +38,19 @@ class RecordSerialiser(serializers.ModelSerializer):
         model = Record
         fields = ['id', 'created_at', 'description', 'distance']
         read_only_fields = ['user']
+
+
+class JoinedCrewSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='crew.id')
+    name = serializers.CharField(source='crew.name')
+    location_city = serializers.CharField(source='crew.location_city')
+    location_district = serializers.CharField(source='crew.location_district')
+    meet_days = serializers.SerializerMethodField()
+    meet_time = serializers.CharField(source='crew.meet_time')
+    thumbnail_image = serializers.ImageField(source='crew.thumbnail_image')
+
+    def get_meet_days(self, obj):
+        return obj.crew.meet_days
+    class Meta:
+        model = JoinedCrew
+        fields = ['id', 'status', 'name', 'location_city', 'location_district', 'meet_days', 'meet_time', 'thumbnail_image']

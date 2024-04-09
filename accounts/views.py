@@ -1,10 +1,10 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
 from django.conf import settings
-from .serializers import ProfileSerializer, RecordSerialiser
+from .serializers import ProfileSerializer, RecordSerialiser, JoinedCrewSerializer
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.decorators import action
-from .models import CustomUser, Record
+from .models import CustomUser, Record, JoinedCrew
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
@@ -91,6 +91,18 @@ class RecordViewSet(viewsets.ViewSet):
 
 
 # /mypage/crew 내가 신청한 크루 현황
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def mypage_crew(request):
+    try:
+        user = CustomUser.objects.get(pk=request.user.pk)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+    if request.method == 'GET':
+        joined_crews = JoinedCrew.objects.filter(user=user)
+        serializer = JoinedCrewSerializer(joined_crews, many=True)
+        return Response(serializer.data)
 
 # /mypage/race 내가 신청한 대회 내역 : GET, POST
 
