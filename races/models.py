@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from config.constants import COURSE_CHOICES
 from multiselectfield import MultiSelectField
+from datetime import date
 
 
 class Race(models.Model):
@@ -13,17 +14,21 @@ class Race(models.Model):
     reg_start_date = models.DateField() # 신청접수 시작일
     reg_end_date = models.DateField() # 신청접수 마감일
     courses = MultiSelectField(choices=COURSE_CHOICES) # 대회 코스 복수 선택   
-    thumbnail_image = models.ImageField(upload_to="races/thumbnail_images/%Y/%m/%d/", blank=True, null=True)
+    thumbnail_image = models.ImageField(upload_to="races/thumbnail_images/%Y/%m/%d/", null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     location = models.CharField(max_length=100) # 대회 장소
     fees = models.IntegerField(default=0) # 참가비용
-    register_url = models.URLField(blank=True, null=True) # 대회 신청 페이지(외부링크)
+    register_url = models.URLField(null=True) # 대회 신청 페이지(외부링크)
     
     def __str__(self):
         return self.title
 
+    def d_day(self):
+        today = date.today()
+        delta = self.reg_start_date - today
+        return delta.days
 
 class RaceFavorite(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorite_races")
