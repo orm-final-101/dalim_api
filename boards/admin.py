@@ -3,11 +3,11 @@ from .models import Post, PostClassification, Category, Comment, Like
 
 @admin.register(PostClassification)
 class PostClassificationAdmin(admin.ModelAdmin):
-    list_display = ("classification",)
+    list_display = ("name",)
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("category",)
+    list_display = ("name",)
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):

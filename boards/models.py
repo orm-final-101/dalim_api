@@ -20,12 +20,12 @@ class Category(models.Model):
 
 class Post(models.Model):
 
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
-    contents = models.TextField()
     title = models.CharField(max_length=128)
-    thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True, blank=True, default="default_thumbnail_image.jpg")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
     post_classification = models.ForeignKey(PostClassification, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)    
+    contents = models.TextField()
+    thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True, blank=True, default="default_thumbnail_image.jpg")
     view_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
