@@ -1,7 +1,7 @@
 from dj_rest_auth.serializers import UserDetailsSerializer
-from .models import CustomUser, LevelStep, Record, JoinedCrew
 from rest_framework import serializers
 from django.db.models import Sum
+from .models import CustomUser, LevelStep, Record, JoinedCrew, JoinedRace
 
 
 class CustomUserSerializer(UserDetailsSerializer):
@@ -14,7 +14,7 @@ class LevelStepSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LevelStep
-        fields = ['title', 'number', 'next_distance']
+        fields = ["title", "number", "next_distance"]
 
     def get_next_distance(self, obj):
         return obj.max_distance
@@ -25,19 +25,18 @@ class ProfileSerializer(serializers.ModelSerializer):
     distance = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'nickname', 'phone_number', 'location_city', 'location_district', 'distance', 'level', 'profile_image']
+        fields = ["id", "username", "nickname", "phone_number", "location_city", "location_district", "distance", "level", "profile_image"]
 
     def get_distance(self, obj):
         # 모든 Record 객체의 distance를 합산합니다.
         # 이 코드는 distance 필드가 Record 모델에 있는 정수 필드라고 가정합니다.
-        return Record.objects.filter(user=obj).aggregate(total_distance=Sum('distance'))['total_distance'] or 0
+        return Record.objects.filter(user=obj).aggregate(total_distance=Sum("distance"))["total_distance"] or 0
     
 
 class RecordSerialiser(serializers.ModelSerializer):
     class Meta:
         model = Record
-        fields = ['id', 'created_at', 'description', 'distance']
-        read_only_fields = ['user']
+        fields = ['id', "user", 'created_at', 'description', 'distance']
 
 
 class JoinedCrewSerializer(serializers.ModelSerializer):
@@ -54,3 +53,33 @@ class JoinedCrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinedCrew
         fields = ['id', 'status', 'name', 'location_city', 'location_district', 'meet_days', 'meet_time', 'thumbnail_image']
+        fields = ["id", "created_at", "description", "distance"]
+        read_only_fields = ["user"]
+
+
+class JoinedRaceGetSerializer(serializers.ModelSerializer):
+    joined_race_id = serializers.IntegerField(source="id")
+    race_id = serializers.IntegerField(source="race.id")
+    reg_status = serializers.CharField(source="race.reg_status")
+    d_day = serializers.IntegerField(source="race.d_day")
+    location = serializers.CharField(source="race.location")
+    title = serializers.CharField(source="race.title")
+    start_date = serializers.DateField(source="race.start_date")
+    end_date = serializers.DateField(source="race.end_date")
+    reg_start_date = serializers.DateField(source="race.reg_start_date")
+    reg_end_date = serializers.DateField(source="race.reg_end_date")
+    courses = serializers.SerializerMethodField()
+    record = serializers.CharField(source="race_record")
+    thumbnail_image = serializers.ImageField(source="race.thumbnail_image")
+
+    def get_courses(self, obj):
+        return obj.race.courses
+
+    class Meta:
+        model = JoinedRace
+        fields = ["joined_race_id", "race_id", "reg_status", "d_day", "location", "title", "start_date", "end_date", "reg_start_date", "reg_end_date", "courses", "record", "thumbnail_image"]
+
+class JoinedRacePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JoinedRace
+        fields = ["user", "race", "race_record"]

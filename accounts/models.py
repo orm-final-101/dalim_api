@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from .managers import CustomUserManager
 from django.conf import settings
+from config.constants import CREW_CHOICES, GENDER_CHOICES, USER_TYPE_CHOICES, LOCATION_CITY_CHOICES
+from .managers import CustomUserManager
 from crews.models import Crew
 from races.models import Race
-from config.constants import CREW_CHOICES, GENDER_CHOICES, USER_TYPE_CHOICES, LOCATION_CITY_CHOICES
+
 
 class LevelStep(models.Model):
     number = models.IntegerField()
@@ -18,8 +19,8 @@ class LevelStep(models.Model):
 
 
 class JoinedCrew(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='crews')
-    crew = models.ForeignKey(Crew, on_delete=models.CASCADE, related_name='members') # 민경 작업 crew 모델과 연결
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="crews")
+    crew = models.ForeignKey(Crew, on_delete=models.CASCADE, related_name="members") # 민경 작업 crew 모델과 연결
     status = models.CharField(max_length=20, choices=CREW_CHOICES, default=CREW_CHOICES[0])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -29,7 +30,7 @@ class JoinedCrew(models.Model):
     
 
 class JoinedRace(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='races')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="races")
     race = models.ForeignKey(Race, on_delete=models.CASCADE) # 유선 작업 race 모델과 연결
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -40,7 +41,7 @@ class JoinedRace(models.Model):
 
 
 class Record(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='records')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="records")
     description = models.TextField(null=True) # 기록 설명
     distance = models.IntegerField(default=0) # 거리 (m)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,7 +52,7 @@ class Record(models.Model):
                             
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_("email address"), unique=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -69,7 +70,7 @@ class CustomUser(AbstractUser):
     location_district = models.CharField(max_length=30, null=True) # 거주지역(구/군 등 자유입력)
     phone_number = models.CharField(max_length=20, null=True) # 전화번호 (010-1234-5678 형식)
     level = models.ForeignKey(LevelStep, on_delete=models.SET_NULL, null=True) # 레벨
-    profile_image = models.ImageField(upload_to='accounts/profile/%Y/%m/%d/', null=True) # 프로필 이미지
+    profile_image = models.ImageField(upload_to="accounts/profile/%Y/%m/%d/", null=True) # 프로필 이미지
 
 
     def __str__(self):
