@@ -1,10 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
-from django.conf import settings
-from .serializers import ProfileSerializer, RecordSerialiser, JoinedCrewSerializer
 from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.decorators import action
-from .models import CustomUser, Record, JoinedCrew
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -114,10 +110,86 @@ def mypage_crew(request):
         serializer = JoinedCrewSerializer(joined_crews, many=True)
         return Response(serializer.data)
 
+
 # /mypage/race 내가 신청한 대회 내역 : GET, POST
+# /mypage/race/<int:joined_race_id> 내 대회 기록 : PATCH, DELETE
+@extend_schema(
+    methods=["GET", "POST", "PATCH", "DELETE"]
+)
+class RaceViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
-# /mypage/race/record/<int:race_id> : POST, PATCH, DELETE
+    def list(self, request):
+        queryset = JoinedRace.objects.filter(user=request.user)
+        serializer = JoinedRaceGetSerializer(queryset, many=True)
+        return Response(serializer.data)
 
+    @extend_schema(
+        request=inline_serializer(
+            name="RaceCreateInlineSerializer", 
+            fields={
+                "race_id": serializers.IntegerField()
+            }
+        )
+    )
+    def create(self, request):
+        race_id = request.data.get("race_id")
+
+        try :
+            race = Race.objects.get(pk=race_id)
+        except :
+            # 해당하는 race 없을 시 에러메세지 반환
+            return Response({"error":"해당 대회가 존재하지 않습니다."}, status=404)
+        
+        # request.user.pk와 race.id를 이용해 JoinedRace 객체를 생성
+        data = {
+            "user": request.user.pk,
+            "race" : race.id
+        }
+
+        # 이미 user와 race가 같은 객체가 있는지 확인
+        if JoinedRace.objects.filter(user=data["user"], race=data["race"]).exists():
+            return Response({"error":"이미 참가한 대회입니다."}, status=400)
+
+        serializer = JoinedRacePostSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+    
+    @extend_schema(
+        request=inline_serializer(
+            name="RaceUpdateInlineSerializer", 
+            fields={
+                "race_record": serializers.CharField()
+            }
+        )
+    )
+    def partial_update(self, request, pk):
+        race_record = request.data.get("race_record")
+
+        try:
+            joined_race = JoinedRace.objects.get(pk=pk, user=request.user)
+        except JoinedRace.DoesNotExist:
+            return Response({"error": "해당 JoinedRace가 존재하지 않습니다."}, status=404)
+        
+        serializer = JoinedRacePostSerializer(joined_race, data={"race_record":race_record}, partial=True)
+        if serializer.is_valid():
+            serializer.save()            
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    
+    def destroy(self, request, pk):
+        try:
+            joined_race = JoinedRace.objects.get(pk=pk, user=request.user)
+        except JoinedRace.DoesNotExist:
+            return Response({"error": "해당 JoinedRace가 존재하지 않습니다."}, status=404)
+        
+        joined_race.delete()
+        return Response(status=204)
+        
+    
 # /mypage/favorites : GET
 
 # /<int:pk>/profile : GET

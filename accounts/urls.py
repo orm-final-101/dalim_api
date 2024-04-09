@@ -17,6 +17,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="account_logout"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("mypage/info/", views.mypage_info),
-    path("mypage/record/", include(router.urls)),
     path("mypage/crew/", views.mypage_crew),
+    path("mypage/record/", include(record_router.urls)),
+    path("mypage/race/", include(race_router.urls)),
 ]
