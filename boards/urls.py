@@ -1,18 +1,15 @@
+
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from . import views
+from rest_framework import routers
+from .views import PostClassificationViewSet, CategoryViewSet, PostViewSet, CommentViewSet, like_post
 
-# DefaultRouter 인스턴스 생성
-router = DefaultRouter()
+router = routers.DefaultRouter()
+router.register(r'post-classifications', PostClassificationViewSet)
+router.register(r'categories', CategoryViewSet)
+router.register(r'posts', PostViewSet)
+router.register(r'comments', CommentViewSet)
 
-# router에 ViewSet 등록
-router.register(r'postclassifications', views.PostClassificationViewSet)
-router.register(r'categories', views.CategoryViewSet)
-router.register(r'posts', views.PostViewSet)
-router.register(r'comments', views.CommentViewSet)
-router.register(r'likes', views.LikeViewSet)
-
-# URLConf
 urlpatterns = [
     path('', include(router.urls)),
+    path('<int:post_id>/like', like_post, name='like_post'),
 ]
