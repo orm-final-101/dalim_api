@@ -4,12 +4,12 @@ from .models import PostClassification, Category, Post, Comment, Like
 class PostClassificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostClassification
-        fields = ["id", "classification"] 
+        fields = ["id", "name"] 
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "category"]  
+        fields = ["id", "name"]  
 
 class PostSerializer(serializers.ModelSerializer):
     comment_count = serializers.SerializerMethodField()
