@@ -29,6 +29,18 @@ class Race(models.Model):
         today = date.today()
         delta = self.reg_start_date - today
         return delta.days
+    
+    def reg_status(self):    
+        today = date.today()  
+        if self.reg_start_date > today:
+            return "접수예정"
+        elif self.reg_start_date <= today <= self.reg_end_date:
+            return "접수중"
+        elif self.reg_end_date < today:
+            return "접수마감"
+        else:
+            return "날짜 확인 필요"
+         
 
 class RaceFavorite(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="favorite_races")
