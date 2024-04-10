@@ -61,12 +61,12 @@ class ManagerCrewDetailSerializer(CrewDetailSerializer):
 
 
 class CrewReviewListSerializer(serializers.ModelSerializer):
-    author_email = serializers.CharField(source="author.email", read_only=True)
+    author_id = serializers.CharField(source="author.id", read_only=True)
     author_nickname = serializers.CharField(source="author.nickname", read_only=True)
 
     class Meta:
         model = CrewReview
-        fields = ["id", "author_email", "author_nickname", "contents", "created_at", "updated_at"]
+        fields = ["id", "author_id", "author_nickname", "contents", "created_at", "updated_at"]
 
 
 class CrewReviewCreateSerializer(serializers.ModelSerializer):
