@@ -40,6 +40,9 @@ class Race(models.Model):
             return "접수마감"
         else:
             return "날짜 확인 필요"
+        
+    def is_favorite(self, user):
+        return RaceFavorite.objects.filter(user=user, race=self).exists()
          
 
 class RaceFavorite(models.Model):
