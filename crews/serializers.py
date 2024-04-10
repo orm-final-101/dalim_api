@@ -81,3 +81,13 @@ class JoinedCrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinedCrew
         fields = ["id", "user", "status"]
+
+
+# 유저 오픈프로필에서 크루후기 볼 때 사용
+class ProfileCrewReviewSerializer(serializers.ModelSerializer):
+    crew_id = serializers.IntegerField(source="crew.id")
+    title = serializers.CharField(source="crew.name")
+
+    class Meta:
+        model = CrewReview
+        fields = ["crew_id", "title", "contents"]
