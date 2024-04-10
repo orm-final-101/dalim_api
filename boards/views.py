@@ -3,11 +3,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import permission_classes#,api_view
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import PostClassification, Category, Post, Comment, Like
-from .serializers import PostDetailSerializer, PostClassificationSerializer, CategorySerializer, PostSerializer, CommentSerializer
+from .serializers import PostClassificationSerializer, CategorySerializer, PostListSerializer, CommentSerializer, PostDetailSerializer, PostUpdateSerializer
+from django.db.models import Q
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 
 class PostClassificationViewSet(viewsets.ModelViewSet):
@@ -20,63 +22,75 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-class CustomPagination(PageNumberPagination):
-    def get_paginated_response(self, data):
-        return Response({
-            'count': self.page.paginator.count,
-            'results': data
-        })
+# 게시판 전체 보기 및 쿼리스트링
+@extend_schema(parameters=[
+    OpenApiParameter(name='page', description='x번째 페이지', type=int),
+    OpenApiParameter(name='size', description='x번째 페이지에 게시물 y개', type=int),
+    OpenApiParameter(name='category', description='게시물 성격', type=str),
+    OpenApiParameter(name='post_classification', description='게시물 분류', type=str),
+])
+@api_view(["GET"])
+def post_list(request):
+    posts = Post.objects.all()
+    search_keyword = request.GET.get("search", "")
+    selected_category = request.GET.get("category", "")
+    selected_post_classification = request.GET.get("post_classification", "")
 
-class PostViewSet(viewsets.ModelViewSet):
+    if search_keyword:
+        posts = posts.filter(
+            Q(title__icontains=search_keyword) |
+            Q(content__icontains=search_keyword) | 
+            Q(category__name__icontains=search_keyword) |
+            Q(author__username__icontains=search_keyword) |
+            Q(post_classification__name__icontains=search_keyword)
+        )
 
-    serializer_class = PostSerializer
-    pagination_class = CustomPagination
+    if selected_category:
+        category = Category.objects.filter(name=selected_category).first()
+        if category:
+            posts = posts.filter(category=category)
 
-    def get_queryset(self):
-        queryset = Post.objects.all()
-
-        page = self.request.query_params.get('page', 1)
-        size = self.request.query_params.get('size', 20)
-        categories = self.request.query_params.get('category')
-        post_classification = self.request.query_params.get('post_classification')
-
-        if categories:
-            categories = categories.split(',')
-            queryset = queryset.filter(category__in=categories)
-
+    if selected_post_classification:
+        post_classification = PostClassification.objects.filter(name=selected_post_classification).first()
         if post_classification:
-            post_classification = post_classification.split(',')
-            queryset = queryset.filter(post_classification__in=post_classification)
+            posts = posts.filter(post_classification=post_classification)
 
-        self.paginator.page_size = size
+    paginator = PageNumberPagination()
+    page_size = request.GET.get("size", 10)
+    paginator.page_size = page_size
+    result_page = paginator.paginate_queryset(posts, request)
+    serializer = PostListSerializer(result_page, many=True, context={"request": request})
 
-        return queryset
-    
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({
-            'count': queryset.count(),
-            'results': serializer.data
-        })
-    
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.view_count += 1
-        instance.save()
-        serializer = PostDetailSerializer(instance, context={'request': request})
-        return Response(serializer.data)
+    return Response({
+        "count": paginator.page.paginator.count,
+        "results": serializer.data
+    }, status=200)
 
 
+# 게시판 상세보기 
+def retrieve(self, request, *args, **kwargs):
+    instance = self.get_object()
+    instance.view_count += 1
+    instance.save()
+    serializer = PostDetailSerializer(instance, context={"request": request})
+    return Response(serializer.data)
+
+# 게시판 수정하기 
+def update(self, request, *args, **kwargs):
+    partial = kwargs.pop("partial", False)
+    instance = self.get_object()
+    serializer = PostUpdateSerializer(instance, data=request.data, partial=partial)
+    serializer.is_valid(raise_exception=True)
+    self.perform_update(serializer)
+
+    if getattr(instance, "_prefetched_objects_cache", None):
+        instance._prefetched_objects_cache = {}
+
+    response_serializer = PostDetailSerializer(instance, context={"request": request})
+    return Response(response_serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-
 
 
 #@api_view(['GET','POST']) 해당 주석 지우면 is_liked = False 으로 변하지 않음, 문의 예정
