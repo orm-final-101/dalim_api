@@ -1,8 +1,8 @@
-from django.db.models import Count, Q
+from django.db.models import Q
 from accounts.models import JoinedCrew
 from .models import Crew, CrewReview, CrewFavorite
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework import viewsets, status, mixins
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
@@ -11,173 +11,171 @@ from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
 from django.shortcuts import get_object_or_404
 
 
-# 크루 리스트
-@api_view(["GET"])
-def crew_list(request):
-    crews = Crew.objects.all()
+# 일반 크루 페이지
+class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = CrewListSerializer
 
-    search_keyword = request.GET.get("search", "")
-    selected_location_city = request.GET.get("location_city", "")
-    selected_meet_days = request.GET.getlist("meet_days", [])
+    def get_queryset(self):
+        return Crew.objects.filter(is_opened=True)
 
-    if search_keyword:
-        crews = crews.filter(
-            Q(name__icontains=search_keyword) |
-            Q(description__icontains=search_keyword)
-        )
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return CrewDetailSerializer
+        return super().get_serializer_class()
 
-    if selected_location_city:
-        selected_location_city = [city[0] for city in LOCATION_CITY_CHOICES if city[0] == selected_location_city]
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+    def filter_queryset(self, queryset):
+        search_keyword = self.request.GET.get("search", "")
+        selected_location_city = self.request.GET.get("location_city", "")
+        selected_meet_days = self.request.GET.getlist("meet_days", [])
+
+        if search_keyword:
+            queryset = queryset.filter(
+                Q(name__icontains=search_keyword) |
+                Q(description__icontains=search_keyword)
+            )
+
         if selected_location_city:
-            crews = crews.filter(location_city=selected_location_city[0])
+            selected_location_city = [city[0] for city in LOCATION_CITY_CHOICES if city[0] == selected_location_city]
+            if selected_location_city:
+                queryset = queryset.filter(location_city=selected_location_city[0])
 
-    if selected_meet_days:
-        selected_meet_days = [day[0] for day in MEET_DAY_CHOICES if day[0] in selected_meet_days]
-        for day in selected_meet_days:
-            crews = crews.filter(meet_days__contains=day)
+        if selected_meet_days:
+            selected_meet_days = [day[0] for day in MEET_DAY_CHOICES if day[0] in selected_meet_days]
+            for day in selected_meet_days:
+                queryset = queryset.filter(meet_days__contains=day)
 
-    serializer = CrewListSerializer(crews, many=True, context={"request": request})
-    return Response(serializer.data)
+        return queryset
 
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def join(self, request, pk=None):
+        crew = self.get_object()
+        user = request.user
 
-# 크루 상세
-@api_view(["GET"])
-def crew_detail(request, crew_id):
-    crew = Crew.objects.get(pk=crew_id)
-    serializer = CrewDetailSerializer(crew, context={"request": request})
-    return Response(serializer.data)
+        if JoinedCrew.objects.filter(user=user, crew=crew).exists():
+            joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
 
+            if joined_crew.status == "member":
+                return Response({"error": "이미 회원입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            elif joined_crew.status == "non_keeping":
+                return Response({"error": "신청할 수 없는 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
+            elif joined_crew.status == "quit":
+                joined_crew.status = "keeping"
+                joined_crew.save()
+                return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
+            elif joined_crew.status == "keeping":
+                return Response({"error": "이미 신청한 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-# 크루 가입
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def crew_join(request, crew_id):
-    crew = Crew.objects.get(pk=crew_id)
-    user = request.user
-    
-    if JoinedCrew.objects.filter(user=user, crew=crew).exists():
-        joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
-        
-        if joined_crew.status == "member":
-            return Response({"error": "이미 회원입니다."}, status=status.HTTP_400_BAD_REQUEST)
-        elif joined_crew.status == "non_keeping":
-            return Response({"error": "신청할 수 없는 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
-        elif joined_crew.status == "keeping":
-            return Response({"error": "이미 신청한 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    JoinedCrew.objects.create(user=user, crew=crew, status="keeping")
-    return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
+        JoinedCrew.objects.create(user=user, crew=crew, status="keeping")
+        return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk=None):
+        crew = self.get_object()
+        user = request.user
 
-# 크루 즐겨찾기
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def crew_favorite(request, crew_id):
-    crew = Crew.objects.get(pk=crew_id)
-    user = request.user
+        if CrewFavorite.objects.filter(user=user, crew=crew).exists():
+            CrewFavorite.objects.filter(user=user, crew=crew).delete()
+        else:
+            CrewFavorite.objects.create(user=user, crew=crew)
 
-    if CrewFavorite.objects.filter(user=user, crew=crew).exists():
-        CrewFavorite.objects.filter(user=user, crew=crew).delete()
-    else:
-        CrewFavorite.objects.create(user=user, crew=crew)
-
-    return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
-# 탑6 크루(메인에 활용)
-@api_view(["GET"])
-def crew_opened_top6(request):
-    top6_crews = Crew.objects.filter(is_opened=True).annotate(favorite_count=Count("crewfavorite")).order_by("-favorite_count")[:6]
-    serializer = CrewListSerializer(top6_crews, many=True, context={"request": request})
-    return Response(serializer.data)
+# 크루 관리자 전용
+class ManagerCrewViewSet(viewsets.ModelViewSet):
+    queryset = Crew.objects.all()
+    serializer_class = CrewListSerializer
+    permission_classes = [IsAuthenticated, IsCrewAdmin]
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return CrewDetailSerializer
+        elif self.action in ["create", "update", "partial_update"]:
+            return CrewCreateSerializer
+        return super().get_serializer_class()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(owner=self.request.user)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    def get_permissions(self):
+        if self.action in ["update", "partial_update"]:
+            permission_classes = [IsAuthenticated, IsCrewAdmin, IsCrewOwner]
+        else:
+            permission_classes = [IsAuthenticated, IsCrewAdmin]
+        return [permission() for permission in permission_classes]
 
 
-# 크루 리뷰 CRUD
-@api_view(["GET", "POST"])
-def crew_review_list_create(request, crew_id):
-    crew = get_object_or_404(Crew, id=crew_id)
+# 크루 리뷰
+class CrewReviewViewSet(viewsets.ModelViewSet):
+    queryset = CrewReview.objects.all()
+    serializer_class = CrewReviewListSerializer
 
-    if request.method == "GET":
-        reviews = CrewReview.objects.filter(crew=crew)
-        serializer = CrewReviewListSerializer(reviews, many=True)
-        return Response(serializer.data)
-    elif request.method == "POST":
-        if not request.user.is_authenticated:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        
-        if not IsCrewMemberOrQuit().has_object_permission(request, crew_review_list_create, crew):
+    def get_serializer_class(self):
+        if self.action == "create":
+            return CrewReviewCreateSerializer
+        elif self.action in ["update", "partial_update"]:
+            return CrewReviewUpdateSerializer
+        return super().get_serializer_class()
+
+    def get_queryset(self):
+        crew_id = self.kwargs.get("crew_id")
+        return CrewReview.objects.filter(crew_id=crew_id)
+
+    def create(self, request, *args, **kwargs):
+        crew_id = self.kwargs.get("crew_id")
+        crew = get_object_or_404(Crew, id=crew_id)
+
+        if not IsCrewMemberOrQuit().has_object_permission(request, self, crew):
             return Response({"error": "리뷰 작성 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-        
-        serializer = CrewReviewCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(author=request.user, crew=crew)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["PUT", "PATCH", "DELETE"])
-@permission_classes([IsAuthenticated])
-def crew_review_update_delete(request, crew_id, review_id):
-    crew = get_object_or_404(Crew, id=crew_id)
-    review = get_object_or_404(CrewReview, id=review_id, crew=crew)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    if request.user != review.author:
-        return Response(status=status.HTTP_403_FORBIDDEN)
+    def perform_create(self, serializer):
+        crew_id = self.kwargs.get("crew_id")
+        crew = get_object_or_404(Crew, id=crew_id)
+        serializer.save(author=self.request.user, crew=crew)
 
-    if request.method in ["PUT", "PATCH"]:
-        serializer = CrewReviewUpdateSerializer(review, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == "DELETE":
-        review.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated]
+        elif self.action in ["update", "partial_update", "destroy"]:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = []
+        return [permission() for permission in permission_classes]
 
-
-# (관리자)크루 상세
-@api_view(["GET"])
-@permission_classes([IsAuthenticated, IsCrewOwner])
-def manage_crew_detail(request, crew_id):
-    crew = Crew.objects.get(pk=crew_id)
-    serializer = CrewDetailSerializer(crew, context={"request": request})
-    return Response(serializer.data)
+    def check_object_permissions(self, request, obj):
+        if self.action in ["update", "partial_update", "destroy"]:
+            if request.user != obj.author:
+                self.permission_denied(request, message="리뷰 작성자만 수정/삭제할 수 있습니다.")
+        return super().check_object_permissions(request, obj)
 
 
-# (관리자)크루 생성, 수정
-@api_view(["POST"])
-@permission_classes([IsAuthenticated, IsCrewAdmin])
-def crew_create(request):
-    serializer = CrewCreateSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(owner=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# 크루 멤버관리
+class CrewMemberViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    queryset = JoinedCrew.objects.all()
+    serializer_class = JoinedCrewSerializer
+    permission_classes = [IsAuthenticated, IsCrewAdmin]
 
-@api_view(["PUT", "PATCH"])
-@permission_classes([IsAuthenticated, IsCrewOwner, IsCrewAdmin])
-def crew_update(request, crew_id):
-    crew = Crew.objects.get(pk=crew_id)
-    serializer = CrewCreateSerializer(crew, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# (관리자)크루 멤버 리스트, 수정
-@api_view(["GET"])
-@permission_classes([IsAuthenticated, IsCrewAdmin])
-def crew_member_list(request, crew_id):
-    crew_members = JoinedCrew.objects.filter(crew_id=crew_id)
-    serializer = JoinedCrewSerializer(crew_members, many=True)
-    return Response(serializer.data)
-
-@api_view(["PATCH"])
-@permission_classes([IsAuthenticated, IsCrewAdmin])
-def crew_member_update(request, crew_id, member_id):
-    crew_member = get_object_or_404(JoinedCrew, id=member_id, crew_id=crew_id)
-    serializer = JoinedCrewSerializer(crew_member, data=request.data, partial=True)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        crew_id = self.kwargs.get("crew_id")
+        return JoinedCrew.objects.filter(crew_id=crew_id, crew__owner=self.request.user)
