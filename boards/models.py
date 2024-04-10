@@ -25,7 +25,7 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('author', 'post')
+        unique_together = ("author", "post")
 
 class Comment(models.Model):
 
@@ -42,7 +42,7 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     contents = models.TextField()
     thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True, default="default_thumbnail_image.jpg")
-    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Like', related_name='author_posts')
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, through="Like", related_name="author_posts")
     view_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

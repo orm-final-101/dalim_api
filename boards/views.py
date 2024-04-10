@@ -4,7 +4,7 @@ from .serializers import PostClassificationSerializer, CategorySerializer, PostS
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view
+from rest_framework.decorators import permission_classes#, api_view
 
 class PostClassificationViewSet(viewsets.ModelViewSet):
     queryset = PostClassification.objects.all()
@@ -24,13 +24,13 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 
-@api_view(['GET','POST'])
-@permission_classes([AllowAny]) # 접근 권한 누구나 
+#@api_view(['GET','POST']) 해당 주석 지우면 is_liked = False 으로 변하지 않음, 문의 예정
+@permission_classes([AllowAny])
 def like_post(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     author = request.user
 
-    if request.method == 'POST':
+    if request.method == "POST":
         if author.is_authenticated:
             like, created = Like.objects.get_or_create(author=author, post=post)
             
@@ -45,12 +45,12 @@ def like_post(request, post_id):
             
             like_count = post.posted_likes.filter(is_liked=True).count()
             response_data = {
-                'count': like_count,
-                'is_liked': like.is_liked
+                "count": like_count,
+                "is_liked": like.is_liked
             }
             return JsonResponse(response_data)
         else:
-            return JsonResponse({'error': 'User is not authenticated'}, status=400)
+            return JsonResponse({"error": "User is not authenticated"}, status=400)
     else:
         # GET 요청 처리
         like_count = post.posted_likes.filter(is_liked=True).count()
@@ -61,7 +61,7 @@ def like_post(request, post_id):
                 is_liked = like.is_liked
         
         response_data = {
-            'count': like_count,
-            'is_liked': is_liked
+            "count": like_count,
+            "is_liked": is_liked
         }
         return JsonResponse(response_data)
