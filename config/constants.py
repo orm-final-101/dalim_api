@@ -17,14 +17,14 @@ USER_TYPE_CHOICES = (
 )
 
 LOCATION_CITY_CHOICES = (
-    ('seoul', '서울'),
-    ('gyeonggi', '경기'),
-    ('gangwon', '강원'),
-    ('chungcheong', '충청'),
-    ('jeolla', '전라'),
-    ('gyeongsang', '경상'),
-    ('jeju', '제주'),
-    ('etc', '기타'),
+    ("seoul", "서울"),
+    ("gyeonggi", "경기"),
+    ("gangwon", "강원"),
+    ("chungcheong", "충청"),
+    ("jeolla", "전라"),
+    ("gyeongsang", "경상"),
+    ("jeju", "제주"),
+    ("etc", "기타"),
 )
 
 CATEGORY_CHOICES = (
@@ -52,7 +52,7 @@ MEET_DAY_CHOICES = (
 )
 
 TIME_CHOICES = [
-    (f"{hour:02d}:{minute:02d} {"AM" if hour < 12 else "PM"}", f"{hour % 12 or 12:02d}:{minute:02d} {"AM" if hour < 12 else "PM"}")
+    (f"{hour:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}", f"{hour % 12 or 12:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}")
     for hour in range(24)
     for minute in (0, 30)
 ]
