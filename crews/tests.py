@@ -17,6 +17,13 @@ class PublicCrewViewSetTestCase(APITestCase):
         self.opened_crew2 = Crew.objects.create(name="Test Crew 2", location_city="busan", meet_days=["wed", "thu"], is_opened=True, owner=self.user)
         self.closed_crew = Crew.objects.create(name="Test Crew 3", location_city="seoul", meet_days=["fri", "sat"], is_opened=False, owner=self.user)
 
+        # 크루 즐겨찾기 데이터 추가 (top6)
+        CrewFavorite.objects.create(user=self.user, crew=self.opened_crew1)
+        CrewFavorite.objects.create(user=self.user, crew=self.opened_crew2)
+        for _ in range(5):
+            user = User.objects.create_user(email=f"testuser{_}@example.com", password="testpassword")
+            CrewFavorite.objects.create(user=user, crew=self.opened_crew1)
+
     # 크루 리스트에서 모집중인 크루만 표시
     def test_crew_list_shows_only_opened_crews(self):
         url = reverse("crews:public_crew-list")
@@ -68,11 +75,23 @@ class PublicCrewViewSetTestCase(APITestCase):
 
     # 크루 즐겨찾기 추가/해제
     def test_crew_favorite(self):
+        CrewFavorite.objects.filter(user=self.user, crew=self.opened_crew1).delete()
         self.client.force_authenticate(user=self.user)
         url = reverse("crews:public_crew-favorite", kwargs={"pk": self.opened_crew1.pk})
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CrewFavorite.objects.filter(user=self.user, crew=self.opened_crew1).exists())
+
+    # top6
+    def test_popular_crews(self):
+        url = reverse("crews:crew-popular")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["id"], self.opened_crew1.id)
+        self.assertEqual(response.data[0]["favorite_count"], 6)
+        self.assertEqual(response.data[1]["id"], self.opened_crew2.id)
+        self.assertEqual(response.data[1]["favorite_count"], 1)
 
     # 크루 리뷰 작성
     def test_crew_review_list_create(self):
