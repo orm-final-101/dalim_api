@@ -31,7 +31,7 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
     def filter_queryset(self, queryset):
         search_keyword = self.request.GET.get("search", "")
         selected_location_city = self.request.GET.get("location_city", "")
-        selected_meet_days = self.request.GET.getlist("meet_days", [])
+        selected_meet_days = self.request.GET.get("meet_days", "")
 
         if search_keyword:
             queryset = queryset.filter(
@@ -45,9 +45,13 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
                 queryset = queryset.filter(location_city=selected_location_city[0])
 
         if selected_meet_days:
-            selected_meet_days = [day[0] for day in MEET_DAY_CHOICES if day[0] in selected_meet_days]
+            selected_meet_days = selected_meet_days.split(",")
+            valid_meet_days = [day[0] for day in MEET_DAY_CHOICES]
+            selected_meet_days = [day for day in selected_meet_days if day in valid_meet_days]
+            query = Q()
             for day in selected_meet_days:
-                queryset = queryset.filter(meet_days__contains=day)
+                query |= Q(meet_days__contains=day)
+            queryset = queryset.filter(query)
 
         return queryset
 
