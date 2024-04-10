@@ -28,26 +28,26 @@ class RaceListSerializer(serializers.ModelSerializer):
         return check_is_favorite(user, obj)
     
 
-# class RaceDetailSerializer(serializers.ModelSerializer):
-#     reg_status = serializers.CharField(source="reg_status")
-#     courses = serializers.MultipleChoiceField(source="courses", choices=COURSE_CHOICES)
-#     is_favorite = serializers.SerializerMethodField()
+class RaceDetailSerializer(serializers.ModelSerializer):
+    reg_status = serializers.SerializerMethodField()
+    d_day = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Race
+        fields = ["id", "title", "organizer", "description", "start_date", "end_date", "reg_start_date", "reg_end_date", "courses", "thumbnail_image", "location", "fees", "reg_status", "d_day", "is_favorite", "register_url"]
 
-#     class Meta:
-#         model = Race
-#         fields = ["id", "title", "description", "start_date", "end_date", "reg_start_date", "reg_end_date", "courses", "thumbnail_image", "location", "fees", "reg_status", "d_day", "is_favorite", "register_url"]
+    def get_reg_status(self, obj):
+        return obj.reg_status()
 
-#     def get_reg_status(self, obj):
-#         return obj.reg_status()
+    def get_d_day(self, obj):
+        return obj.d_day()
 
-#     def get_d_day(self, obj):
-#         return obj.d_day()
-
-#     def get_is_favorite(self, obj):
-#         user = self.context["request"].user
-#         if user.is_authenticated:
-#             return obj.is_favorite(user)
-#         return False
+    def get_is_favorite(self, obj):
+        user = self.context["request"].user
+        if user.is_authenticated:
+            return obj.is_favorite(user)
+        return False
 
 # class RaceReviewListSerializer(serializers.ModelSerializer):
 #     author_nickname = serializers.CharField(source="author", read_only=True)
