@@ -1,10 +1,10 @@
-from typing import Any
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 from accounts.models import CustomUser, Record, JoinedCrew, JoinedRace, LevelStep
 from crews.models import Crew, CrewFavorite
 from races.models import Race, RaceFavorite
+
 
 class BaseTestCase(TestCase):
     def setUp(self):
@@ -141,7 +141,6 @@ class BaseTestCase(TestCase):
         )
 
 
-
 class MypageInfoTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -174,7 +173,6 @@ class MypageInfoTestCase(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         print(response.data)
         print("----------------------------------------------------- 완료")
-
 
 
 class MypageRecordTestCase(BaseTestCase): 
