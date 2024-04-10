@@ -83,3 +83,13 @@ class JoinedRacePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinedRace
         fields = ["user", "race", "race_record"]
+
+
+class OpenProfileSerializer(ProfileSerializer):
+    crews = serializers.SerializerMethodField()
+
+    def get_crews(self, obj):
+        return [joined_crew.crew.name for joined_crew in obj.crews.all()]
+
+    class Meta(ProfileSerializer.Meta):
+        fields = ["id", "username", "nickname", "location_city", "location_district", "distance", "level", "profile_image", "crews"]
