@@ -7,7 +7,7 @@ from rest_framework.decorators import permission_classes#,api_view
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from .models import PostClassification, Category, Post, Comment, Like
-from .serializers import PostClassificationSerializer, CategorySerializer, PostSerializer, CommentSerializer
+from .serializers import PostDetailSerializer, PostClassificationSerializer, CategorySerializer, PostSerializer, CommentSerializer
 
 
 class PostClassificationViewSet(viewsets.ModelViewSet):
@@ -64,6 +64,13 @@ class PostViewSet(viewsets.ModelViewSet):
             'count': queryset.count(),
             'results': serializer.data
         })
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.view_count += 1
+        instance.save()
+        serializer = PostDetailSerializer(instance, context={'request': request})
+        return Response(serializer.data)
 
 
 class CommentViewSet(viewsets.ModelViewSet):

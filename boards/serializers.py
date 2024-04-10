@@ -13,7 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    
+
     author_nickname = serializers.ReadOnlyField(source='author.nickname')
     thumbnail_image = serializers.ImageField()
     comment_count = serializers.SerializerMethodField()
@@ -26,6 +26,24 @@ class PostSerializer(serializers.ModelSerializer):
         
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
+    
+class PostDetailSerializer(serializers.ModelSerializer):
+    author_nickname = serializers.ReadOnlyField(source='author.nickname')
+    thumbnail_image = serializers.ImageField()
+    post_classification = serializers.StringRelatedField()
+    category = serializers.StringRelatedField()
+    likes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
+
+    def get_likes(self, obj):
+        likes_count = obj.posted_likes.count()
+        is_liked = False
+        if self.context['request'].user.is_authenticated:
+            is_liked = obj.posted_likes.filter(author=self.context['request'].user, is_liked=True).exists()
+        return {'count': likes_count, 'is_liked': is_liked}
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
