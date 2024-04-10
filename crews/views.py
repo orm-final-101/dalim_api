@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from accounts.models import JoinedCrew
 from .models import Crew, CrewReview, CrewFavorite
 from rest_framework import viewsets, status, mixins
@@ -84,6 +84,14 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
             CrewFavorite.objects.create(user=user, crew=crew)
 
         return Response(status=status.HTTP_200_OK)
+    
+    # 즐겨찾기순으로 top6
+    @action(detail=False, methods=["get"])
+    def popular(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        queryset = queryset.annotate(favorite_count=Count("crewfavorite")).order_by("-favorite_count")[:6]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 # 크루 관리자 전용

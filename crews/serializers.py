@@ -15,10 +15,11 @@ class CrewListSerializer(serializers.ModelSerializer):
     meet_days = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
     member_count = serializers.SerializerMethodField()
+    favorite_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Crew
-        fields = ["id", "name", "thumbnail_image", "member_count", "is_favorite", "location_city", "location_district", "meet_days", "meet_time", "is_opened"]
+        fields = ["id", "name", "thumbnail_image", "member_count", "is_favorite", "location_city", "location_district", "meet_days", "meet_time", "is_opened", "favorite_count"]
 
     def get_meet_days(self, obj):
         return obj.meet_days

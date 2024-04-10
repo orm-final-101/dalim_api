@@ -13,4 +13,5 @@ router.register("manage/crews/(?P<crew_id>\\d+)/members", views.CrewMemberViewSe
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("crews/popular/", views.PublicCrewViewSet.as_view({"get": "popular"}), name="crew-popular"),
 ]
