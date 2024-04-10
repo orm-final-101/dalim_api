@@ -8,21 +8,21 @@
 # # from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
 # from .serializers import RaceListSerializer
 
-# # from django.shortcuts import get_object_or_404
 
 from rest_framework.decorators import api_view
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.response import Response
 from django.db.models import Q
-from .serializers import RaceListSerializer
+from .serializers import RaceListSerializer, RaceDetailSerializer
 from .models import Race 
 from datetime import date
+from django.shortcuts import get_object_or_404
 
 
 # 대회 목록 조회
 @extend_schema(parameters=[
-    OpenApiParameter(name='search', description='Search keyword', required=False, type=str),
-    OpenApiParameter(name='reg_status', description='접수예정/접수중/접수마감', required=False, type=str),
+    OpenApiParameter(name="search", description="Search keyword", required=False, type=str),
+    OpenApiParameter(name="reg_status", description="접수예정/접수중/접수마감", required=False, type=str),
 ])
 @api_view(["GET"])
 def race_list(request):
@@ -46,4 +46,11 @@ def race_list(request):
 
 
     serializer = RaceListSerializer(races, many=True, context={"request": request})
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def race_detail(request, race_id):
+    race = get_object_or_404(Race, pk=race_id)
+    serializer = RaceDetailSerializer(race,context={"request": request})
     return Response(serializer.data)
