@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Post, PostClassification, Category, Comment, Like
-from django.contrib.auth import get_user_model
+
 
 class CommentInline(admin.TabularInline):
     model = Comment
