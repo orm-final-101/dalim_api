@@ -339,22 +339,22 @@ class MypageRaceTestCase(BaseTestCase):
         print("----------------------------------------------------- 완료")
 
 
-# class FavoriteTestCase(BaseTestCase): # 작업 완료 후 테스트 해보기
-#     def setUp(self):
-#         super().setUp()
+class FavoriteTestCase(BaseTestCase):
+    def setUp(self):
+        super().setUp()
 
-#     def test_get_favorite_list(self):
-#         print("[좋아요 GET 테스트]")
-#         print(">> 비회원 상태에서 좋아요 리스트를 요청하면 401을 반환한다.")
-#         response = self.client.get("/accounts/mypage/favorites/")
-#         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    def test_get_favorite_list(self):
+        print("[좋아요 GET 테스트]")
+        print(">> 비회원 상태에서 좋아요 리스트를 요청하면 401을 반환한다.")
+        response = self.client.get("/accounts/mypage/favorites/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-#         print(">> 회원 상태에서 좋아요 리스트를 요청하면 200을 반환한다.")
-#         self.client.force_authenticate(user=self.user)
-#         response = self.client.get("/accounts/mypage/favorites/")
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         print(response.data)
-#         print("----------------------------------------------------- 완료")
+        print(">> 회원 상태에서 좋아요 리스트를 요청하면 200을 반환한다.")
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("/accounts/mypage/favorites/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print(response.data)
+        print("----------------------------------------------------- 완료")
         
 class OpenProfileTestCase(BaseTestCase):
     def setUp(self):
