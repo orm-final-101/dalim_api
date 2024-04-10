@@ -6,13 +6,23 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from .models import CustomUser, Record, JoinedCrew, JoinedRace
-from races.models import Race
+from crews.models import CrewReview
+from crews.serializers import ProfileCrewReviewSerializer
+from races.models import Race, RaceReview
+from races.serializers import ProfileRaceReviewSerializer
+from boards.models import Post, Comment, Like
+from boards.serializers import (
+    PostSerializer,
+    ProfileCommentSerializer,
+    ProfileLikedPostSerializer
+)
 from .serializers import (
     ProfileSerializer,
     RecordSerialiser,
     JoinedCrewSerializer,
     JoinedRaceGetSerializer,
-    JoinedRacePostSerializer
+    JoinedRacePostSerializer,
+    OpenProfileSerializer
 )
 
 
@@ -193,6 +203,36 @@ class RaceViewSet(viewsets.ViewSet):
 # /mypage/favorites : GET
 
 # /<int:pk>/profile : GET
+@api_view(["GET"])
+def profile(request, pk):
+    try:
+        user = CustomUser.objects.get(pk=pk)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+    
+    user_serializer = OpenProfileSerializer(user)
+    post_serializer = PostSerializer(Post.objects.filter(author=user), many=True)
+    comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
+    crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
+    race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
+    
+    fin_data = {
+        "user" : user_serializer.data,
+        "posts" : post_serializer.data,
+        "comments" : comments_serializer.data,
+        "reviews" : {
+            "crew" : crew_review_serializer.data,
+            "race" : race_review_serializer.data
+        }
+    }
+
+    # request.user와 pk가 일치하는 경우에만 'likes' 항목을 추가
+    if request.user.pk == user.pk:
+        liked_post_serializer = ProfileLikedPostSerializer(Like.objects.filter(author=user), many=True)
+        fin_data["likes"] = liked_post_serializer.data
+
+    return Response(fin_data)
+
 
 # /accounts/<int:pk>/likes : GET (본인만)
 

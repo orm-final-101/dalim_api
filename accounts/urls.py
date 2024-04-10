@@ -20,4 +20,5 @@ urlpatterns = [
     path("mypage/crew/", views.mypage_crew),
     path("mypage/record/", include(record_router.urls)),
     path("mypage/race/", include(race_router.urls)),
+    path("<int:pk>/profile/", views.profile),
 ]
