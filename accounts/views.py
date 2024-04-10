@@ -74,16 +74,7 @@ class RecordViewSet(viewsets.ViewSet):
             serializer.save(user=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-    
-    def retrieve(self, request, pk=None):
-        try:
-            record = Record.objects.get(pk=pk, user=request.user)
-        except Record.DoesNotExist:
-            return Response({"error": "Record not found"}, status=404)
         
-        serializer = RecordSerialiser(record)
-        return Response(serializer.data)
-    
     def partial_update(self, request, pk=None):
         try:
             record = Record.objects.get(pk=pk, user=request.user)
@@ -232,8 +223,3 @@ def profile(request, pk):
         fin_data["likes"] = liked_post_serializer.data
 
     return Response(fin_data)
-
-
-# /accounts/<int:pk>/likes : GET (본인만)
-
-# /accounts/<int:pk>/reviews
