@@ -89,7 +89,7 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=["get"])
     def popular(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = queryset.annotate(favorite_count=Count("crewfavorite")).order_by("-favorite_count")[:6]
+        queryset = queryset.filter(is_opened=True).annotate(favorite_count=Count("crewfavorite")).order_by("-favorite_count")[:6]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
