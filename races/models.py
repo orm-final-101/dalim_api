@@ -27,7 +27,7 @@ class Race(models.Model):
 
     def d_day(self):
         today = date.today()
-        delta = self.reg_start_date - today
+        delta = self.reg_end_date - today
         return delta.days
     
     def reg_status(self):    
