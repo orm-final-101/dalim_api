@@ -12,7 +12,7 @@ from races.models import Race, RaceReview
 from races.serializers import RaceListSerializer, ProfileRaceReviewSerializer
 from boards.models import Post, Comment, Like
 from boards.serializers import (
-    PostSerializer,
+    PostListSerializer,
     ProfileCommentSerializer,
     ProfileLikedPostSerializer
 )
@@ -224,7 +224,7 @@ def profile(request, pk):
         return Response({"error": "User not found"}, status=404)
     
     user_serializer = OpenProfileSerializer(user)
-    post_serializer = PostSerializer(Post.objects.filter(author=user), many=True)
+    post_serializer = PostListSerializer(Post.objects.filter(author=user), many=True)
     comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
     crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
     race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
