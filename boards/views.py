@@ -7,7 +7,7 @@ from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets, status
 from .models import PostClassification, Category, Post, Comment, Like
-from .serializers import PostClassificationSerializer, CategorySerializer, PostListSerializer, CommentSerializer, PostDetailSerializer, PostUpdateSerializer
+from .serializers import PostClassificationSerializer, CategorySerializer, PostListSerializer, LikeSerializer, PostDetailSerializer
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
@@ -67,59 +67,92 @@ def post_list(request):
     }, status=200)
 
 
-# 게시판 상세보기 
-def retrieve(self, request, *args, **kwargs):
-    instance = self.get_object()
-    instance.view_count += 1
-    instance.save()
-    serializer = PostDetailSerializer(instance, context={"request": request})
+# 게시판 상세보기
+@api_view(['GET'])
+def post_detail(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return Response(status=404)
+
+    serializer = PostDetailSerializer(post, context={'request': request})
     return Response(serializer.data)
 
-# 게시판 수정하기 
-def update(self, request, *args, **kwargs):
-    partial = kwargs.pop("partial", False)
-    instance = self.get_object()
-    serializer = PostUpdateSerializer(instance, data=request.data, partial=partial)
-    serializer.is_valid(raise_exception=True)
-    self.perform_update(serializer)
+# # 게시판 수정하기 
+# def update(self, request, *args, **kwargs):
+#     partial = kwargs.pop("partial", False)
+#     instance = self.get_object()
+#     serializer = PostUpdateSerializer(instance, data=request.data, partial=partial)
+#     serializer.is_valid(raise_exception=True)
+#     self.perform_update(serializer)
 
-    if getattr(instance, "_prefetched_objects_cache", None):
-        instance._prefetched_objects_cache = {}
+#     if getattr(instance, "_prefetched_objects_cache", None):
+#         instance._prefetched_objects_cache = {}
 
-    response_serializer = PostDetailSerializer(instance, context={"request": request})
-    return Response(response_serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+#     response_serializer = PostDetailSerializer(instance, context={"request": request})
+#     return Response(response_serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
+# class CommentViewSet(viewsets.ModelViewSet):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
 
 
-#@api_view(['GET','POST']) 해당 주석 지우면 is_liked = False 으로 변하지 않음, 문의 예정
+# @api_view(['GET','POST'])
+# @permission_classes([AllowAny])
+# def like_post(request, post_id):
+#     post = get_object_or_404(Post, pk=post_id)
+#     author = request.user
+
+#     if request.method == "POST":
+#         if author.is_authenticated:
+#             like, created = Like.objects.get_or_create(author=author, post=post)
+            
+#             if created:
+#                 # 좋아요 생성
+#                 like.is_liked = True
+#                 like.save()
+#             else:
+#                 # 좋아요 취소
+#                 like.is_liked = not like.is_liked
+#                 like.save()
+            
+#             like_count = post.posted_likes.filter(is_liked=True).count()
+#             response_data = {
+#                 "count": like_count,
+#                 "is_liked": like.is_liked
+#             }
+#             return JsonResponse(response_data)
+#         else:
+#             return JsonResponse({"error": "User is not authenticated"}, status=400)
+#     else:
+#         # GET 요청 처리
+#         like_count = post.posted_likes.filter(is_liked=True).count()
+#         is_liked = False
+#         if author.is_authenticated:
+#             like = Like.objects.filter(author=author, post=post).first()
+#             if like:
+#                 is_liked = like.is_liked
+        
+#         response_data = {
+#             "count": like_count,
+#             "is_liked": is_liked
+#         }
+#         return JsonResponse(response_data)
+
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def like_post(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     author = request.user
 
     if request.method == "POST":
-        if author.is_authenticated:
-            like, created = Like.objects.get_or_create(author=author, post=post)
-            
-            if created:
-                # 좋아요 생성
-                like.is_liked = True
-                like.save()
-            else:
-                # 좋아요 취소
-                like.is_liked = not like.is_liked
-                like.save()
-            
-            like_count = post.posted_likes.filter(is_liked=True).count()
-            response_data = {
-                "count": like_count,
-                "is_liked": like.is_liked
-            }
-            return JsonResponse(response_data)
-        else:
+        if not author.is_authenticated:
             return JsonResponse({"error": "User is not authenticated"}, status=400)
+
+        like, created = Like.objects.get_or_create(author=author, post=post)
+        like.is_liked = not like.is_liked if not created else True
+        like.save()
+        serializer = LikeSerializer(like, context={'request': request})
+        return JsonResponse(serializer.data)
     else:
         # GET 요청 처리
         like_count = post.posted_likes.filter(is_liked=True).count()
@@ -128,7 +161,6 @@ def like_post(request, post_id):
             like = Like.objects.filter(author=author, post=post).first()
             if like:
                 is_liked = like.is_liked
-        
         response_data = {
             "count": like_count,
             "is_liked": is_liked
