@@ -57,10 +57,12 @@ class RaceFavorite(models.Model):
 
 class RaceReview(models.Model):
     race = models.ForeignKey(Race, on_delete=models.CASCADE, related_name="reviews")
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviewd_races")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviewed_races")
     contents = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 
     def __str__(self):
         return f"Review by {self.author.username} on {self.race.title}"
+    
+    
