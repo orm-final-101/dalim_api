@@ -81,6 +81,47 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'is_liked': is_liked
         }
 
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='name'
+    )
+    post_classification = serializers.SlugRelatedField(
+        queryset=PostClassification.objects.all(),
+        slug_field='name'
+    )
+    thumbnail_image = serializers.ImageField(required=False)
+    class Meta:
+        model = Post
+        fields = ['author', 'title', 'contents', 'category', 'post_classification', 'thumbnail_image']
+
+    def validate_category(self, value):
+        try:
+            category = Category.objects.get(name=value)
+            return category
+        except Category.DoesNotExist:
+            raise serializers.ValidationError("Invalid category.")
+
+    def validate_post_classification(self, value):
+        try:
+            post_classification = PostClassification.objects.get(name=value)
+            return post_classification
+        except PostClassification.DoesNotExist:
+            raise serializers.ValidationError("Invalid post classification.")
+
+    def validate(self, attrs):
+        thumbnail_image = attrs.get('thumbnail_image')
+        if not thumbnail_image:
+            raise serializers.ValidationError("Thumbnail image is required.")
+
+        return attrs
+
+    def create(self, validated_data):
+        post = Post.objects.create(**validated_data)
+        return post
+    
+
 # 유저 오픈프로필에서 내가 작성한 덧글 볼 때 사용
 class ProfileCommentSerializer(serializers.ModelSerializer):
     post = serializers.SerializerMethodField()
