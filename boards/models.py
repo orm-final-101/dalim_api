@@ -18,7 +18,7 @@ class Category(models.Model):
         return self.name
     
 class Like(models.Model):
-
+    
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="liked_posts")
     post = models.ForeignKey("Post", on_delete=models.CASCADE, related_name="posted_likes")
     is_liked = models.BooleanField(default=False)
@@ -26,6 +26,7 @@ class Like(models.Model):
 
     class Meta:
         unique_together = ("author", "post")
+
 
 class Comment(models.Model):
 
@@ -46,8 +47,3 @@ class Post(models.Model):
     view_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-
-
-
-
