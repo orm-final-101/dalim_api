@@ -27,7 +27,7 @@ class Race(models.Model):
 
     def d_day(self):
         today = date.today()
-        delta = self.reg_start_date - today
+        delta = self.reg_end_date - today
         return delta.days
     
     def reg_status(self):    
@@ -40,6 +40,9 @@ class Race(models.Model):
             return "접수마감"
         else:
             return "날짜 확인 필요"
+        
+    def is_favorite(self, user):
+        return RaceFavorite.objects.filter(user=user, race=self).exists()
          
 
 class RaceFavorite(models.Model):

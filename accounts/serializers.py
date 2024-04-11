@@ -36,24 +36,24 @@ class ProfileSerializer(serializers.ModelSerializer):
 class RecordSerialiser(serializers.ModelSerializer):
     class Meta:
         model = Record
-        fields = ['id', "user", 'created_at', 'description', 'distance']
+        fields = ["id", "user", "created_at", "description", "distance"]
+        read_only_fields = ["user"]
 
 
 class JoinedCrewSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='crew.id')
-    name = serializers.CharField(source='crew.name')
-    location_city = serializers.CharField(source='crew.location_city')
-    location_district = serializers.CharField(source='crew.location_district')
+    id = serializers.IntegerField(source="crew.id")
+    name = serializers.CharField(source="crew.name")
+    location_city = serializers.CharField(source="crew.location_city")
+    location_district = serializers.CharField(source="crew.location_district")
     meet_days = serializers.SerializerMethodField()
-    meet_time = serializers.CharField(source='crew.meet_time')
-    thumbnail_image = serializers.ImageField(source='crew.thumbnail_image')
+    meet_time = serializers.CharField(source="crew.meet_time")
+    thumbnail_image = serializers.ImageField(source="crew.thumbnail_image")
 
     def get_meet_days(self, obj):
         return obj.crew.meet_days
     class Meta:
         model = JoinedCrew
-        fields = ['id', 'status', 'name', 'location_city', 'location_district', 'meet_days', 'meet_time', 'thumbnail_image']
-        fields = ["id", "created_at", "description", "distance"]
+        fields = ["id", "status", "name", "location_city", "location_district", "meet_days", "meet_time", "thumbnail_image"]
         read_only_fields = ["user"]
 
 
@@ -83,3 +83,13 @@ class JoinedRacePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = JoinedRace
         fields = ["user", "race", "race_record"]
+
+
+class OpenProfileSerializer(ProfileSerializer):
+    crew = serializers.SerializerMethodField()
+
+    def get_crew(self, obj):
+        return [joined_crew.crew.name for joined_crew in obj.crews.all()]
+
+    class Meta(ProfileSerializer.Meta):
+        fields = ["id", "username", "nickname", "location_city", "location_district", "distance", "level", "profile_image", "crew"]

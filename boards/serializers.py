@@ -57,7 +57,7 @@ class LikeSerializer(serializers.ModelSerializer):
     def get_is_liked(self, obj):
         request = self.context.get('request')
         return obj.post.likes.filter(user=request.user).exists()
-
+# 게시물 상세보기
 class PostDetailSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
     author_nickname = serializers.CharField(source='author.nickname')
@@ -81,34 +81,35 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'is_liked': is_liked
         }
 
+# 유저 오픈프로필에서 내가 작성한 덧글 볼 때 사용
+class ProfileCommentSerializer(serializers.ModelSerializer):
+    post = serializers.SerializerMethodField()
+    comment = serializers.CharField(source="contents")
 
-class PostSerializer(serializers.ModelSerializer):
-    author_nickname = serializers.ReadOnlyField(source="author.nickname")
-    thumbnail_image = serializers.ImageField()
+    def get_post(self, obj):
+        return {
+            "id": obj.post.id,
+            "title": obj.post.title,
+            "author": obj.post.author.nickname
+        }
+    class Meta:
+        model = Comment
+        fields = ["post", "comment"]
+
+
+# 유저 오픈프로필에서 내가 좋아한 게시글 볼 때 사용
+class ProfileLikedPostSerializer(serializers.ModelSerializer):
+    post_id = serializers.IntegerField(source="post.id")
+    title = serializers.CharField(source="post.title")
+    author = serializers.CharField(source="post.author.nickname")
     comment_count = serializers.SerializerMethodField()
-    post_classification = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field="name"
-    )
-    category = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field="name"
-    )
+    like_count = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Post
-        fields = ["id", "author_id", "author_nickname", "title", "thumbnail_image", "post_classification", "category", "view_count", "comment_count", "created_at", "updated_at"]
-        
     def get_comment_count(self, obj):
-        return obj.posted_comments.count()
-
-
-class PostUpdateSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field="name"
-    )
-
+        return Comment.objects.filter(post=obj.post).count()
+    
+    def get_like_count(self, obj):
+        return obj.post.likes.count()
     class Meta:
         model = Post
-        fields = ["title", "contents", "thumbnail_image", "category"]
+        fields = ["post_id", "title", "author", "comment_count", "like_count"]

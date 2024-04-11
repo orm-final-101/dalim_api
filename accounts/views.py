@@ -6,16 +6,24 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 from .models import CustomUser, Record, JoinedCrew, JoinedRace
-from races.models import Race
+from crews.models import CrewReview
+from crews.serializers import CrewListSerializer, ProfileCrewReviewSerializer
+from races.models import Race, RaceReview
+from races.serializers import RaceListSerializer, ProfileRaceReviewSerializer
+from boards.models import Post, Comment, Like
+from boards.serializers import (
+    PostSerializer,
+    ProfileCommentSerializer,
+    ProfileLikedPostSerializer
+)
 from .serializers import (
     ProfileSerializer,
     RecordSerialiser,
     JoinedCrewSerializer,
     JoinedRaceGetSerializer,
-    JoinedRacePostSerializer
+    JoinedRacePostSerializer,
+    OpenProfileSerializer
 )
-
-
 
 
 # mypage/info는 일단 fbv로 작업 - 완
@@ -64,16 +72,7 @@ class RecordViewSet(viewsets.ViewSet):
             serializer.save(user=request.user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-    
-    def retrieve(self, request, pk=None):
-        try:
-            record = Record.objects.get(pk=pk, user=request.user)
-        except Record.DoesNotExist:
-            return Response({"error": "Record not found"}, status=404)
         
-        serializer = RecordSerialiser(record)
-        return Response(serializer.data)
-    
     def partial_update(self, request, pk=None):
         try:
             record = Record.objects.get(pk=pk, user=request.user)
@@ -191,9 +190,58 @@ class RaceViewSet(viewsets.ViewSet):
         
     
 # /mypage/favorites : GET
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def mypage_favorites(request):
+    try:
+        user = CustomUser.objects.get(pk=request.user.pk)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "사용자를 찾을 수 없습니다."}, status=404)
+
+    if request.method == "GET":
+        favorite_crews = [favorite.crew for favorite in user.favorite_crews.all()]
+        favorite_races = [favorite.race for favorite in user.favorite_races.all()]
+
+        crew_serializer = CrewListSerializer(favorite_crews, many=True, context={"request": request})
+        race_serializer = RaceListSerializer(favorite_races, many=True, context={"request": request})
+
+        respnse_data = {
+            "crew": crew_serializer.data,
+            "race": race_serializer.data
+        }
+
+        return Response(respnse_data)
+    
+    
+    raise MethodNotAllowed(request.method)
 
 # /<int:pk>/profile : GET
+@api_view(["GET"])
+def profile(request, pk):
+    try:
+        user = CustomUser.objects.get(pk=pk)
+    except CustomUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+    
+    user_serializer = OpenProfileSerializer(user)
+    post_serializer = PostSerializer(Post.objects.filter(author=user), many=True)
+    comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
+    crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
+    race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
+    
+    fin_data = {
+        "user" : user_serializer.data,
+        "posts" : post_serializer.data,
+        "comments" : comments_serializer.data,
+        "reviews" : {
+            "crew" : crew_review_serializer.data,
+            "race" : race_review_serializer.data
+        }
+    }
 
-# /accounts/<int:pk>/likes : GET (본인만)
+    # request.user와 pk가 일치하는 경우에만 'likes' 항목을 추가
+    if request.user.pk == user.pk:
+        liked_post_serializer = ProfileLikedPostSerializer(Like.objects.filter(author=user), many=True)
+        fin_data["likes"] = liked_post_serializer.data
 
-# /accounts/<int:pk>/reviews
+    return Response(fin_data)

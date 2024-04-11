@@ -20,7 +20,7 @@ class LevelStep(models.Model):
 
 class JoinedCrew(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="crews")
-    crew = models.ForeignKey(Crew, on_delete=models.CASCADE, related_name="members") # 민경 작업 crew 모델과 연결
+    crew = models.ForeignKey(Crew, on_delete=models.CASCADE, related_name="members")
     status = models.CharField(max_length=20, choices=CREW_CHOICES, default=CREW_CHOICES[0])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -31,7 +31,7 @@ class JoinedCrew(models.Model):
 
 class JoinedRace(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="races")
-    race = models.ForeignKey(Race, on_delete=models.CASCADE) # 유선 작업 race 모델과 연결
+    race = models.ForeignKey(Race, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     race_record = models.CharField(max_length=100, null=True) # 대회 기록. 10:00:00 형식으로 들어감
