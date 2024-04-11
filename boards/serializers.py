@@ -44,42 +44,67 @@ class PostListSerializer(serializers.ModelSerializer):
 
 
 class LikeSerializer(serializers.ModelSerializer):
-    count = serializers.SerializerMethodField()
+    count = serializers.IntegerField()
     is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Like
-        fields = ('count', 'is_liked')
-
-    def get_count(self, obj):
-        return obj.post.likes.count()
+        fields = ['count', 'is_liked']
 
     def get_is_liked(self, obj):
         request = self.context.get('request')
-        return obj.post.likes.filter(user=request.user).exists()
-# 게시물 상세보기
+        if request and request.user.is_authenticated:
+            return obj.posted_likes.filter(author=request.user, is_liked=True).exists()
+        return False
+
+    def get_like_count(self, obj):
+        # 여기서는 obj가 Like 모델의 인스턴스일 것으로 가정합니다.
+        # 만약 Like 모델이 아니라 다른 모델(Post 등)의 인스턴스가 필요하다면,
+        # 해당 인스턴스를 어떻게 참조할지에 대한 추가 정보가 필요합니다.
+        return obj.posted_likes.filter(is_liked=True).count()
+
 class PostDetailSerializer(serializers.ModelSerializer):
-    likes = serializers.SerializerMethodField()
-    author_nickname = serializers.CharField(source='author.nickname')
-    post_classification = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field="name"
-    )
     category = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field="name"
+        queryset=Category.objects.all(),
+        slug_field='name'
+    )
+    post_classification = serializers.SlugRelatedField(
+        queryset=PostClassification.objects.all(),
+        slug_field='name'
+    )
+    author_nickname = serializers.CharField(source='author.nickname', read_only=True)
+    likes = LikeSerializer(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
+
+    def retrieve(self, instance):
+        instance.view_count += 1
+        instance.save()
+        return instance
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='name'
+    )
+    post_classification = serializers.SlugRelatedField(
+        queryset=PostClassification.objects.all(),
+        slug_field='name'
     )
     class Meta:
         model = Post
-        fields = ('id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes')
+        fields = ['title', 'contents', 'thumbnail_image', 'post_classification', 'category']
 
-    def get_likes(self, obj):
-        request = self.context.get('request')
-        is_liked = obj.likes.filter(id=request.user.id).exists() if request.user.is_authenticated else False
-        return {
-            'count': obj.likes.count(),
-            'is_liked': is_liked
-        }
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.contents = validated_data.get('contents', instance.contents)
+        instance.thumbnail_image = validated_data.get('thumbnail_image', instance.thumbnail_image)
+        instance.post_classification = validated_data.get('post_classification', instance.post_classification)
+        instance.category = validated_data.get('category', instance.category)
+        instance.save()
+        return instance
 
 
 class PostCreateSerializer(serializers.ModelSerializer):
@@ -120,7 +145,6 @@ class PostCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         post = Post.objects.create(**validated_data)
         return post
-    
 
 # 유저 오픈프로필에서 내가 작성한 덧글 볼 때 사용
 class ProfileCommentSerializer(serializers.ModelSerializer):

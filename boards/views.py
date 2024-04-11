@@ -6,7 +6,7 @@ from rest_framework.decorators import permission_classes, api_view, action
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from .models import PostClassification, Category, Post, Like
-from .serializers import PostClassificationSerializer, CategorySerializer, PostListSerializer, LikeSerializer, PostDetailSerializer, PostCreateSerializer
+from .serializers import PostUpdateSerializer, PostClassificationSerializer, CategorySerializer, PostListSerializer, LikeSerializer, PostDetailSerializer, PostCreateSerializer
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
@@ -15,6 +15,7 @@ class PostClassificationViewSet(viewsets.ModelViewSet):
     
     queryset = PostClassification.objects.all()
     serializer_class = PostClassificationSerializer
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
 
@@ -31,6 +32,7 @@ class CustomPagination(PageNumberPagination):
             'count': self.page.paginator.count,
             'results': data
         })
+
 
 @extend_schema_view(
         list=extend_schema(
@@ -49,52 +51,40 @@ class PostViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def post_list(self, request):
-
         queryset = super().get_queryset()
         search_keyword = self.request.GET.get("search", "")
         selected_category = self.request.GET.get("category", "")
         selected_post_classification = self.request.GET.get("post_classification", "")
-        
+
         if search_keyword:
             queryset = queryset.filter(
                 Q(title__icontains=search_keyword) &
-                Q(content__icontains=search_keyword) &
-                Q(category__name__icontains=search_keyword) &
-                Q(author__username__icontains=search_keyword) &
-                Q(post_classification__name__icontains=search_keyword)
+                Q(contents__icontains=search_keyword) &
+                Q(author__nickname__icontains=search_keyword)
             )
 
         if selected_category:
-            category = Category.objects.filter(name=selected_category).first()
-            if category:
-                queryset = queryset.filter(category=category)
+            category = get_object_or_404(Category, name=selected_category)
+            queryset = queryset.filter(category=category)
 
         if selected_post_classification:
-            post_classification = PostClassification.objects.filter(name=selected_post_classification).first()
-            if post_classification:
-                queryset = queryset.filter(post_classification=post_classification)
+            post_classification = get_object_or_404(PostClassification, name=selected_post_classification)
+            queryset = queryset.filter(post_classification=post_classification)
 
-        paginator = CustomPagination()
+        paginator = self.pagination_class()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         serializer = self.get_serializer(paginated_queryset, many=True)
+
         return paginator.get_paginated_response(serializer.data)
 
     def get_serializer_class(self):
         if self.action in ["create"]:
             return PostCreateSerializer
+        elif self.action in ['retrieve']:
+            return PostDetailSerializer
+        elif self.action in ['update', 'partial_update']:
+            return PostUpdateSerializer
         return super().get_serializer_class()
-
-
-# 게시판 상세보기
-@api_view(['GET'])
-def post_detail(request, post_id):
-    try:
-        post = Post.objects.get(id=post_id)
-    except Post.DoesNotExist:
-        return Response(status=404)
-
-    serializer = PostDetailSerializer(post, context={'request': request})
-    return Response(serializer.data)
 
 
 @api_view(['GET', 'POST'])
@@ -114,7 +104,7 @@ def like_post(request, post_id):
         return JsonResponse(serializer.data)
     else:
         # GET 요청 처리
-        like_count = post.posted_likes.filter(is_liked=True).count()
+        like_count = post.post_likes.filter(is_liked=True).count()
         is_liked = False
         if author.is_authenticated:
             like = Like.objects.filter(author=author, post=post).first()
