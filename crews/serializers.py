@@ -53,13 +53,6 @@ class CrewDetailSerializer(serializers.ModelSerializer):
         return JoinedCrew.objects.filter(crew=obj, status="member").count()
 
 
-class ManagerCrewDetailSerializer(CrewDetailSerializer):
-    member_count = serializers.SerializerMethodField()
-
-    def get_member_count(self, obj):
-        return JoinedCrew.objects.filter(crew=obj, status="member").count()
-
-
 class CrewReviewListSerializer(serializers.ModelSerializer):
     author_id = serializers.CharField(source="author.id", read_only=True)
     author_nickname = serializers.CharField(source="author.nickname", read_only=True)
