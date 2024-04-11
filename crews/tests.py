@@ -93,8 +93,8 @@ class PublicCrewViewSetTestCase(APITestCase):
         self.assertTrue(CrewFavorite.objects.filter(user=self.user, crew=self.opened_crew1).exists())
 
     # top6
-    def test_popular_crews(self):
-        url = reverse("crews:crew-popular")
+    def test_top6_crews(self):
+        url = reverse("crews:crew-top6")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
@@ -135,6 +135,15 @@ class PublicCrewViewSetTestCase(APITestCase):
         data = {"contents": "Updated review"}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    # 일반 회원이 모집마감 크루 상세페이지 접근 가능 여부
+    def test_normal_user_can_access_closed_crew_detail(self):
+        normal_user = User.objects.create_user(email="normaluser@example.com", password="testpassword")
+        self.client.force_authenticate(user=normal_user)
+        url = reverse("crews:public_crew-detail", kwargs={"pk": self.closed_crew.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "Test Crew 3")
 
 
 # 크루 관리자
