@@ -74,48 +74,48 @@
 | mypage/info | PATCH, PUT | 회원정보 수정 | ✅ | ✅ |  |
 | mypage/record | GET | 달린 기록 보기 | ✅ |  |  |
 | mypage/record | POST | 달린 거리 기록 | ✅ |  |  |
-| mypage/record/<int:record_id>/ | PATCH, PUT | 달린 거리 수정 | ✅ | ✅ |  |
-| mypage/record/<int:record_id>/ | DELETE | 달린 거리 삭제 | ✅ | ✅ |  |
+| mypage/record/\<int:record_id\>/ | PATCH, PUT | 달린 거리 수정 | ✅ | ✅ |  |
+| mypage/record/\<int:record_id\>/ | DELETE | 달린 거리 삭제 | ✅ | ✅ |  |
 | mypage/crew/ | GET | 내가 신청한 크루 현황 | ✅ |  |  |
 | mypage/race/ | GET | 내가 신청한 대회 내역 | ✅ |  |  |
 | mypage/race/ | POST | 내가 신청한 대회 내역 추가 | ✅ |  |  |
-| mypage/race/<int:joined_race_id>/ | PATCH, PUT | 내 대회 기록 추가/수정 | ✅ | ✅ |  |
-| mypage/race/<int:joined_race_id>/ | DELETE | 내 대회 기록 삭제 | ✅ | ✅ |  |
+| mypage/race/\<int:joined_race_id\>/ | PATCH, PUT | 내 대회 기록 추가/수정 | ✅ | ✅ |  |
+| mypage/race/\<int:joined_race_id\>/ | DELETE | 내 대회 기록 삭제 | ✅ | ✅ |  |
 | mypage/favorites | GET | 나의 관심 리스트 | ✅ |  |  |
-| <int:pk>/profile/ | GET | 유저 오픈프로필 |  |  |  |
-| <int:pk>/likes/ | GET | 해당 유저가 좋아요한 글(본인만 볼 수 있음) | ✅ |  | 유저 본인만 가능 |
-| <int:pk>/reviews/ | GET | 해당 유저가 남긴 크루/대회 후기 |  |  |  |
+| \<int:pk\>/profile/ | GET | 유저 오픈프로필 |  |  |  |
+| \<int:pk\>/likes/ | GET | 해당 유저가 좋아요한 글(본인만 볼 수 있음) | ✅ |  | 유저 본인만 가능 |
+| \<int:pk\>/reviews/ | GET | 해당 유저가 남긴 크루/대회 후기 |  |  |  |
 
 **💠 races**
 | app: races | HTTP Method | 설명 | 로그인 권한 필요 | 작성자 권한 필요 | 추가 권한 |
 | :-- | --- | --- | :-: | :-: | --- |
 |  | GET | 대회 리스트 |  |  |  |
-| <int:race_id>/ | GET | 대회 상세 |  |  |  |
-| <int:race_id>/reviews/ | GET | 대회 리뷰 리스트 |  |  |  |
-| <int:race_id>/reviews/ | POST | 대회 리뷰 작성 | ✅ |  |  |
-| <int:race_id>/reviews/<int:review_id> | PATCH, PUT | 대회 리뷰 수정 | ✅ | ✅ |  |
-| <int:race_id>/reviews/<int:review_id> | DELETE | 대회 리뷰 삭제 | ✅ | ✅ |  |
-| <int:race_id>/favorite/ | POST | 대회 즐겨찾기 추가/해제 | ✅ |  |  |
+| \<int:race_id\>/ | GET | 대회 상세 |  |  |  |
+| \<int:race_id\>/reviews/ | GET | 대회 리뷰 리스트 |  |  |  |
+| \<int:race_id\>/reviews/ | POST | 대회 리뷰 작성 | ✅ |  |  |
+| \<int:race_id\>/reviews/\<int:review_id\> | PATCH, PUT | 대회 리뷰 수정 | ✅ | ✅ |  |
+| \<int:race_id\>/reviews/\<int:review_id\> | DELETE | 대회 리뷰 삭제 | ✅ | ✅ |  |
+| \<int:race_id\>/favorite/ | POST | 대회 즐겨찾기 추가/해제 | ✅ |  |  |
 
 **💠 crews**
 | app: crews | HTTP Method | 설명 | 로그인 권한 필요 | 작성자 권한 필요 | 추가 권한 |
 | :-- | --- | --- | :-: | :-: | --- |
 |  | GET | 크루 리스트 |  |  |  |
-| <int:crew_id>/ | GET | 크루 상세 |  |  |  |
-| <int:race_id>/join | POST | 크루 가입 신청 | ✅ |  |  |
-| <int:race_id>/favorite/ | POST | 크루 즐겨찾기 추가/해제 | ✅ |  |  |
+| \<int:crew_id\>/ | GET | 크루 상세 |  |  |  |
+| \<int:race_id\>/join | POST | 크루 가입 신청 | ✅ |  |  |
+| \<int:race_id\>/favorite/ | POST | 크루 즐겨찾기 추가/해제 | ✅ |  |  |
 | top6/ | GET | 즐겨찾기 순으로 상위 6개의 크루 |  |  |  |
 | manage/ | GET | (크루 관리자)크루 리스트 | ✅ |  | 크루 관리자(**”crew”**)로 가입한 회원만 |
 | manage/ | POST | (크루 관리자)크루 생성 | ✅ |  | 크루 관리자(**”crew”**)로 가입한 회원만 |
-| manage/<int:crew_id>/ | GET | (크루 관리자)크루 상세 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
-| manage/<int:crew_id>/ | PATCH, PUT | (크루 관리자)크루 정보 수정 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
-| manage/<int:crew_id>/members/ | GET | (크루 관리자)크루 멤버 리스트 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
-| manage/<int:crew_id>/members/<int:joined_crew_id>/ | PATCH | (크루 관리자)크루 멤버의 상태 수정 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
-| <int:crew_id>/reviews/ | GET | 크루 리뷰 |  |  |  |
-| <int:crew_id>/reviews/ | POST | 크루 리뷰 작성 | ✅ |  | 현재 크루 멤버(**”member”**)거나, 멤버였던(**”quit”**) 회원만 |
-| <int:crew_id>/reviews/<int:review_id>/ | GET | 특정 리뷰 | ✅ |  |  |
-| <int:crew_id>/reviews/<int:review_id>/ | PATCH, PUT | 특정 리뷰 수정 | ✅ | ✅ |  |
-| <int:crew_id>/reviews/<int:review_id>/ | DELETE | 특정 리뷰 삭제 | ✅ | ✅ |  |
+| manage/\<int:crew_id\>/ | GET | (크루 관리자)크루 상세 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
+| manage/\<int:crew_id\>/ | PATCH, PUT | (크루 관리자)크루 정보 수정 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
+| manage/\<int:crew_id\>/members/ | GET | (크루 관리자)크루 멤버 리스트 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
+| manage/\<int:crew_id\>/members/\<int:joined_crew_id\>/ | PATCH | (크루 관리자)크루 멤버의 상태 수정 | ✅ | ✅ | 크루 관리자(**”crew”**)로 가입한 회원만 |
+| \<int:crew_id\>/reviews/ | GET | 크루 리뷰 |  |  |  |
+| \<int:crew_id\>/reviews/ | POST | 크루 리뷰 작성 | ✅ |  | 현재 크루 멤버(**”member”**)거나, 멤버였던(**”quit”**) 회원만 |
+| \<int:crew_id\>/reviews/\<int:review_id\>/ | GET | 특정 리뷰 | ✅ |  |  |
+| \<int:crew_id\>/reviews/\<int:review_id\>/ | PATCH, PUT | 특정 리뷰 수정 | ✅ | ✅ |  |
+| \<int:crew_id\>/reviews/\<int:review_id\>/ | DELETE | 특정 리뷰 삭제 | ✅ | ✅ |  |
 
 **💠 boards**
 | app: boards | HTTP Method | 설명 | 로그인 권한 필요 | 작성자 권한 필요 | 추가 권한 |
@@ -123,14 +123,14 @@
 |  | GET | 게시글 리스트 |  |  |  |
 |  | POST | 게시글 작성 | ✅ |  |  |
 | category/ | GET | 카테고리 |  |  |  |
-| <int:post_id>/ | GET | 게시글 상세 |  |  |  |
-| <int:post_id>/ | PATCH, PUT | 게시글 수정 | ✅ | ✅ |  |
-| <int:post_id>/ | DELETE | 게시글 삭제 | ✅ | ✅ |  |
-| <int:post_id>/comments/ |  | 댓글 리스트 |  |  |  |
-| <int:post_id>/comments/ |  | 댓글 작성 | ✅ |  |  |
-| <int:post_id>/comments/<int:commet_id>/ |  | 댓글 수정 | ✅ | ✅ |  |
-| <int:post_id>/comments/<int:comment_id>/ |  | 댓글 삭제 | ✅ | ✅ |  |
-| <int:post_id>/like/ | POST | 게시글에 좋아요 추가/해제 | ✅ |  |  |
+| \<int:post_id\>/ | GET | 게시글 상세 |  |  |  |
+| \<int:post_id\>/ | PATCH, PUT | 게시글 수정 | ✅ | ✅ |  |
+| \<int:post_id\>/ | DELETE | 게시글 삭제 | ✅ | ✅ |  |
+| \<int:post_id\>/comments/ |  | 댓글 리스트 |  |  |  |
+| \<int:post_id\>/comments/ |  | 댓글 작성 | ✅ |  |  |
+| \<int:post_id\>/comments/\<int:commet_id\>/ |  | 댓글 수정 | ✅ | ✅ |  |
+| \<int:post_id\>/comments/\<int:comment_id\>/ |  | 댓글 삭제 | ✅ | ✅ |  |
+| \<int:post_id\>/like/ | POST | 게시글에 좋아요 추가/해제 | ✅ |  |  |
 
 **💠 promotions**
 | app: promotions | HTTP Method | 설명 | 로그인 권한 필요 | 작성자 권한 필요 |
