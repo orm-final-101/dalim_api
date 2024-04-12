@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Race, RaceFavorite, RaceReview
-from accounts.models import JoinedRace
+from .models import Race, RaceReview
 
 
 def check_is_favorite(user, race):
@@ -49,24 +48,10 @@ class RaceDetailSerializer(serializers.ModelSerializer):
             return obj.is_favorite(user)
         return False
 
-# class RaceReviewListSerializer(serializers.ModelSerializer):
-#     author_nickname = serializers.CharField(source="author", read_only=True)
-
-#     class Meta:
-#         model = RaceReview
-#         fields = ["id", "author", "contents", "created_at", "updated_at"]
-
-# class RaceReviewDetailSerializer(serializers.ModelSerializer):
-#     author_nickname = serializers.CharField(source="author", read_only=True)
-
-#     class Meta:
-#         model = RaceReview
-#         fields = ["id", "author", "contents", "created_at", "updated_at"] 
-
-# class JoinedRaceSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = JoinedRace
-#         fields = ["id", "user", "status"]       
+class RaceReviewSerializer(serializers.ModelSerializer): 
+    class Meta:
+        model = RaceReview
+        fields = ["id", "author", "contents", "created_at", "updated_at"]
         
         
 # 유저 오픈프로필에서 크루후기 볼 때 사용

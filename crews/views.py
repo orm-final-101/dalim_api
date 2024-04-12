@@ -9,14 +9,26 @@ from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
 from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewListSerializer, CrewReviewCreateSerializer, CrewReviewUpdateSerializer, CrewCreateSerializer, JoinedCrewSerializer
 from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 
 # 일반 크루 페이지
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(name="search", description="검색 키워드", required=False, type=str),
+            OpenApiParameter(name="location_city", description="도시 선택", required=False, type=str),
+            OpenApiParameter(name="meet_days", description="요일 선택", required=False, type=str),
+        ]
+    )
+)
 class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CrewListSerializer
 
     def get_queryset(self):
-        return Crew.objects.filter(is_opened=True)
+        if self.action == "list":
+            return Crew.objects.filter(is_opened=True)
+        return Crew.objects.all()
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -54,7 +66,7 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(query)
 
         return queryset
-
+    
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def join(self, request, pk=None):
         crew = self.get_object()
@@ -76,7 +88,7 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
 
         JoinedCrew.objects.create(user=user, crew=crew, status="keeping")
         return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
-
+    
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         crew = self.get_object()
@@ -91,7 +103,7 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
     
     # 즐겨찾기순으로 top6
     @action(detail=False, methods=["get"])
-    def popular(self, request):
+    def top6(self, request):
         queryset = self.filter_queryset(self.get_queryset())
         queryset = queryset.filter(is_opened=True).annotate(favorite_count=Count("crewfavorite")).order_by("-favorite_count")[:6]
         serializer = self.get_serializer(queryset, many=True)
