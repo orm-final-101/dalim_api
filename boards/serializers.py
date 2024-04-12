@@ -19,7 +19,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 # 게시물 전체 보기
 class PostListSerializer(serializers.ModelSerializer):
-
     author_nickname = serializers.CharField(source='author.nickname')
     comment_count = serializers.SerializerMethodField()
     post_classification = serializers.SlugRelatedField(
@@ -30,18 +29,28 @@ class PostListSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field="name"
     )
+    like_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = [
             'id', 'author_id', 'author_nickname', 'title', 'thumbnail_image',
             'post_classification', 'category', 'view_count', 'comment_count',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at', 'is_liked', 'like_count'
         ]
 
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
 
+    def get_like_count(self, obj):
+        return Like.objects.filter(post=obj, is_liked=True).count()
+
+    def get_is_liked(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return Like.objects.filter(author=user, post=obj, is_liked=True).exists()
+        return False
 
 class LikeSerializer(serializers.ModelSerializer):
     count = serializers.IntegerField()
@@ -49,7 +58,7 @@ class LikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ['count', 'is_liked']
+        fields = ['id', 'author', 'post', 'is_liked', 'created_at']
 
     def get_is_liked(self, obj):
         request = self.context.get('request')
@@ -76,8 +85,17 @@ class PostDetailSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField()
 
     def get_likes(self, obj):
-        like = Like.objects.filter(post=obj, author=self.context['request'].user).first()
-        return LikeSerializer(like, context=self.context).data
+        user = self.context['request'].user
+        if user.is_authenticated:
+            like = Like.objects.filter(post=obj, author=user).first()
+            return {
+                "count": obj.likes.count(),
+                "is_liked": like.is_liked if like else False
+            }
+        return {
+            "count": obj.likes.count(),
+            "is_liked": False
+        }
 
     class Meta:
         model = Post

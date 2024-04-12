@@ -102,18 +102,23 @@ def like_post(request, post_id):
             return JsonResponse({"error": "User is not authenticated"}, status=400)
 
         like, created = Like.objects.get_or_create(author=author, post=post)
-        like.is_liked = not like.is_liked if not created else True
-        like.save()
-        serializer = LikeSerializer(like, context={'request': request})
-        return JsonResponse(serializer.data)
+        if not created:
+            like.delete()
+        
+        like_count = Like.objects.filter(post=post).count()
+        is_liked = Like.objects.filter(author=author, post=post).exists()
+        
+        response_data = {
+            "count": like_count,
+            "is_liked": is_liked
+        }
+        return JsonResponse(response_data)
     else:
         # GET 요청 처리
-        like_count = post.post_likes.filter(is_liked=True).count()
+        like_count = Like.objects.filter(post=post).count()
         is_liked = False
         if author.is_authenticated:
-            like = Like.objects.filter(author=author, post=post).first()
-            if like:
-                is_liked = like.is_liked
+            is_liked = Like.objects.filter(author=author, post=post).exists()
         response_data = {
             "count": like_count,
             "is_liked": is_liked
