@@ -1,15 +1,17 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import post_list, PostClassificationViewSet, CategoryViewSet, like_post, post_detail
+from .views import like_post, PostViewSet#, PostDetailViewSet
 
+# router 객체 생성
 router = DefaultRouter()
-router.register(r'post-classifications', PostClassificationViewSet)
-router.register(r'categories', CategoryViewSet)
 
+# PostViewSet을 '/boards' URL 패턴에 등록
+router.register(r'', PostViewSet)
+
+# urlpatterns 설정
 urlpatterns = [
-    path('', post_list, name='post_list'),
-    path('<int:post_id>/', post_detail, name='post_detail'),
-    path('<int:post_id>/like/', like_post, name='like_post'),
+    # router에 등록된 URL 패턴을 include
     path('', include(router.urls)),
-    
+    # 좋아요 기능을 위한 URL 패턴
+    path('<int:post_id>/like/', like_post, name='like_post'),
 ]
