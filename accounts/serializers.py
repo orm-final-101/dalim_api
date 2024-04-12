@@ -1,8 +1,30 @@
 from dj_rest_auth.serializers import UserDetailsSerializer
+from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
 from django.db.models import Sum
 from .models import CustomUser, LevelStep, Record, JoinedCrew, JoinedRace
 
+
+class CustomRegisterSerializer(RegisterSerializer):
+    email = serializers.EmailField(required=True)
+    nickname = serializers.CharField(required=True)
+    birth_date = serializers.DateField(required=True)
+    gender = serializers.CharField(required=True)
+    user_type = serializers.CharField(required=True)
+    location_city = serializers.CharField(required=True)
+    location_district = serializers.CharField(required=True)
+    phone_number = serializers.CharField(required=True)
+
+    def custom_signup(self, request, user):
+        user.email = self.validated_data.get('email')
+        user.nickname = self.validated_data.get('nickname')
+        user.birth_date = self.validated_data.get('birth_date')
+        user.gender = self.validated_data.get('gender')
+        user.user_type = self.validated_data.get('user_type')
+        user.location_city = self.validated_data.get('location_city')
+        user.location_district = self.validated_data.get('location_district')
+        user.phone_number = self.validated_data.get('phone_number')
+        user.save()
 
 class CustomUserSerializer(UserDetailsSerializer):
     class Meta(UserDetailsSerializer.Meta):

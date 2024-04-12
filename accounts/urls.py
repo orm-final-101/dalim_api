@@ -12,9 +12,9 @@ race_router = DefaultRouter()
 race_router.register("", views.RaceViewSet, basename="joined_race")
 
 urlpatterns = [
-    path("signup/", include("dj_rest_auth.registration.urls")),
     path("login/", LoginView.as_view(), name="account_login"),
     path("logout/", LogoutView.as_view(), name="account_logout"),
+    path("signup/", views.CustomRegisterView.as_view(), name="account_signup"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("mypage/info/", views.mypage_info),
     path("mypage/crew/", views.mypage_crew),

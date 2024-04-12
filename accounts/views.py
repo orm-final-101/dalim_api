@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
+from dj_rest_auth.registration.views import RegisterView
 from .models import CustomUser, Record, JoinedCrew, JoinedRace
 from crews.models import CrewReview
 from crews.serializers import CrewListSerializer, ProfileCrewReviewSerializer
@@ -17,6 +18,7 @@ from boards.serializers import (
     ProfileLikedPostSerializer
 )
 from .serializers import (
+    CustomRegisterSerializer,
     ProfileSerializer,
     RecordSerialiser,
     JoinedCrewSerializer,
@@ -24,6 +26,10 @@ from .serializers import (
     JoinedRacePostSerializer,
     OpenProfileSerializer
 )
+
+
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
 
 
 # mypage/info는 일단 fbv로 작업 - 완
