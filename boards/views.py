@@ -2,25 +2,13 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.decorators import permission_classes, api_view, action
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from .models import PostClassification, Category, Post, Like
-from .serializers import PostUpdateSerializer, PostClassificationSerializer, CategorySerializer, PostListSerializer, LikeSerializer, PostDetailSerializer, PostCreateSerializer
+from .serializers import PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-
-
-class PostClassificationViewSet(viewsets.ModelViewSet):
-    
-    queryset = PostClassification.objects.all()
-    serializer_class = PostClassificationSerializer
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
 
 
 class CustomPagination(PageNumberPagination):

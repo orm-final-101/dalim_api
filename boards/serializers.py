@@ -2,16 +2,6 @@ from rest_framework import serializers
 from .models import PostClassification, Category, Post, Comment, Like
 
 
-class PostClassificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PostClassification
-        fields = ['id', 'name']
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', 'name']
-
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -29,49 +19,19 @@ class PostListSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field="name"
     )
-    like_count = serializers.SerializerMethodField()
-    is_liked = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = [
             'id', 'author_id', 'author_nickname', 'title', 'thumbnail_image',
             'post_classification', 'category', 'view_count', 'comment_count',
-            'created_at', 'updated_at', 'is_liked', 'like_count'
+            'created_at', 'updated_at',
         ]
 
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
 
-    def get_like_count(self, obj):
-        return Like.objects.filter(post=obj, is_liked=True).count()
-
-    def get_is_liked(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return Like.objects.filter(author=user, post=obj, is_liked=True).exists()
-        return False
-
-class LikeSerializer(serializers.ModelSerializer):
-    count = serializers.IntegerField()
-    is_liked = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Like
-        fields = ['id', 'author', 'post', 'is_liked', 'created_at']
-
-    def get_is_liked(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return obj.posted_likes.filter(author=request.user, is_liked=True).exists()
-        return False
-
-    def get_like_count(self, obj):
-        # 여기서는 obj가 Like 모델의 인스턴스일 것으로 가정합니다.
-        # 만약 Like 모델이 아니라 다른 모델(Post 등)의 인스턴스가 필요하다면,
-        # 해당 인스턴스를 어떻게 참조할지에 대한 추가 정보가 필요합니다.
-        return obj.posted_likes.filter(is_liked=True).count()
-
+# 게시글 상세 보기
 class PostDetailSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
@@ -83,6 +43,11 @@ class PostDetailSerializer(serializers.ModelSerializer):
     )
     author_nickname = serializers.CharField(source='author.nickname', read_only=True)
     likes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
+
 
     def get_likes(self, obj):
         user = self.context['request'].user
@@ -97,16 +62,13 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "is_liked": False
         }
 
-    class Meta:
-        model = Post
-        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
 
     def retrieve(self, instance):
         instance.view_count += 1
         instance.save()
         return instance
 
-
+# 게시글 수정
 class PostUpdateSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
@@ -129,7 +91,7 @@ class PostUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
+# 게시글 작성
 class PostCreateSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
