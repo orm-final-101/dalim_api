@@ -49,13 +49,17 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostListSerializer
     pagination_class = CustomPagination
 
-    @action(detail=False, methods=['get'])
-    def post_list(self, request):
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+    def list(self, request):
         queryset = super().get_queryset()
         search_keyword = self.request.GET.get("search", "")
         selected_category = self.request.GET.get("category", "")
         selected_post_classification = self.request.GET.get("post_classification", "")
-
+        
         if search_keyword:
             queryset = queryset.filter(
                 Q(title__icontains=search_keyword) &

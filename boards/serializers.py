@@ -73,7 +73,11 @@ class PostDetailSerializer(serializers.ModelSerializer):
         slug_field='name'
     )
     author_nickname = serializers.CharField(source='author.nickname', read_only=True)
-    likes = LikeSerializer(read_only=True)
+    likes = serializers.SerializerMethodField()
+
+    def get_likes(self, obj):
+        like = Like.objects.filter(post=obj, author=self.context['request'].user).first()
+        return LikeSerializer(like, context=self.context).data
 
     class Meta:
         model = Post
@@ -83,6 +87,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         instance.view_count += 1
         instance.save()
         return instance
+
 
 class PostUpdateSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
