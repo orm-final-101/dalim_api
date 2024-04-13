@@ -36,7 +36,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image',
-                  'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
+                'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
 
     def get_likes(self, obj):
         user = self.context['request'].user
@@ -89,6 +89,31 @@ class PostCreateSerializer(serializers.ModelSerializer):
             return post
         else:
             raise serializers.ValidationError("User must be authenticated to create a post.")
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author_nickname = serializers.CharField(source='author.nickname', read_only=True)
+    created_at = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'author_id', 'author_nickname', 'contents', 'created_at']
+
+    def save(self, **kwargs):
+        # 로그인된 사용자 정보 설정
+        if self.context['request'].user.is_authenticated:
+            kwargs['author'] = self.context['request'].user
+        else:
+            raise serializers.ValidationError("로그인이 필요합니다.")
+
+        kwargs['post'] = Post.objects.get(id=self.context['view'].kwargs['post_id'])
+        return super().save(**kwargs)
+
+    def get_queryset(self):
+        post_id = self.context['view'].kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id)
+
+
 
 # 유저 오픈프로필에서 내가 작성한 덧글 볼 때 사용
 class ProfileCommentSerializer(serializers.ModelSerializer):
