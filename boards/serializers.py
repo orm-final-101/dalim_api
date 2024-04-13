@@ -100,9 +100,18 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'author_id', 'author_nickname', 'contents', 'created_at']
 
     def save(self, **kwargs):
-        kwargs['author'] = self.context['request'].user
-        kwargs['post_id'] = self.context['view'].kwargs['post_id']
+        # 로그인된 사용자 정보 설정
+        if self.context['request'].user.is_authenticated:
+            kwargs['author'] = self.context['request'].user
+        else:
+            raise serializers.ValidationError("로그인이 필요합니다.")
+
+        kwargs['post'] = Post.objects.get(id=self.context['view'].kwargs['post_id'])
         return super().save(**kwargs)
+
+    def get_queryset(self):
+        post_id = self.context['view'].kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id)
 
 
 

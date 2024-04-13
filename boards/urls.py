@@ -6,7 +6,7 @@ from .views import like_post, PostViewSet, get_category_choices, CommentViewSet
 router = DefaultRouter()
 
 # PostViewSet을 '/boards' URL 패턴에 등록
-router.register(r'boards/(?P<post_id>\d+)/comments', CommentViewSet, basename='comment')
+router.register(r'(?P<post_id>\d+)/comments', CommentViewSet, basename='comment')
 router.register(r'', PostViewSet)
 
 # urlpatterns 설정
