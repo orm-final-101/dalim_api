@@ -1,24 +1,16 @@
 from rest_framework import serializers
-from .models import PostClassification, Category, Post, Comment, Like
+from .models import Post, Comment, Like
 
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ["id", "author", "post", "contents"] 
+        fields = ["id", "author", "post", "contents"]
 
 # 게시물 전체 보기
 class PostListSerializer(serializers.ModelSerializer):
     author_nickname = serializers.CharField(source='author.nickname')
     comment_count = serializers.SerializerMethodField()
-    post_classification = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field="name"
-    )
-    category = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field="name"
-    )
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
@@ -31,27 +23,20 @@ class PostListSerializer(serializers.ModelSerializer):
 
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
-    
+
     def get_delete_message(self, obj):
         return "게시글을 삭제했습니다."
 
 # 게시글 상세 보기
 class PostDetailSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='name'
-    )
-    post_classification = serializers.SlugRelatedField(
-        queryset=PostClassification.objects.all(),
-        slug_field='name'
-    )
     author_nickname = serializers.CharField(source='author.nickname', read_only=True)
     likes = serializers.SerializerMethodField()
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = Post
-        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
-
+        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image',
+                  'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
 
     def get_likes(self, obj):
         user = self.context['request'].user
@@ -66,26 +51,15 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "is_liked": False
         }
 
-    
     def retrieve(self, instance):
         instance.view_count += 1
         instance.save()
         return instance
-    
-
-
 
 # 게시글 수정
 class PostUpdateSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='name'
-    )
-    post_classification = serializers.SlugRelatedField(
-        queryset=PostClassification.objects.all(),
-        slug_field='name'
-    )
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = Post
         fields = ['title', 'contents', 'thumbnail_image', 'post_classification', 'category']
@@ -101,37 +75,11 @@ class PostUpdateSerializer(serializers.ModelSerializer):
 
 # 게시글 작성
 class PostCreateSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='name'
-    )
-    post_classification = serializers.SlugRelatedField(
-        queryset=PostClassification.objects.all(),
-        slug_field='name'
-    )
-    thumbnail_image = serializers.ImageField(required=False, allow_null=True)  # required=False로 변경
+    thumbnail_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post
         fields = ['title', 'contents', 'category', 'post_classification', 'thumbnail_image']
-
-    def validate_category(self, value):
-        try:
-            category = Category.objects.get(name=value)
-            return category
-        except Category.DoesNotExist:
-            raise serializers.ValidationError("Invalid category.")
-
-    def validate_post_classification(self, value):
-        try:
-            post_classification = PostClassification.objects.get(name=value)
-            return post_classification
-        except PostClassification.DoesNotExist:
-            raise serializers.ValidationError("Invalid post classification.")
-
-    def validate(self, attrs):
-        # thumbnail_image 검증 부분 제거
-        return attrs
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -153,10 +101,10 @@ class ProfileCommentSerializer(serializers.ModelSerializer):
             "title": obj.post.title,
             "author": obj.post.author.nickname
         }
+
     class Meta:
         model = Comment
         fields = ["post", "comment"]
-
 
 # 유저 오픈프로필에서 내가 좋아한 게시글 볼 때 사용
 class ProfileLikedPostSerializer(serializers.ModelSerializer):
@@ -168,9 +116,10 @@ class ProfileLikedPostSerializer(serializers.ModelSerializer):
 
     def get_comment_count(self, obj):
         return Comment.objects.filter(post=obj.post).count()
-    
+
     def get_like_count(self, obj):
         return obj.post.likes.count()
+
     class Meta:
         model = Post
         fields = ["post_id", "title", "author", "comment_count", "like_count"]
