@@ -2,26 +2,15 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.decorators import permission_classes, api_view, action
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
-from rest_framework import viewsets
-from .models import PostClassification, Category, Post, Like
-from .serializers import PostUpdateSerializer, PostClassificationSerializer, CategorySerializer, PostListSerializer, LikeSerializer, PostDetailSerializer, PostCreateSerializer
+from rest_framework import viewsets, status
+from .models import Post, Like
+from .serializers import PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-
-
-class PostClassificationViewSet(viewsets.ModelViewSet):
-    
-    queryset = PostClassification.objects.all()
-    serializer_class = PostClassificationSerializer
-
-
-class CategoryViewSet(viewsets.ModelViewSet):
-
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
+from .permissions import IsStaffOrGeneralClassification
+from config.constants import CLASSIFICATION_CHOICES, CATEGORY_CHOICES
 
 class CustomPagination(PageNumberPagination):
     page_size = 10
@@ -48,6 +37,8 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostListSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsStaffOrGeneralClassification]
+
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -68,12 +59,10 @@ class PostViewSet(viewsets.ModelViewSet):
             )
 
         if selected_category:
-            category = get_object_or_404(Category, name=selected_category)
-            queryset = queryset.filter(category=category)
+            queryset = queryset.filter(category=selected_category)
 
         if selected_post_classification:
-            post_classification = get_object_or_404(PostClassification, name=selected_post_classification)
-            queryset = queryset.filter(post_classification=post_classification)
+            queryset = queryset.filter(post_classification=selected_post_classification)
 
         paginator = self.pagination_class()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
@@ -89,11 +78,18 @@ class PostViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return PostUpdateSerializer
         return super().get_serializer_class()
-
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        delete_message = serializer.get_delete_message(instance)
+        self.perform_destroy(instance)
+        return Response({"message": delete_message}, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def like_post(request, post_id):
+
     post = get_object_or_404(Post, pk=post_id)
     author = request.user
 
@@ -124,3 +120,22 @@ def like_post(request, post_id):
             "is_liked": is_liked
         }
         return JsonResponse(response_data)
+    
+    
+@api_view(['GET'])
+def get_category_choices(request):
+    post_classification_choices = [
+        {"value": choice[0], "label": choice[1]}
+        for choice in CLASSIFICATION_CHOICES
+    ]
+    category_choices = [
+        {"value": choice[0], "label": choice[1]}
+        for choice in CATEGORY_CHOICES
+    ]
+
+    data = {
+        "post_classification": post_classification_choices,
+        "category": category_choices
+    }
+
+    return Response(data)
