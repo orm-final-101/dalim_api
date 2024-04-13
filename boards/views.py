@@ -4,12 +4,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import PostClassification, Category, Post, Like
 from .serializers import PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-
+from .permissions import IsStaffOrGeneralClassification
 
 class CustomPagination(PageNumberPagination):
     page_size = 10
@@ -36,6 +36,8 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostListSerializer
     pagination_class = CustomPagination
+    permission_classes = [IsStaffOrGeneralClassification]
+
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -77,7 +79,13 @@ class PostViewSet(viewsets.ModelViewSet):
         elif self.action in ['update', 'partial_update']:
             return PostUpdateSerializer
         return super().get_serializer_class()
-
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        delete_message = serializer.get_delete_message(instance)
+        self.perform_destroy(instance)
+        return Response({"message": delete_message}, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])

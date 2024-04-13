@@ -1,14 +1,16 @@
 from django.contrib import admin
 from .models import Post, PostClassification, Category, Comment, Like
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 class CommentInline(admin.TabularInline):
     model = Comment
-    extra = 1  
+    extra = 1
 
 class LikeInline(admin.TabularInline):
     model = Like
-    extra = 1  # Post Like 추가 할 때 빈칸 설정
+    extra = 1
 
 @admin.register(PostClassification)
 class PostClassificationAdmin(admin.ModelAdmin):

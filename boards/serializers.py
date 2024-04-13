@@ -19,6 +19,7 @@ class PostListSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field="name"
     )
+    thumbnail_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post
@@ -30,6 +31,9 @@ class PostListSerializer(serializers.ModelSerializer):
 
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
+    
+    def get_delete_message(self, obj):
+        return "게시글을 삭제했습니다."
 
 # 게시글 상세 보기
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -43,7 +47,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     )
     author_nickname = serializers.CharField(source='author.nickname', read_only=True)
     likes = serializers.SerializerMethodField()
-
+    thumbnail_image = serializers.ImageField(required=False, allow_null=True)
     class Meta:
         model = Post
         fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image', 'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
@@ -62,11 +66,14 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "is_liked": False
         }
 
-
+    
     def retrieve(self, instance):
         instance.view_count += 1
         instance.save()
         return instance
+    
+
+
 
 # 게시글 수정
 class PostUpdateSerializer(serializers.ModelSerializer):
@@ -78,6 +85,7 @@ class PostUpdateSerializer(serializers.ModelSerializer):
         queryset=PostClassification.objects.all(),
         slug_field='name'
     )
+    thumbnail_image = serializers.ImageField(required=False, allow_null=True)
     class Meta:
         model = Post
         fields = ['title', 'contents', 'thumbnail_image', 'post_classification', 'category']
@@ -101,10 +109,11 @@ class PostCreateSerializer(serializers.ModelSerializer):
         queryset=PostClassification.objects.all(),
         slug_field='name'
     )
-    thumbnail_image = serializers.ImageField(required=False)
+    thumbnail_image = serializers.ImageField(required=False, allow_null=True)  # required=False로 변경
+
     class Meta:
         model = Post
-        fields = ['author', 'title', 'contents', 'category', 'post_classification', 'thumbnail_image']
+        fields = ['title', 'contents', 'category', 'post_classification', 'thumbnail_image']
 
     def validate_category(self, value):
         try:
@@ -121,15 +130,17 @@ class PostCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Invalid post classification.")
 
     def validate(self, attrs):
-        thumbnail_image = attrs.get('thumbnail_image')
-        if not thumbnail_image:
-            raise serializers.ValidationError("Thumbnail image is required.")
-
+        # thumbnail_image 검증 부분 제거
         return attrs
 
     def create(self, validated_data):
-        post = Post.objects.create(**validated_data)
-        return post
+        request = self.context.get('request')
+        if request.user.is_authenticated:
+            validated_data['author'] = request.user
+            post = Post.objects.create(**validated_data)
+            return post
+        else:
+            raise serializers.ValidationError("User must be authenticated to create a post.")
 
 # 유저 오픈프로필에서 내가 작성한 덧글 볼 때 사용
 class ProfileCommentSerializer(serializers.ModelSerializer):
