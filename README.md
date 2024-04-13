@@ -154,6 +154,8 @@ pass
 [Dalim-WBS](https://docs.google.com/spreadsheets/d/1reCekeUWcgPSnhlVgcOmrSEXiSXDZB-qdogkP0DkCxk/edit?usp=sharing)
 
 - Gantt 차트
+
+```mermaid
 gantt
     title 달림(Dalim, 런닝 커뮤니티)
     dateFormat  YY-MM-DD
@@ -206,11 +208,9 @@ gantt
     테스트코드 작성 및 실행: after r1, 24-04-12, 2d
 
     section 배포
-    배포 시도 시작:a1, 24-04-14, 1d
-    배포 1차: 24-04-15, 1d
+    배포 : 24-04-14, 2d
     배포 최종: milestone, isadded, 24-04-16, 0d
-
-
+```
 
 ## 5. 역할 분담
 pass
