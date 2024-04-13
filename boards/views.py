@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework import viewsets, status
-from .models import Post, Like
-from .serializers import PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
+from .models import Post, Like, Comment
+from .serializers import CommentSerializer, PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from .permissions import IsStaffOrGeneralClassification
@@ -139,3 +139,15 @@ def get_category_choices(request):
     }
 
     return Response(data)
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "댓글을 삭제했습니다"}, status=status.HTTP_200_OK)
