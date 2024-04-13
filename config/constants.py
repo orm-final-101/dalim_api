@@ -38,7 +38,7 @@ CATEGORY_CHOICES = (
 CLASSIFICATION_CHOICES = (
     ("general", "일반"),
     ("event", "이벤트"),
-    ("announcement", "공지"),
+    ("notice", "공지"),
 )
 
 MEET_DAY_CHOICES = (

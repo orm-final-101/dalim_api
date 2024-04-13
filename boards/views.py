@@ -1,145 +1,98 @@
+from config.constants import CLASSIFICATION_CHOICES, CATEGORY_CHOICES
+from .models import Post, Like, Comment
+from .serializers import CommentSerializer, PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
+from .permissions import IsStaffOrGeneralClassification
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import AllowAny
-from rest_framework import viewsets
-from .models import PostClassification, Category, Post, Like
-from .serializers import PostClassificationSerializer, CategorySerializer, PostListSerializer, LikeSerializer, PostDetailSerializer
-from django.db.models import Q
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import viewsets, status
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 
-class PostClassificationViewSet(viewsets.ModelViewSet):
-    
-    queryset = PostClassification.objects.all()
-    serializer_class = PostClassificationSerializer
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'size'
+    max_page_size = 1000
+    def get_paginated_response(self, data):
+        return Response({
+            'count': self.page.paginator.count,
+            'results': data
+        })
 
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
 
-# 게시판 전체 보기 및 쿼리스트링
-@extend_schema(parameters=[
-    OpenApiParameter(name='page', description='x번째 페이지', type=int),
-    OpenApiParameter(name='size', description='x번째 페이지에 게시물 y개', type=int),
-    OpenApiParameter(name='category', description='게시물 성격', type=str),
-    OpenApiParameter(name='post_classification', description='게시물 분류', type=str),
-])
-@api_view(["GET"])
-def post_list(request):
-    posts = Post.objects.all()
-    search_keyword = request.GET.get("search", "")
-    selected_category = request.GET.get("category", "")
-    selected_post_classification = request.GET.get("post_classification", "")
-
-    if search_keyword:
-        posts = posts.filter(
-            Q(title__icontains=search_keyword) |
-            Q(content__icontains=search_keyword) | 
-            Q(category__name__icontains=search_keyword) |
-            Q(author__username__icontains=search_keyword) |
-            Q(post_classification__name__icontains=search_keyword)
+@extend_schema_view(
+        list=extend_schema(
+            parameters=[
+                OpenApiParameter(name='page', description='x번째 페이지', type=int),
+                OpenApiParameter(name='size', description='x번째 페이지에 게시물 y개', type=int),
+                OpenApiParameter(name='category', description='게시물 성격', type=str),
+                OpenApiParameter(name='post_classification', description='게시물 분류', type=str),
+            ]
         )
-
-    if selected_category:
-        category = Category.objects.filter(name=selected_category).first()
-        if category:
-            posts = posts.filter(category=category)
-
-    if selected_post_classification:
-        post_classification = PostClassification.objects.filter(name=selected_post_classification).first()
-        if post_classification:
-            posts = posts.filter(post_classification=post_classification)
-
-    paginator = PageNumberPagination()
-    page_size = request.GET.get("size", 10)
-    paginator.page_size = page_size
-    result_page = paginator.paginate_queryset(posts, request)
-    serializer = PostListSerializer(result_page, many=True, context={"request": request})
-
-    return Response({
-        "count": paginator.page.paginator.count,
-        "results": serializer.data
-    }, status=200)
+    )
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostListSerializer
+    pagination_class = CustomPagination
+    permission_classes = [IsStaffOrGeneralClassification]
 
 
-# 게시판 상세보기
-@api_view(['GET'])
-def post_detail(request, post_id):
-    try:
-        post = Post.objects.get(id=post_id)
-    except Post.DoesNotExist:
-        return Response(status=404)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 
-    serializer = PostDetailSerializer(post, context={'request': request})
-    return Response(serializer.data)
-
-# # 게시판 수정하기 
-# def update(self, request, *args, **kwargs):
-#     partial = kwargs.pop("partial", False)
-#     instance = self.get_object()
-#     serializer = PostUpdateSerializer(instance, data=request.data, partial=partial)
-#     serializer.is_valid(raise_exception=True)
-#     self.perform_update(serializer)
-
-#     if getattr(instance, "_prefetched_objects_cache", None):
-#         instance._prefetched_objects_cache = {}
-
-#     response_serializer = PostDetailSerializer(instance, context={"request": request})
-#     return Response(response_serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
-# class CommentViewSet(viewsets.ModelViewSet):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSerializer
-
-
-# @api_view(['GET','POST'])
-# @permission_classes([AllowAny])
-# def like_post(request, post_id):
-#     post = get_object_or_404(Post, pk=post_id)
-#     author = request.user
-
-#     if request.method == "POST":
-#         if author.is_authenticated:
-#             like, created = Like.objects.get_or_create(author=author, post=post)
-            
-#             if created:
-#                 # 좋아요 생성
-#                 like.is_liked = True
-#                 like.save()
-#             else:
-#                 # 좋아요 취소
-#                 like.is_liked = not like.is_liked
-#                 like.save()
-            
-#             like_count = post.posted_likes.filter(is_liked=True).count()
-#             response_data = {
-#                 "count": like_count,
-#                 "is_liked": like.is_liked
-#             }
-#             return JsonResponse(response_data)
-#         else:
-#             return JsonResponse({"error": "User is not authenticated"}, status=400)
-#     else:
-#         # GET 요청 처리
-#         like_count = post.posted_likes.filter(is_liked=True).count()
-#         is_liked = False
-#         if author.is_authenticated:
-#             like = Like.objects.filter(author=author, post=post).first()
-#             if like:
-#                 is_liked = like.is_liked
+    def list(self, request):
+        queryset = super().get_queryset()
+        search_keyword = self.request.GET.get("search", "")
+        selected_category = self.request.GET.get("category", "")
+        selected_post_classification = self.request.GET.get("post_classification", "")
         
-#         response_data = {
-#             "count": like_count,
-#             "is_liked": is_liked
-#         }
-#         return JsonResponse(response_data)
+        if search_keyword:
+            queryset = queryset.filter(
+                Q(title__icontains=search_keyword) &
+                Q(contents__icontains=search_keyword) &
+                Q(author__nickname__icontains=search_keyword)
+            )
+
+        if selected_category:
+            queryset = queryset.filter(category=selected_category)
+
+        if selected_post_classification:
+            queryset = queryset.filter(post_classification=selected_post_classification)
+
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    def get_serializer_class(self):
+        if self.action in ["create"]:
+            return PostCreateSerializer
+        elif self.action in ['retrieve']:
+            return PostDetailSerializer
+        elif self.action in ['update', 'partial_update']:
+            return PostUpdateSerializer
+        return super().get_serializer_class()
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        delete_message = serializer.get_delete_message(instance)
+        self.perform_destroy(instance)
+        return Response({"message": delete_message}, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def like_post(request, post_id):
+
     post = get_object_or_404(Post, pk=post_id)
     author = request.user
 
@@ -148,20 +101,62 @@ def like_post(request, post_id):
             return JsonResponse({"error": "User is not authenticated"}, status=400)
 
         like, created = Like.objects.get_or_create(author=author, post=post)
-        like.is_liked = not like.is_liked if not created else True
-        like.save()
-        serializer = LikeSerializer(like, context={'request': request})
-        return JsonResponse(serializer.data)
-    else:
-        # GET 요청 처리
-        like_count = post.posted_likes.filter(is_liked=True).count()
-        is_liked = False
-        if author.is_authenticated:
-            like = Like.objects.filter(author=author, post=post).first()
-            if like:
-                is_liked = like.is_liked
+        if not created:
+            like.delete()
+        
+        like_count = Like.objects.filter(post=post).count()
+        is_liked = Like.objects.filter(author=author, post=post).exists()
+        
         response_data = {
             "count": like_count,
             "is_liked": is_liked
         }
         return JsonResponse(response_data)
+    else:
+        # GET 요청 처리
+        like_count = Like.objects.filter(post=post).count()
+        is_liked = False
+        if author.is_authenticated:
+            is_liked = Like.objects.filter(author=author, post=post).exists()
+        response_data = {
+            "count": like_count,
+            "is_liked": is_liked
+        }
+        return JsonResponse(response_data)
+    
+    
+@api_view(['GET'])
+def get_category_choices(request):
+    post_classification_choices = [
+        {"value": choice[0], "label": choice[1]}
+        for choice in CLASSIFICATION_CHOICES
+    ]
+    category_choices = [
+        {"value": choice[0], "label": choice[1]}
+        for choice in CATEGORY_CHOICES
+    ]
+
+    data = {
+        "post_classification": post_classification_choices,
+        "category": category_choices
+    }
+
+    return Response(data)
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        post_id = self.kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "댓글을 삭제했습니다"}, status=status.HTTP_200_OK)

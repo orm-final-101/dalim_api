@@ -3,8 +3,10 @@
 ## 1. 목표와 기능
 
 ### 1.1 목표
+pass
 
 ### 1.2 기능
+pass
 
 ### 1.3 팀 구성
 
@@ -38,6 +40,7 @@
 - **서비스 배포 환경**(예상)
 
     ![Gunicorn](https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=white) ![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white) ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
+
 - **협업 툴**
 
     ![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white) ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white) ![Notion](https://img.shields.io/badge/Notion-%23000000.svg?style=for-the-badge&logo=notion&logoColor=white) ![Figma](https://img.shields.io/badge/figma-%23F24E1E.svg?style=for-the-badge&logo=figma&logoColor=white)
@@ -59,7 +62,6 @@
     id : test@test.test
     pw : test11!!
     ```
-    
 
 ### 2.3 URL 구조(마이크로식)
 
@@ -139,12 +141,12 @@
 | post/ | GET | 프로모션할 포스트 |  |  |  |
 
 ## 3. 요구사항 명세와 기능 명세
+pass
 
 ## 4. 프로젝트 구조와 개발 일정
 
 ### 4.1 프로젝트 구조
-
-- 해당 프로젝트에서 폴더 트리 잘 다듬어 사용하세요. 필요하다면 주석을 달아주세요.
+pass
 
 ### 4.1 개발 일정(WBS)
 
@@ -152,30 +154,27 @@
 [Dalim-WBS](https://docs.google.com/spreadsheets/d/1reCekeUWcgPSnhlVgcOmrSEXiSXDZB-qdogkP0DkCxk/edit?usp=sharing)
 
 ## 5. 역할 분담
-
-- 팀장 : 최은선
-- FE : 홍길동
-- FE : 홍길동
-- BE : 홍길동
-- BE : 홍길동
-- 디자인 : 홍길동
+pass
 
 ## 6. 와이어프레임 / UI / BM
 
 ### 6.1 와이어프레임
-
-- 피그마
+pass
 
 ### 6.2 화면 설계
+pass
 
 ## 7. 데이터베이스 모델링(ERD)
-
-- Django Extension 사용예정(아마도)
+pass
 
 ## 8. Architecture
+pass
 
 ## 9. 메인 기능
+pass
 
 ## 10. 에러와 에러 해결
+pass
 
-## 11. 개발하며 느낀점
+## 11. 개발하며 느낀점 (회고록)
+pass
