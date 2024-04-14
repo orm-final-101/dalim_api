@@ -50,8 +50,8 @@ def race_detail(request, race_id):
 # 대회 리뷰 목록조회 및 리뷰 신규작성 
 @extend_schema(
     methods=["POST"],
-    request=RaceReviewSerializer,
-    responses={201: RaceReviewSerializer},
+    request=RaceReviewCreateSerializer,
+    responses={201: RaceReviewCreateSerializer},
     description="Create a Review for a Race",
     parameters=[
         OpenApiParameter(name="1",description='ID of the Race to review', required=True, type=int)
@@ -65,7 +65,7 @@ def race_detail(request, race_id):
                 "contents": "Review content here."
                 
             },
-            request_only=True,  # Indicates this is only relevant for the request body
+            request_only=True,   
         )
     ]
 )
@@ -75,12 +75,12 @@ def race_reviews(request, race_id):
 
     if request.method == "GET":
         reviews = RaceReview.objects.filter(race=race)
-        serializer = RaceReviewSerializer(reviews, many=True)
+        serializer = RaceReviewListSerializer(reviews, many=True)
         return Response(serializer.data)
 
     elif request.method == "POST":
         if request.user.is_authenticated:
-            serializer = RaceReviewSerializer(data=request.data, context={"request": request})
+            serializer = RaceReviewCreateSerializer(data=request.data, context={"request": request})
             if serializer.is_valid():
                 serializer.save(author=request.user, race=race)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -92,23 +92,23 @@ def race_reviews(request, race_id):
 
 # 대회 리뷰 수정 및 삭제 
 @extend_schema(
-    methods=["POST"],
-    request=RaceReviewSerializer,
-    responses={201: RaceReviewSerializer},
-    description="Create a Review for a Race",
+    methods=["PATCH"],
+    request=RaceReviewUpdateSerializer,
+    responses={201: RaceReviewUpdateSerializer},
+    description="대회 리뷰 수정",
     parameters=[
-        OpenApiParameter(name="1",description='ID of the Race to review', required=True, type=int)
+        OpenApiParameter(name="사용자명?",description=' 리뷰 ID', required=True, type=int)
     ],
     examples=[
         OpenApiExample(
-            name="Example response",
+            name="사용자명?",
             value={
                 "author": 1,
                 "race": 1,
-                "contents": "Review content here."
+                "contents": "리뷰 내용 수정"
                 
             },
-            request_only=True,  # Indicates this is only relevant for the request body
+            request_only=True,   
         )
     ]
 )
@@ -122,7 +122,7 @@ def race_review_update(request, race_id, review_id):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
     if request.method in ["PATCH"]:
-        serializer = RaceReviewSerializer(review, data=request.data, partial=True)
+        serializer = RaceReviewUpdateSerializer(review, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
