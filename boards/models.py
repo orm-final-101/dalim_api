@@ -28,7 +28,7 @@ class Post(models.Model):
     post_classification = models.CharField(max_length=20, choices=CLASSIFICATION_CHOICES)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     contents = models.TextField()
-    thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True, default="default_thumbnail_image.jpg")
+    thumbnail_image = models.ImageField(upload_to="thumbnail_images/%Y/%m/%d/", null=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, through="Like", related_name="author_posts")
     view_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
