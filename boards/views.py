@@ -1,20 +1,17 @@
 from config.constants import CLASSIFICATION_CHOICES, CATEGORY_CHOICES
 from .models import Post, Like, Comment
 from .serializers import CommentSerializer, PostUpdateSerializer, PostListSerializer, PostDetailSerializer, PostCreateSerializer
-from .permissions import IsStaffOrGeneralClassification
+from .permissions import IsAuthorOrReadOnly, IsStaffOrGeneralClassification
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.decorators import permission_classes, api_view
-from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.decorators import api_view
 from rest_framework import viewsets, status
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
-
-
+# Pagination
 class CustomPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'size'
@@ -25,7 +22,7 @@ class CustomPagination(PageNumberPagination):
             'results': data
         })
 
-
+# Post
 @extend_schema_view(
         list=extend_schema(
             parameters=[
@@ -40,7 +37,7 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostListSerializer
     pagination_class = CustomPagination
-    permission_classes = [IsStaffOrGeneralClassification]
+    permission_classes = [IsAuthorOrReadOnly ,IsStaffOrGeneralClassification]
 
 
     def get_serializer_context(self):
@@ -82,6 +79,13 @@ class PostViewSet(viewsets.ModelViewSet):
             return PostUpdateSerializer
         return super().get_serializer_class()
     
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.view_count += 1
+        instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -89,8 +93,9 @@ class PostViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response({"message": delete_message}, status=status.HTTP_200_OK)
 
+
+# LIKE API
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
 def like_post(request, post_id):
 
     post = get_object_or_404(Post, pk=post_id)
@@ -125,6 +130,7 @@ def like_post(request, post_id):
         return JsonResponse(response_data)
     
     
+# Category, post_classification API
 @api_view(['GET'])
 def get_category_choices(request):
     post_classification_choices = [
@@ -143,9 +149,11 @@ def get_category_choices(request):
 
     return Response(data)
 
+
+# comment
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
         post_id = self.kwargs['post_id']
