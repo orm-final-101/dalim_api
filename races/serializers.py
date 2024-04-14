@@ -65,11 +65,25 @@ class RaceDetailSerializer(serializers.ModelSerializer):
         return []   
     
 
-class RaceReviewSerializer(serializers.ModelSerializer): 
+class RaceReviewListSerializer(serializers.ModelSerializer): 
+    author_id = serializers.CharField(source="author.id", read_only=True)
+    author_nickname = serializers.CharField(source="author.nickname", read_only=True)
     class Meta:
         model = RaceReview
-        fields = ["id", "author", "contents", "created_at", "updated_at"]
-        
+        fields = ["id", "author_id", "author_nickname", "contents", "created_at", "updated_at"]
+
+
+class RaceReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RaceReview
+        fields = ["contents"]
+
+
+class RaceReviewUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RaceReview
+        fields = ["contents"]
+
         
 # 유저 오픈프로필에서 크루후기 볼 때 사용
 class ProfileRaceReviewSerializer(serializers.ModelSerializer):
