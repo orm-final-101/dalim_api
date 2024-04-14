@@ -52,7 +52,7 @@ class RaceTestCase(TestCase):
             location="대회2 장소",
             fees=0,
             register_url="http://test.com",
-            courses = ["full"]
+            courses=["full", "half", "10km"]
         )
         
         # 대회1의 리뷰2개 생성 
