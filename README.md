@@ -145,78 +145,85 @@ pass
 ## 4. 프로젝트 구조와 개발 일정
 
 ### 4.1 프로젝트 구조
-```
-📦accounts
- ┣ 📂migrations
- ┣ 📂__pycache__
- ┣ 📜admin.py
- ┣ 📜apps.py
- ┣ 📜managers.py
- ┣ 📜models.py
- ┣ 📜serializers.py
- ┣ 📜tests.py
- ┣ 📜urls.py
- ┣ 📜views.py
- ┗ 📜__init__.py
-📦boards
- ┣ 📂migrations
- ┣ 📂__pycache__
- ┣ 📜admin.py
- ┣ 📜apps.py
- ┣ 📜models.py
- ┣ 📜permissions.py
- ┣ 📜serializers.py
- ┣ 📜tests.py
- ┣ 📜urls.py
- ┣ 📜views.py
- ┗ 📜__init__.py
-📦config
- ┣ 📂__pycache__
- ┣ 📜asgi.py
- ┣ 📜constants.py
- ┣ 📜settings.py
- ┣ 📜urls.py
- ┣ 📜wsgi.py
- ┗ 📜__init__.py
-📦crews
- ┣ 📂migrations
- ┣ 📂__pycache__
- ┣ 📜admin.py
- ┣ 📜apps.py
- ┣ 📜models.py
- ┣ 📜permissions.py
- ┣ 📜serializers.py
- ┣ 📜tests.py
- ┣ 📜urls.py
- ┣ 📜views.py
- ┗ 📜__init__.py
-📦promotions
- ┣ 📂migrations
- ┣ 📂__pycache__
- ┣ 📜admin.py
- ┣ 📜apps.py
- ┣ 📜models.py
- ┣ 📜serializers.py
- ┣ 📜tests.py
- ┣ 📜urls.py
- ┣ 📜views.py
- ┗ 📜__init__.py
-📦races
- ┣ 📂migrations
- ┃ 📂__pycache__
- ┣ 📜admin.py
- ┣ 📜apps.py
- ┣ 📜models.py
- ┣ 📜serializers.py
- ┣ 📜tests.py
- ┣ 📜urls.py
- ┣ 📜views.py
- ┗ 📜__init__.py
- 📜.gitignore
- ┣📜db.sqlite3
- ┣📜manage.py
- ┣📜README.md
- ┗📜requirements.txt
+
+``` 
+📦dalim_api
+ ┣ 📂accounts
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜managers.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂boards
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜permissions.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂config
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜asgi.py
+ ┃ ┣ 📜constants.py
+ ┃ ┣ 📜settings.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜wsgi.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂crews
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜permissions.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂media
+ ┃ ┣ 📂accounts
+ ┃ ┣ 📂crews
+ ┃ ┣ 📂races
+ ┃ ┗ 📂README
+ ┣ 📂promotions
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂races
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📜.gitignore
+ ┣ 📜db.sqlite3
+ ┣ 📜manage.py
+ ┣ 📜README.md
+ ┗ 📜requirements.txt
 ```
 
 ### 4.2 개발 일정(WBS)
@@ -290,50 +297,153 @@ pass
 ### 6.2 화면 설계
 
 * 어카운트 앱
-
-|  |   |
-|---|---|
-|메인페이지 | 회원가입  | 
-|![메인 페이지](https://github.com/orm-final-101/dalim_api/assets/155033413/79df2053-6e6d-4bec-9991-4bc26412a329)  | ![회원가입](https://github.com/orm-final-101/dalim_api/assets/155033413/4b881843-7c34-4d28-a001-0534ff753ba6) | 
-| 마이페이지|유저 상세 페이지   |
-|![마이페이지(일반유저)](https://github.com/orm-final-101/dalim_api/assets/155033413/0a97b6ff-fd35-44bd-87ca-26285cd47409)  | ![유저 상세페이지(퍼블릭)](https://github.com/orm-final-101/dalim_api/assets/155033413/e0a761f4-1e68-4dfa-b4e3-b272780cbb8a) | 
-| 로그인 | 404 | 
-|![로그인](https://github.com/orm-final-101/dalim_api/assets/155033413/8bc212fb-11eb-47c5-a8f1-77618ee2bbac) | ![404](https://github.com/orm-final-101/dalim_api/assets/155033413/1c93a8da-99ab-4ae3-88e4-58802aaac784)
-
-
+ 
+<table>
+    <tbody>
+        <tr>
+            <td align = "center">메인페이지</td>
+            <td align = "center">회원가입</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+		<img src=".\media\README\메인 페이지.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\회원가입.png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">마이페이지(일반유저)</td>
+            <td align = "center" valign="Top">유저 상세페이지(퍼블릭)</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\마이페이지(일반유저).png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\유저 상세페이지(퍼블릭).png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">로그인</td>
+            <td align = "center" valign="Top">404</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\로그인.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\404.png">
+            </td>
+        </tr>  
+    </tbody>
+</table>
 
 * 크루 앱
+<table>
+    <tbody>
+        <tr>
+            <td align = "center" valign="Top">러닝크루 리스트</td>
+            <td align = "center" valign="Top">러닝크루 상세</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\러닝크루 리스트.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\러닝크루 상세.png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">러닝크루 신청완료</td>
+            <td align = "center" valign="Top"> </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\러닝크루 신청 완료.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img>
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">크루 어드민 최초</td>
+            <td align = "center" valign="Top">크루 어드민(크루 관리자) </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\크루 어드민 페이지_초기(대회관리자).png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\크루 어드민 페이지(크루관리자).png">
+            </td>
+        </tr>   
+        <tr>
+            <td align = "center" valign="Top">크루 등록(크루관리자)</td>
+            <td align = "center" valign="Top">크루 등록 완료 </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\크루 등록(크루관리자).png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\크루등록 완료.png">
+            </td>
+        </tr>   
+    </tbody>
+</table>
 
-|  |   |
-|---|---|
-|  러닝크루리스트|러닝크루 상세   |
-| ![러닝크루 리스트](https://github.com/orm-final-101/dalim_api/assets/155033413/eebf6368-6e7b-4313-891b-4d1448ee3808)|![러닝크루 상세](https://github.com/orm-final-101/dalim_api/assets/155033413/f2a0bec3-ef46-43a7-bdcc-2e632986fc2e)| 
-| 러닝크루 신청 완료|   |
-| ![러닝크루 신청 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/97aaa760-6126-4be4-93f8-0aa2e120ae05)|   |
-| 크루 어드민 최초| 크루 어드민(크루 관리자)   |
-| ![크루 어드민 페이지_초기(대회관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/ef2ae248-c7d8-493f-b679-024df519e479)| ![크루 어드민 페이지(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/e43a0f6e-ef16-401c-8ecd-1ceca9bc7429)  |
-|크루 등록(크루관리자)|크루 등록 완료|
-|![크루 등록(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/38f9a8ce-4db5-4c60-99ca-0317a4f99314)| ![크루등록 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/1be99cfd-f94f-40bd-894f-bef25d46e4a0)|
 
+* 게시판 앱
 
-* 게시판 앱 
-
-|  |   |
-|---|---|
-|게시글 리스트 | 게시글 상세  |
-|![게시글 리스트](https://github.com/orm-final-101/dalim_api/assets/155033413/f381a87f-b702-43c6-a2ec-ea74a54055e8) | ![게시글 상세](https://github.com/orm-final-101/dalim_api/assets/155033413/102092c6-7d14-45d5-af4a-09bd4f228bfd)  |
-|게시글 작성  |   |
-|![게시글 작성](https://github.com/orm-final-101/dalim_api/assets/155033413/e42a4471-e75d-4d9a-813d-5e643f34eaec)  |   |
-
-
+<table>
+    <tbody>
+        <tr>
+            <td align = "center" valign="Top">게시글 리스트</td>
+            <td align = "center" valign="Top">게시글 상세 </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\게시글 리스트.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\게시글 상세.png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">게시글 작성</td>
+            <td align = "center" valign="Top"> </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\게시글 작성.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img  >
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 
 * 대회 앱
 
-|  |   |
-|---|---|
-| 대회 리스트 | 대회 상세 |
-| ![대회 리스트](https://github.com/orm-final-101/dalim_api/assets/155033413/610e3bef-85dd-4602-849f-6d3cb4eeba61)| ![대회 상세](https://github.com/orm-final-101/dalim_api/assets/155033413/7495d3e6-c607-4fe0-9c88-66e990fa1eca) |
+<table>
+    <tbody>
+        <tr>
+            <td align = "center" valign="Top">대회 리스트</td>
+            <td align = "center" valign="Top">대회 상세 </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\대회 리스트.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src=".\media\README\대회 상세.png" >
+            </td>
+        </tr>
+    <tbody>
+<table>
 
 
  
