@@ -285,7 +285,7 @@ pass
 ## 6. 와이어프레임 / UI / BM
 
 ### 6.1 와이어프레임
-![달림 와이어프레임, Figma](image.png)
+![image](https://github.com/orm-final-101/dalim_api/assets/155033413/76323a7a-c911-4992-93bc-51bdb49ce2b5)
 
 ### 6.2 화면 설계
 
