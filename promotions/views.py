@@ -18,4 +18,4 @@ class PromotionViewSet(ListOnlyViewSet):
 
 class PromotionArticleViewSet(ListOnlyViewSet):
     serializer_class = PromotionArticleSerializer
-    queryset = PromotionArticle.objects.filter(is_show=True).order_by('-updated_at')[:3]
+    queryset = PromotionArticle.objects.filter(is_show=True).order_by("-updated_at")[:3]
