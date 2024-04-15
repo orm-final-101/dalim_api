@@ -312,9 +312,8 @@ pass
 | ![러닝크루 신청 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/97aaa760-6126-4be4-93f8-0aa2e120ae05)|   |
 | 크루 어드민 최초| 크루 어드민(크루 관리자)   |
 | ![크루 어드민 페이지_초기(대회관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/ef2ae248-c7d8-493f-b679-024df519e479)| ![크루 어드민 페이지(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/e43a0f6e-ef16-401c-8ecd-1ceca9bc7429)  |
-|크루 등록(크루관리자)|크루 등록 완료
-|
-|![크루 등록(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/38f9a8ce-4db5-4c60-99ca-0317a4f99314)|![크루등록 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/1be99cfd-f94f-40bd-894f-bef25d46e4a0)|
+|크루 등록(크루관리자)|크루 등록 완료|
+|![크루 등록(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/38f9a8ce-4db5-4c60-99ca-0317a4f99314)| ![크루등록 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/1be99cfd-f94f-40bd-894f-bef25d46e4a0)|
 
 
 * 게시판 앱 
