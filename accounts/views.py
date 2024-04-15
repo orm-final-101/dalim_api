@@ -200,30 +200,29 @@ class RaceViewSet(viewsets.ViewSet):
         
     
 # /mypage/favorites/ : 내가 찜한 크루, 대회 목록
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def mypage_favorites(request):
-    try:
-        user = CustomUser.objects.get(pk=request.user.pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "사용자를 찾을 수 없습니다."}, status=404)
+class MypageFavoritesViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
-    if request.method == "GET":
+    def get_object(self):
+        try:
+            return CustomUser.objects.get(pk=self.request.user.pk)
+        except CustomUser.DoesNotExist:
+            raise NotFound("사용자를 찾을 수 없습니다.")
+
+    def list(self, request, *args, **kwargs):
+        user = self.get_object()
         favorite_crews = [favorite.crew for favorite in user.favorite_crews.all()]
         favorite_races = [favorite.race for favorite in user.favorite_races.all()]
 
         crew_serializer = CrewListSerializer(favorite_crews, many=True, context={"request": request})
         race_serializer = RaceListSerializer(favorite_races, many=True, context={"request": request})
 
-        respnse_data = {
+        response_data = {
             "crew": crew_serializer.data,
             "race": race_serializer.data
         }
 
-        return Response(respnse_data)
-    
-    
-    raise MethodNotAllowed(request.method)
+        return Response(response_data)
 
 
 # /<int:pk>/profile/ : 유저 오픈프로필 조회
