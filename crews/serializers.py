@@ -84,9 +84,13 @@ class CrewCreateSerializer(serializers.ModelSerializer):
 
 
 class JoinedCrewSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    updated_at = serializers.CharField(source="user.last_login", read_only=True)
+
     class Meta:
         model = JoinedCrew
-        fields = ["id", "user", "status"]
+        fields = ["id", "username", "email", "updated_at", "status"]
 
 
 # 유저 오픈프로필에서 크루후기 볼 때 사용 > accounts
