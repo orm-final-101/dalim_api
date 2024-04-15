@@ -21,7 +21,8 @@
 ### 1.3 팀 구성
 
 | 이름 | 유유선 | 임재철 | 지민경 | 최은선 |
-| :-- | --- | --- | --- | --- |
+| :-- | :-: | :-: | :-: | :-: |
+| **역할분담** | 백엔드 개발<br>문서화 | 백엔드 개발<br>ERD 작성 | 백엔드 개발<br>문서화 | 프론트엔드 개발<br>백엔드 개발 |
 | **GitHub-Link** | [@northeast23](https://github.com/northeast23) | [@refelim](https://github.com/refelim) | [@jiminkyung](https://github.com/jiminkyung) | [@escape1001](https://github.com/escape1001) |
 
 ## 2. 개발 환경 및 배포 URL
