@@ -104,15 +104,17 @@ class RecordViewSet(viewsets.ViewSet):
 
 
 # /mypage/crew/ : 내가 가입한 크루 목록
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def mypage_crew(request):
-    try:
-        user = CustomUser.objects.get(pk=request.user.pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
+class MypageCrewViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
-    if request.method == "GET":
+    def get_object(self):
+        try:
+            return CustomUser.objects.get(pk=self.request.user.pk)
+        except CustomUser.DoesNotExist:
+            raise NotFound("User not found")
+
+    def list(self, request, *args, **kwargs):
+        user = self.get_object()
         joined_crews = JoinedCrew.objects.filter(user=user)
         serializer = JoinedCrewSerializer(joined_crews, many=True)
         return Response(serializer.data)

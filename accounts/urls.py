@@ -11,6 +11,7 @@ router = DefaultRouter()
 router.register("mypage/record", views.RecordViewSet, basename="record")
 router.register("mypage/race", views.RaceViewSet, basename="joined_race")
 router.register("mypage/info", views.UserInfoViewSet, basename="info")
+router.register("mypage/crew", views.MypageCrewViewSet, basename="mypage_crew")
 
 
 urlpatterns = [
@@ -19,7 +20,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="account_logout"),
     path("signup/", views.CustomRegisterView.as_view(), name="account_signup"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("mypage/crew/", views.mypage_crew),
     path("<int:pk>/profile/", views.profile),
     path("mypage/favorites/", views.mypage_favorites),
 ]
