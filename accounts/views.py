@@ -32,7 +32,7 @@ class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
 
 
-# mypage/info는 일단 fbv로 작업 - 완
+# mypage/info/ : 유저 정보 CRUD
 @extend_schema(
     methods=["PATCH"],
     request=ProfileSerializer
@@ -59,7 +59,7 @@ def mypage_info(request):
     raise MethodNotAllowed(request.method)
      
 
-# mypage/record CRUD는 뷰셋으로 작업 - 완
+# mypage/record/ : 달림 기록 CRUD
 @extend_schema(
     methods=["POST", "PATCH"],
     request=RecordSerialiser
@@ -103,7 +103,7 @@ class RecordViewSet(viewsets.ViewSet):
         return Response(status=204)
 
 
-# /mypage/crew 내가 신청한 크루 현황
+# /mypage/crew/ : 내가 가입한 크루 목록
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def mypage_crew(request):
@@ -118,8 +118,8 @@ def mypage_crew(request):
         return Response(serializer.data)
 
 
-# /mypage/race 내가 신청한 대회 내역 : GET, POST
-# /mypage/race/<int:joined_race_id> 내 대회 기록 : PATCH, DELETE
+# /mypage/race/ : 내가 신청한 대회 내역
+# /mypage/race/<int:joined_race_id> : 내 대회 기록
 @extend_schema(
     methods=["GET", "POST", "PATCH", "DELETE"]
 )
@@ -197,7 +197,7 @@ class RaceViewSet(viewsets.ViewSet):
         return Response(status=204)
         
     
-# /mypage/favorites : GET
+# /mypage/favorites/ : 내가 찜한 크루, 대회 목록
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def mypage_favorites(request):
@@ -223,7 +223,8 @@ def mypage_favorites(request):
     
     raise MethodNotAllowed(request.method)
 
-# /<int:pk>/profile : GET
+
+# /<int:pk>/profile/ : 유저 오픈프로필 조회
 @api_view(["GET"])
 def profile(request, pk):
     try:
