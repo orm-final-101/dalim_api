@@ -363,7 +363,7 @@ class OpenProfileTestCase(BaseTestCase):
     def test_nomember(self):
         print("[공개 프로필 GET 테스트]")
         print(">> 비회원 상태에서도 GET 가능. 지정된 형식과 일치하는지 확인")
-        response = self.client.get(f"/accounts/{self.user.id}/profile/")
+        response = self.client.get(f"/accounts/profile/{self.user.id}/")
         data = response.data
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -388,12 +388,12 @@ class OpenProfileTestCase(BaseTestCase):
         print("[공개 프로필 GET 테스트]")
         print(">> 회원 상태에서도 GET 가능. 본인일 때에만 좋아요 리스트 확인")
         self.client.force_authenticate(user=self.user)
-        response = self.client.get(f"/accounts/{self.user2.id}/profile/")
+        response = self.client.get(f"/accounts/profile/{self.user2.id}/")
         data = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotIn("likes", data)
 
-        response = self.client.get(f"/accounts/{self.user.id}/profile/")
+        response = self.client.get(f"/accounts/profile/{self.user.id}/")
         data = response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("likes", data)

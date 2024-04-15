@@ -226,32 +226,33 @@ class MypageFavoritesViewSet(viewsets.ViewSet):
 
 
 # /<int:pk>/profile/ : 유저 오픈프로필 조회
-@api_view(["GET"])
-def profile(request, pk):
-    try:
-        user = CustomUser.objects.get(pk=pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
-    
-    user_serializer = OpenProfileSerializer(user)
-    post_serializer = PostListSerializer(Post.objects.filter(author=user), many=True)
-    comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
-    crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
-    race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
-    
-    fin_data = {
-        "user" : user_serializer.data,
-        "posts" : post_serializer.data,
-        "comments" : comments_serializer.data,
-        "reviews" : {
-            "crew" : crew_review_serializer.data,
-            "race" : race_review_serializer.data
+class ProfileViewSet(viewsets.ViewSet):
+
+    def retrieve(self, request, pk=None):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+
+        user_serializer = OpenProfileSerializer(user)
+        post_serializer = PostListSerializer(Post.objects.filter(author=user), many=True)
+        comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
+        crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
+        race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
+
+        fin_data = {
+            "user" : user_serializer.data,
+            "posts" : post_serializer.data,
+            "comments" : comments_serializer.data,
+            "reviews" : {
+                "crew" : crew_review_serializer.data,
+                "race" : race_review_serializer.data
+            }
         }
-    }
 
-    # request.user와 pk가 일치하는 경우에만 'likes' 항목을 추가
-    if request.user.pk == user.pk:
-        liked_post_serializer = ProfileLikedPostSerializer(Like.objects.filter(author=user), many=True)
-        fin_data["likes"] = liked_post_serializer.data
+        # request.user와 pk가 일치하는 경우에만 'likes' 항목을 추가
+        if request.user.pk == user.pk:
+            liked_post_serializer = ProfileLikedPostSerializer(Like.objects.filter(author=user), many=True)
+            fin_data["likes"] = liked_post_serializer.data
 
-    return Response(fin_data)
+        return Response(fin_data)
