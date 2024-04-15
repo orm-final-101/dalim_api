@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import Post, Comment, Like
+from config.constants import CLASSIFICATION_CHOICES, CATEGORY_CHOICES
 
 
+# 댓글 수정 및 작성
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
@@ -20,6 +22,8 @@ class PostListSerializer(serializers.ModelSerializer):
             'post_classification', 'category', 'view_count', 'comment_count',
             'created_at', 'updated_at',
         ]
+
+        order_by = ['-created_at']
 
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
@@ -41,20 +45,15 @@ class PostDetailSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
-            like = Like.objects.filter(post=obj, author=user).first()
+            is_liked = Like.objects.filter(post=obj, author=user).exists()
             return {
                 "count": obj.likes.count(),
-                "is_liked": like.is_liked if like else False
+                "is_liked": is_liked
             }
         return {
             "count": obj.likes.count(),
             "is_liked": False
         }
-
-    def retrieve(self, instance):
-        instance.view_count += 1
-        instance.save()
-        return instance
 
 # 게시글 수정
 class PostUpdateSerializer(serializers.ModelSerializer):
@@ -76,6 +75,8 @@ class PostUpdateSerializer(serializers.ModelSerializer):
 # 게시글 작성
 class PostCreateSerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
+    post_classification = serializers.ChoiceField(required=True, choices=CLASSIFICATION_CHOICES)
+    category = serializers.ChoiceField(required=True, choices=CATEGORY_CHOICES)
 
     class Meta:
         model = Post
@@ -89,6 +90,21 @@ class PostCreateSerializer(serializers.ModelSerializer):
             return post
         else:
             raise serializers.ValidationError("User must be authenticated to create a post.")
+        
+    def validate_post_classification(self, value):
+        if value not in [choice[0] for choice in CLASSIFICATION_CHOICES]:
+            raise serializers.ValidationError("Invalid post classification.")
+        return value
+
+    def validate_category(self, value):
+        if value not in [choice[0] for choice in CATEGORY_CHOICES]:
+            raise serializers.ValidationError("Invalid category.")
+        return value
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['id'] = instance.id
+        return representation
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -112,7 +128,6 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_queryset(self):
         post_id = self.context['view'].kwargs['post_id']
         return Comment.objects.filter(post_id=post_id)
-
 
 
 # 유저 오픈프로필에서 내가 작성한 덧글 볼 때 사용
