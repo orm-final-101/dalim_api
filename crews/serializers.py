@@ -14,7 +14,7 @@ class CrewListSerializer(serializers.ModelSerializer):
     is_opened = serializers.CharField(source="get_status_display")
     meet_days = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
-    member_count = serializers.SerializerMethodField()
+    member_count = serializers.IntegerField(source="get_member_count")
     favorite_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -36,7 +36,7 @@ class CrewDetailSerializer(serializers.ModelSerializer):
     is_opened = serializers.CharField(source="get_status_display")
     meet_days = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
-    member_count = serializers.SerializerMethodField()
+    member_count = serializers.IntegerField(source="get_member_count")
 
     class Meta:
         model = Crew
