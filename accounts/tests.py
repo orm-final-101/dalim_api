@@ -164,12 +164,12 @@ class MypageInfoTestCase(BaseTestCase):
     def test_patch_mypage_info(self):
         print("[마이페이지 info PATCH 테스트]")
         print(">> 비회원 상태에서 마이페이지 정보를 수정하려고 하면 401을 반환한다.")
-        response = self.client.patch("/accounts/mypage/info/", data={"nickname": "patch test"})
+        response = self.client.patch(f"/accounts/mypage/info/${self.user.pk}/", data={"nickname": "patch test"})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         print(">> 회원 상태에서 마이페이지 정보를 수정하면 200을 반환한다.")
         self.client.force_authenticate(user=self.user)
-        response = self.client.patch("/accounts/mypage/info/", data={"nickname": "patch test"})
+        response = self.client.patch(f"/accounts/mypage/info/${self.user.pk}/", data={"nickname": "patch test"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         print(response.data)
         print("----------------------------------------------------- 완료")

@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
-from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.exceptions import MethodNotAllowed, NotFound
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -33,30 +33,30 @@ class CustomRegisterView(RegisterView):
 
 
 # mypage/info/ : 유저 정보 CRUD
-@extend_schema(
-    methods=["PATCH"],
-    request=ProfileSerializer
-)
-@api_view(["GET", "PATCH"])
-@permission_classes([IsAuthenticated])
-def mypage_info(request):
-    try:
-        user = CustomUser.objects.get(pk=request.user.pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
-    
-    if request.method == "GET":
-        user = CustomUser.objects.get(pk=request.user.pk)
+class UserInfoViewSet(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+
+    def get_object(self):
+        try:
+            return CustomUser.objects.get(pk=self.request.user.pk)
+        except CustomUser.DoesNotExist:
+            raise NotFound("User not found")
+
+    @extend_schema(request=ProfileSerializer)
+    def list(self, request, *args, **kwargs):
+        user = self.get_object()
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
-    elif request.method == "PATCH":
+
+    @extend_schema(request=ProfileSerializer)
+    def partial_update(self, request, *args, **kwargs):
+        user = self.get_object()
         serializer = ProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
-    raise MethodNotAllowed(request.method)
      
 
 # mypage/record/ : 달림 기록 CRUD
