@@ -301,6 +301,7 @@ pass
 |![로그인](https://github.com/orm-final-101/dalim_api/assets/155033413/8bc212fb-11eb-47c5-a8f1-77618ee2bbac) | ![404](https://github.com/orm-final-101/dalim_api/assets/155033413/1c93a8da-99ab-4ae3-88e4-58802aaac784)
 
 
+
 * 크루 앱
 
 |  |   |
@@ -314,6 +315,7 @@ pass
 |크루 등록(크루관리자)|크루 등록 완료
 |
 |![크루 등록(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/38f9a8ce-4db5-4c60-99ca-0317a4f99314)|![크루등록 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/1be99cfd-f94f-40bd-894f-bef25d46e4a0)|
+
 
 * 게시판 앱 
 
