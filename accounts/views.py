@@ -98,6 +98,8 @@ class RecordViewSet(viewsets.ViewSet):
             return Response({"error": "Record not found"}, status=404)
         
         record.delete()
+        serializers = RecordSerialiser()
+        serializers.update_user_level(request.user)
         return Response(status=204)
 
 

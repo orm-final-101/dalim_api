@@ -32,12 +32,16 @@ class CustomUserSerializer(UserDetailsSerializer):
         
 
 class LevelStepSerializer(serializers.ModelSerializer):
+    prev_distance = serializers.SerializerMethodField()
     next_distance = serializers.SerializerMethodField()
 
     class Meta:
         model = LevelStep
-        fields = ["title", "number", "next_distance"]
+        fields = ["title", "number", "prev_distance", "next_distance"]
 
+    def get_prev_distance(self, obj):
+        return obj.min_distance
+    
     def get_next_distance(self, obj):
         return obj.max_distance
 
@@ -45,6 +49,7 @@ class LevelStepSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     level = LevelStepSerializer(read_only=True)
     distance = serializers.SerializerMethodField()
+    
     class Meta:
         model = CustomUser
         fields = ["id", "username", "nickname", "phone_number", "location_city", "location_district", "distance", "level", "profile_image"]
@@ -60,6 +65,20 @@ class RecordSerialiser(serializers.ModelSerializer):
         model = Record
         fields = ["id", "user", "created_at", "description", "distance"]
         read_only_fields = ["user"]
+
+    def save(self, **kwargs):
+        record = super().save(**kwargs)
+        self.update_user_level(record.user)
+        return record
+    
+    def update_user_level(self, user):
+        total_distance = Record.objects.filter(user=user).aggregate(total_distance=Sum("distance"))["total_distance"] or 0
+        user.level = LevelStep.objects.filter(min_distance__lte=total_distance, max_distance__gt=total_distance).first()
+
+        if user.level is None:
+            user.level = LevelStep.objects.order_by('-pk').first()
+
+        user.save()
 
 
 class JoinedCrewSerializer(serializers.ModelSerializer):
