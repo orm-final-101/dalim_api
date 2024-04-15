@@ -145,11 +145,139 @@ pass
 ## 4. 프로젝트 구조와 개발 일정
 
 ### 4.1 프로젝트 구조
-pass
+```
+📦accounts
+ ┣ 📂migrations
+ ┣ 📂__pycache__
+ ┣ 📜admin.py
+ ┣ 📜apps.py
+ ┣ 📜managers.py
+ ┣ 📜models.py
+ ┣ 📜serializers.py
+ ┣ 📜tests.py
+ ┣ 📜urls.py
+ ┣ 📜views.py
+ ┗ 📜__init__.py
+📦boards
+ ┣ 📂migrations
+ ┣ 📂__pycache__
+ ┣ 📜admin.py
+ ┣ 📜apps.py
+ ┣ 📜models.py
+ ┣ 📜permissions.py
+ ┣ 📜serializers.py
+ ┣ 📜tests.py
+ ┣ 📜urls.py
+ ┣ 📜views.py
+ ┗ 📜__init__.py
+📦config
+ ┣ 📂__pycache__
+ ┣ 📜asgi.py
+ ┣ 📜constants.py
+ ┣ 📜settings.py
+ ┣ 📜urls.py
+ ┣ 📜wsgi.py
+ ┗ 📜__init__.py
+📦crews
+ ┣ 📂migrations
+ ┣ 📂__pycache__
+ ┣ 📜admin.py
+ ┣ 📜apps.py
+ ┣ 📜models.py
+ ┣ 📜permissions.py
+ ┣ 📜serializers.py
+ ┣ 📜tests.py
+ ┣ 📜urls.py
+ ┣ 📜views.py
+ ┗ 📜__init__.py
+📦promotions
+ ┣ 📂migrations
+ ┣ 📂__pycache__
+ ┣ 📜admin.py
+ ┣ 📜apps.py
+ ┣ 📜models.py
+ ┣ 📜serializers.py
+ ┣ 📜tests.py
+ ┣ 📜urls.py
+ ┣ 📜views.py
+ ┗ 📜__init__.py
+📦races
+ ┣ 📂migrations
+ ┃ 📂__pycache__
+ ┣ 📜admin.py
+ ┣ 📜apps.py
+ ┣ 📜models.py
+ ┣ 📜serializers.py
+ ┣ 📜tests.py
+ ┣ 📜urls.py
+ ┣ 📜views.py
+ ┗ 📜__init__.py
+ 📜.gitignore
+ ┣📜db.sqlite3
+ ┣📜manage.py
+ ┣📜README.md
+ ┗📜requirements.txt
+```
 
-### 4.1 개발 일정(WBS)
+### 4.2 개발 일정(WBS)
 
-- Google spreadsheet로 관리 👉 [Dalim-WBS](https://docs.google.com/spreadsheets/d/1reCekeUWcgPSnhlVgcOmrSEXiSXDZB-qdogkP0DkCxk/edit?usp=sharing)
+```mermaid
+gantt
+    title 달림(Dalim, 런닝 커뮤니티)
+    dateFormat  YY-MM-DD
+
+    section 기획/환경설정/공통업무
+    주제선정, 화면설계   :24-03-29, 1d
+    앱 분리 및 업무분장 : a1, 24-03-30, 1d
+    프론트, 백엔드 repo 생성: a2, 24-04-01, 1d
+    문서화 마무리, 발표준비: 24-04-14, 2d
+
+    section 프론트엔드(FE)
+    프론트엔드-작업시작(상품게시판제외): 24-04-01, 1d
+    프론트엔드-로그인, 회원가입, 메인 완료:24-04-02, 1d
+    프론트엔드-마이페이지,사용자 홈 완료:24-04-03, 1d
+    프론트엔드-크루리스트, 상세/대화 리스트, 상세 완료:24-04-04, 1d
+    프론트엔드-대화 어드민, 게시판: 24-04-05, 1d
+    프론트엔드-퍼블리싱 완료: milestone, isadded, 24-04-06, 0d
+    프론트엔드-작업된 API 연결(1차): 24-04-11, 1d 
+    프론트엔드-작업된 API 연결(2차): 24-04-13, 1d
+    
+    section 백엔드(BE)- 공통 
+    앱별 모델 작성: b1, 24-04-01, 1d
+    url fix하고 내려주는 모양 확정(1차):after b1, 24-04-02, 1d
+    url fix하고 내려주는 모양 확정(1차):after b1, 24-04-03, 1d
+    모델 초안 작성 및 공유: after b1, 24-04-01, 1d
+    모델 초안 작성 및 공유: after b1, 24-04-01, 1d
+    모델 확정: milestone, isadded, 24-04-04, 0d
+    프론트엔드-API 연결 완료: milestone, isadded, 24-04-14, 0d   
+
+    section 메인, 유저, 프로모션 앱
+    모델 확정:after b1, 24-04-03, 1d
+    테스트코드 작성: b2, 24-04-08, 1d    
+    API(cbv viewset) 작성 및 테스트: after b2, 24-04-08, 4d    
+
+    section 크루 앱
+    모델 확정:after a2, 24-04-03, 1d
+    API(fbv) 작성 및 테스트: c1, 24-04-05, 2d    
+    API(cbv) 작성 및 테스트: after c1, 24-04-07, 2d 
+    기능 수정 및 테스트: 24-04-10, 1d   
+    코드 리팩토링, 문서화: 24-04-12, 2d    
+
+    section 게시판 앱 
+    모델 확정:after a1, 24-04-03, 1d
+    API 작성 및 테스트: d2, 24-04-05, 7d
+    기능 수정 및 ERD 작성: 24-04-12, 2d
+
+    section 대회 앱 
+    모델 확정: after a1, 24-04-03, 1d
+    API 작성 및 테스트: r1, 24-04-05, 6d
+    테스트코드 작성 및 실행: after r1, 24-04-12, 2d
+
+    section 배포
+    배포 시도 시작:a1, 24-04-14, 1d
+    배포 1차: 24-04-15, 1d
+    배포 최종: milestone, isadded, 24-04-16, 0d
+```
 
 ## 5. 역할 분담
 pass
@@ -157,10 +285,57 @@ pass
 ## 6. 와이어프레임 / UI / BM
 
 ### 6.1 와이어프레임
-pass
+![달림 와이어프레임, Figma](image.png)
 
 ### 6.2 화면 설계
-pass
+
+* 어카운트 앱
+
+|  |   |
+|---|---|
+|메인페이지 | 회원가입  | 
+|![메인 페이지](https://github.com/orm-final-101/dalim_api/assets/155033413/79df2053-6e6d-4bec-9991-4bc26412a329)  | ![회원가입](https://github.com/orm-final-101/dalim_api/assets/155033413/4b881843-7c34-4d28-a001-0534ff753ba6) | 
+| 마이페이지|유저 상세 페이지   |
+|![마이페이지(일반유저)](https://github.com/orm-final-101/dalim_api/assets/155033413/0a97b6ff-fd35-44bd-87ca-26285cd47409)  | ![유저 상세페이지(퍼블릭)](https://github.com/orm-final-101/dalim_api/assets/155033413/e0a761f4-1e68-4dfa-b4e3-b272780cbb8a) | 
+| 로그인 | 404 | 
+|![로그인](https://github.com/orm-final-101/dalim_api/assets/155033413/8bc212fb-11eb-47c5-a8f1-77618ee2bbac) | ![404](https://github.com/orm-final-101/dalim_api/assets/155033413/1c93a8da-99ab-4ae3-88e4-58802aaac784)
+
+
+* 크루 앱
+
+|  |   |
+|---|---|
+|  러닝크루리스트|러닝크루 상세   |
+| ![러닝크루 리스트](https://github.com/orm-final-101/dalim_api/assets/155033413/eebf6368-6e7b-4313-891b-4d1448ee3808)|![러닝크루 상세](https://github.com/orm-final-101/dalim_api/assets/155033413/f2a0bec3-ef46-43a7-bdcc-2e632986fc2e)| 
+| 러닝크루 신청 완료|   |
+| ![러닝크루 신청 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/97aaa760-6126-4be4-93f8-0aa2e120ae05)|   |
+| 크루 어드민 최초| 크루 어드민(크루 관리자)   |
+| ![크루 어드민 페이지_초기(대회관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/ef2ae248-c7d8-493f-b679-024df519e479)| ![크루 어드민 페이지(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/e43a0f6e-ef16-401c-8ecd-1ceca9bc7429)  |
+|크루 등록(크루관리자)|크루 등록 완료
+|
+|![크루 등록(크루관리자)](https://github.com/orm-final-101/dalim_api/assets/155033413/38f9a8ce-4db5-4c60-99ca-0317a4f99314)|![크루등록 완료](https://github.com/orm-final-101/dalim_api/assets/155033413/1be99cfd-f94f-40bd-894f-bef25d46e4a0)|
+
+* 게시판 앱 
+
+|  |   |
+|---|---|
+|게시글 리스트 | 게시글 상세  |
+|![게시글 리스트](https://github.com/orm-final-101/dalim_api/assets/155033413/f381a87f-b702-43c6-a2ec-ea74a54055e8) | ![게시글 상세](https://github.com/orm-final-101/dalim_api/assets/155033413/102092c6-7d14-45d5-af4a-09bd4f228bfd)  |
+|게시글 작성  |   |
+|![게시글 작성](https://github.com/orm-final-101/dalim_api/assets/155033413/e42a4471-e75d-4d9a-813d-5e643f34eaec)  |   |
+
+
+
+
+* 대회 앱
+
+|  |   |
+|---|---|
+| 대회 리스트 | 대회 상세 |
+| ![대회 리스트](https://github.com/orm-final-101/dalim_api/assets/155033413/610e3bef-85dd-4602-849f-6d3cb4eeba61)| ![대회 상세](https://github.com/orm-final-101/dalim_api/assets/155033413/7495d3e6-c607-4fe0-9c88-66e990fa1eca) |
+
+
+ 
 
 ## 7. 데이터베이스 모델링(ERD)
 pass
