@@ -72,18 +72,18 @@
 | logout/ | POST | 로그아웃 | ✅ |  |  |
 | token/refresh/ | POST | 토큰 재발급 | ✅ |  |  |
 | mypage/info | GET | 회원정보 | ✅ | ✅ |  |
-| mypage/info | PATCH, PUT | 회원정보 수정 | ✅ | ✅ |  |
+| mypage/info/\<int:user_id\>/ | PATCH, PUT | 회원정보 수정 | ✅ | ✅ |  |
 | mypage/record | GET | 달린 기록 보기 | ✅ |  |  |
 | mypage/record | POST | 달린 거리 기록 | ✅ |  |  |
 | mypage/record/\<int:record_id\>/ | PATCH, PUT | 달린 거리 수정 | ✅ | ✅ |  |
 | mypage/record/\<int:record_id\>/ | DELETE | 달린 거리 삭제 | ✅ | ✅ |  |
 | mypage/crew/ | GET | 내가 신청한 크루 현황 | ✅ |  |  |
 | mypage/race/ | GET | 내가 신청한 대회 내역 | ✅ |  |  |
-| mypage/race/ | POST | 내가 신청한 대회 내역 추가 | ✅ |  |  |
+| mypage/race/ | POST | 내 대회 기록 추가 | ✅ |  |  |
 | mypage/race/\<int:joined_race_id\>/ | PATCH, PUT | 내 대회 기록 추가/수정 | ✅ | ✅ |  |
 | mypage/race/\<int:joined_race_id\>/ | DELETE | 내 대회 기록 삭제 | ✅ | ✅ |  |
 | mypage/favorites | GET | 나의 관심 리스트 | ✅ |  |  |
-| \<int:pk\>/profile/ | GET | 유저 오픈프로필 |  |  |  |
+| profile/\<int:pk\>/ | GET | 유저 오픈프로필 |  |  |  |
 | \<int:pk\>/likes/ | GET | 해당 유저가 좋아요한 글(본인만 볼 수 있음) | ✅ |  | 유저 본인만 가능 |
 | \<int:pk\>/reviews/ | GET | 해당 유저가 남긴 크루/대회 후기 |  |  |  |
 
@@ -165,8 +165,6 @@
 - 러닝 크루
     - 크루 리스트, 검색을 통해 필터링된 결과 리스트
     - 상세페이지에서 해당 크루의 상세 정보를 확인할 수 있음
-    - 크루 가입 신청 기능
-    - 
     - 일반회원으로 가입시(`"normal"`)
         - 크루 가입신청 기능
         - 크루 리뷰 CRUD 기능
