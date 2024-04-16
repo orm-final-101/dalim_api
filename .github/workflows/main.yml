@@ -34,8 +34,8 @@ jobs:
             cd /home/ubuntu/dalim_api
             git pull origin main
             
-            echo "SECRET_KEY=\"${{ secrets.SECRET_KEY }}\"" > .env
-            echo "DEBUG='${{ secrets.DEBUG }}'" >> .env
+            echo "DJANGO_SECRET_KEY=\"${{ secrets.SECRET_KEY }}\"" > .env
+            echo "DJANGO_DEBUG='${{ secrets.DEBUG }}'" >> .env
             
             source venv/bin/activate
 
