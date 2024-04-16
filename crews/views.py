@@ -12,7 +12,14 @@ from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 
-# 일반 크루 페이지
+"""
+일반 크루 페이지
+
+- "모집중"인 상태의 크루 리스트
+- 검색, 필터링 기능
+- 해당 크루의 상세 페이지
+- 크루 가입 신청, 즐겨찾기 추가/제거 기능
+"""
 @extend_schema_view(
     list=extend_schema(
         parameters=[
@@ -22,14 +29,17 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiPara
         ]
     )
 )
+# 일반 크루 페이지
 class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CrewListSerializer
 
+    # 모집중인 크루만 조회
     def get_queryset(self):
         if self.action == "list":
             return Crew.objects.filter(is_opened=True)
         return Crew.objects.all()
 
+    # 상세 페이지
     def get_serializer_class(self):
         if self.action == "retrieve":
             return CrewDetailSerializer
@@ -40,22 +50,26 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
         context.update({"request": self.request})
         return context
 
+    # 크루 검색 및 필터링 기능
     def filter_queryset(self, queryset):
         search_keyword = self.request.GET.get("search", "")
         selected_location_city = self.request.GET.get("location_city", "")
         selected_meet_days = self.request.GET.get("meet_days", "")
 
+        # 검색어 필터링
         if search_keyword:
             queryset = queryset.filter(
                 Q(name__icontains=search_keyword) |
                 Q(description__icontains=search_keyword)
             )
 
+        # 지역 필터링
         if selected_location_city:
             selected_location_city = [city[0] for city in LOCATION_CITY_CHOICES if city[0] == selected_location_city]
             if selected_location_city:
                 queryset = queryset.filter(location_city=selected_location_city[0])
 
+        # 요일 필터링
         if selected_meet_days:
             selected_meet_days = selected_meet_days.split(",")
             valid_meet_days = [day[0] for day in MEET_DAY_CHOICES]
@@ -64,9 +78,9 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
             for day in selected_meet_days:
                 query |= Q(meet_days__contains=day)
             queryset = queryset.filter(query)
-
         return queryset
     
+    # 크루 가입 신청 기능
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def join(self, request, pk=None):
         crew = self.get_object()
@@ -74,7 +88,6 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
 
         if JoinedCrew.objects.filter(user=user, crew=crew).exists():
             joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
-
             if joined_crew.status == "member":
                 return Response({"error": "이미 회원입니다."}, status=status.HTTP_400_BAD_REQUEST)
             elif joined_crew.status == "non_keeping":
@@ -88,7 +101,8 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
 
         JoinedCrew.objects.create(user=user, crew=crew, status="keeping")
         return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
-    
+
+    # 크루 즐겨찾기 추가/제거 기능 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         crew = self.get_object()
@@ -98,10 +112,9 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
             CrewFavorite.objects.filter(user=user, crew=crew).delete()
         else:
             CrewFavorite.objects.create(user=user, crew=crew)
-
         return Response(status=status.HTTP_200_OK)
     
-    # 즐겨찾기순으로 top6
+    # 즐겨찾기 수 기준 상위 6개 크루 조회
     @action(detail=False, methods=["get"])
     def top6(self, request):
         queryset = self.filter_queryset(self.get_queryset())
@@ -110,7 +123,12 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-# 크루 관리자 전용
+"""
+크루 관리자 전용
+
+- 크루 관리자만 접근 가능
+- 크루 생성/수정/삭제 기능
+"""
 class ManagerCrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewListSerializer
@@ -128,14 +146,17 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
         context.update({"request": self.request})
         return context
 
+    # 현재 사용자가 소유한 크루만 조회
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(owner=self.request.user)
         return queryset
 
+    # 크루 생성 시 owner 설정
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+    # 크루 수정 시 권한 체크
     def get_permissions(self):
         if self.action in ["update", "partial_update"]:
             permission_classes = [IsAuthenticated, IsCrewAdmin, IsCrewOwner]
@@ -144,11 +165,35 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-# 크루 리뷰
-class CrewReviewViewSet(viewsets.ModelViewSet):
-    queryset = CrewReview.objects.all()
+"""
+크루 리뷰 관리
+
+- 크루 리뷰 목록: 모든 사용자가 볼 수 있음
+- 리뷰 작성: 크루 회원("member") 또는 탈퇴한 회원("quit")만 가능
+- 리뷰 수정/삭제: 해당 작성자만 가능
+"""
+
+# 크루 회원 또는 탈퇴한 회원인지 확인하는 메서드
+def has_permission_to_create(self, crew):
+    return IsCrewMemberOrQuit().has_object_permission(self.request, self, crew)
+
+# 권한 체크 로직을 담고 있는 믹스인 클래스
+class CrewReviewPermissionMixin:
+    # 리뷰 작성 권한 체크 메서드
+    def has_permission_to_create(self, crew):
+        return IsCrewMemberOrQuit().has_object_permission(self.request, self, crew)
+
+    # 리뷰 수정/삭제 권한 체크 메서드
+    def has_permission_to_update_or_destroy(self, instance):
+        return instance.author == self.request.user
+
+
+# CrewReviewPermissionMixin을 상속받아 권한 체크 로직을 사용하는 ViewSet
+class CrewReviewViewSet(CrewReviewPermissionMixin, viewsets.ModelViewSet):
+    queryset = CrewReview.objects.select_related("author", "crew")
     serializer_class = CrewReviewListSerializer
 
+    # 리뷰 작성, 수정 시 사용할 serializer 클래스 지정
     def get_serializer_class(self):
         if self.action == "create":
             return CrewReviewCreateSerializer
@@ -156,50 +201,51 @@ class CrewReviewViewSet(viewsets.ModelViewSet):
             return CrewReviewUpdateSerializer
         return super().get_serializer_class()
 
+    # 특정 크루의 리뷰만 조회
     def get_queryset(self):
-        crew_id = self.kwargs.get("crew_id")
-        return CrewReview.objects.filter(crew_id=crew_id)
+        return super().get_queryset().filter(crew_id=self.kwargs.get("crew_id"))
 
+    # 리뷰 작성 기능
     def create(self, request, *args, **kwargs):
-        crew_id = self.kwargs.get("crew_id")
-        crew = get_object_or_404(Crew, id=crew_id)
-
-        if not IsCrewMemberOrQuit().has_object_permission(request, self, crew):
+        crew = get_object_or_404(Crew, id=self.kwargs.get("crew_id"))
+        if not self.has_permission_to_create(crew):
             return Response({"error": "리뷰 작성 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    # 리뷰 작성 시 저장 로직
     def perform_create(self, serializer):
-        crew_id = self.kwargs.get("crew_id")
-        crew = get_object_or_404(Crew, id=crew_id)
+        crew = get_object_or_404(Crew, id=self.kwargs.get("crew_id"))
         serializer.save(author=self.request.user, crew=crew)
 
-    def get_permissions(self):
-        if self.action == "create":
-            permission_classes = [IsAuthenticated]
-        elif self.action in ["update", "partial_update", "destroy"]:
-            permission_classes = [IsAuthenticated]
-        else:
-            permission_classes = []
-        return [permission() for permission in permission_classes]
+    # 리뷰 수정 기능
+    def perform_update(self, serializer):
+        if not self.has_permission_to_update_or_destroy(serializer.instance):
+            return Response({"error": "리뷰 작성자만 수정할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+        serializer.save()
 
-    def check_object_permissions(self, request, obj):
-        if self.action in ["update", "partial_update", "destroy"]:
-            if request.user != obj.author:
-                self.permission_denied(request, message="리뷰 작성자만 수정/삭제할 수 있습니다.")
-        return super().check_object_permissions(request, obj)
+    # 리뷰 삭제 기능
+    def perform_destroy(self, instance):
+        if not self.has_permission_to_update_or_destroy(instance):
+            return Response({"error": "리뷰 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+        instance.delete()
 
 
-# 크루 멤버관리
+"""
+크루 멤버 관리
+
+- 크루 관리자만 접근 가능
+- 크루 회원들의 상태(member, quit, keeping 등)를 관리
+"""
 class CrewMemberViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = JoinedCrew.objects.all()
     serializer_class = JoinedCrewSerializer
     permission_classes = [IsAuthenticated, IsCrewAdmin]
 
+    # 현재 사용자가 소유한 크루의 회원만 조회
     def get_queryset(self):
         crew_id = self.kwargs.get("crew_id")
         return JoinedCrew.objects.filter(crew_id=crew_id, crew__owner=self.request.user)

@@ -94,7 +94,7 @@ class PublicCrewViewSetTestCase(APITestCase):
 
     # top6
     def test_top6_crews(self):
-        url = reverse("crews:crew-top6")
+        url = reverse("crews:crew_top6")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
