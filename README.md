@@ -145,11 +145,146 @@ pass
 ## 4. 프로젝트 구조와 개발 일정
 
 ### 4.1 프로젝트 구조
-pass
 
-### 4.1 개발 일정(WBS)
+``` 
+📦dalim_api
+ ┣ 📂accounts
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜managers.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂boards
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜permissions.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂config
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜asgi.py
+ ┃ ┣ 📜constants.py
+ ┃ ┣ 📜settings.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜wsgi.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂crews
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜permissions.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂media
+ ┃ ┣ 📂accounts
+ ┃ ┣ 📂crews
+ ┃ ┣ 📂races
+ ┃ ┗ 📂README
+ ┣ 📂promotions
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📂races
+ ┃ ┣ 📂migrations
+ ┃ ┣ 📂__pycache__
+ ┃ ┣ 📜admin.py
+ ┃ ┣ 📜apps.py
+ ┃ ┣ 📜models.py
+ ┃ ┣ 📜serializers.py
+ ┃ ┣ 📜tests.py
+ ┃ ┣ 📜urls.py
+ ┃ ┣ 📜views.py
+ ┃ ┗ 📜__init__.py
+ ┣ 📜.gitignore
+ ┣ 📜db.sqlite3
+ ┣ 📜manage.py
+ ┣ 📜README.md
+ ┗ 📜requirements.txt
+```
 
-- Google spreadsheet로 관리 👉 [Dalim-WBS](https://docs.google.com/spreadsheets/d/1reCekeUWcgPSnhlVgcOmrSEXiSXDZB-qdogkP0DkCxk/edit?usp=sharing)
+### 4.2 개발 일정(WBS)
+
+```mermaid
+gantt
+    title 달림(Dalim, 런닝 커뮤니티)
+    dateFormat  YY-MM-DD
+
+    section 기획/환경설정/공통업무
+    주제선정, 화면설계   :24-03-29, 1d
+    앱 분리 및 업무분장 : a1, 24-03-30, 1d
+    프론트, 백엔드 repo 생성: a2, 24-04-01, 1d
+    문서화 마무리, 발표준비: 24-04-14, 2d
+
+    section 프론트엔드(FE)
+    프론트엔드-작업시작(상품게시판제외): 24-04-01, 1d
+    프론트엔드-로그인, 회원가입, 메인 완료:24-04-02, 1d
+    프론트엔드-마이페이지,사용자 홈 완료:24-04-03, 1d
+    프론트엔드-크루리스트, 상세/대화 리스트, 상세 완료:24-04-04, 1d
+    프론트엔드-대화 어드민, 게시판: 24-04-05, 1d
+    프론트엔드-퍼블리싱 완료: milestone, isadded, 24-04-06, 0d
+    프론트엔드-작업된 API 연결(1차): 24-04-11, 1d 
+    프론트엔드-작업된 API 연결(2차): 24-04-13, 1d
+    
+    section 백엔드(BE)- 공통 
+    앱별 모델 작성: b1, 24-04-01, 1d
+    url fix하고 내려주는 모양 확정(1차):after b1, 24-04-02, 1d
+    url fix하고 내려주는 모양 확정(1차):after b1, 24-04-03, 1d
+    모델 초안 작성 및 공유: after b1, 24-04-01, 1d
+    모델 초안 작성 및 공유: after b1, 24-04-01, 1d
+    모델 확정: milestone, isadded, 24-04-04, 0d
+    프론트엔드-API 연결 완료: milestone, isadded, 24-04-14, 0d   
+
+    section 메인, 유저, 프로모션 앱
+    모델 확정:after b1, 24-04-03, 1d
+    테스트코드 작성: b2, 24-04-08, 1d    
+    API(cbv viewset) 작성 및 테스트: after b2, 24-04-08, 4d    
+
+    section 크루 앱
+    모델 확정:after a2, 24-04-03, 1d
+    API(fbv) 작성 및 테스트: c1, 24-04-05, 2d    
+    API(cbv) 작성 및 테스트: after c1, 24-04-07, 2d 
+    기능 수정 및 테스트: 24-04-10, 1d   
+    코드 리팩토링, 문서화: 24-04-12, 2d    
+
+    section 게시판 앱 
+    모델 확정:after a1, 24-04-03, 1d
+    API 작성 및 테스트: d2, 24-04-05, 7d
+    기능 수정 및 ERD 작성: 24-04-12, 2d
+
+    section 대회 앱 
+    모델 확정: after a1, 24-04-03, 1d
+    API 작성 및 테스트: r1, 24-04-05, 6d
+    테스트코드 작성 및 실행: after r1, 24-04-12, 2d
+
+    section 배포
+    배포 시도 시작:a1, 24-04-14, 1d
+    배포 1차: 24-04-15, 1d
+    배포 최종: milestone, isadded, 24-04-16, 0d
+```
 
 ## 5. 역할 분담
 pass
@@ -157,10 +292,160 @@ pass
 ## 6. 와이어프레임 / UI / BM
 
 ### 6.1 와이어프레임
-pass
+![Figma](https://github.com/orm-final-101/dalim_api/assets/155033413/20c2f199-efbb-4919-a5bb-88c2ef47ef71)
 
 ### 6.2 화면 설계
-pass
+
+* 어카운트 앱
+ 
+<table>
+    <tbody>
+        <tr>
+            <td align = "center">메인페이지</td>
+            <td align = "center">회원가입</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+		<img src="메인 페이지.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="회원가입.png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">마이페이지(일반유저)</td>
+            <td align = "center" valign="Top">유저 상세페이지(퍼블릭)</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="마이페이지(일반유저).png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="유저 상세페이지(퍼블릭).png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">로그인</td>
+            <td align = "center" valign="Top">404</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="로그인.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="404.png">
+            </td>
+        </tr>  
+    </tbody>
+</table>
+
+* 크루 앱
+<table>
+    <tbody>
+        <tr>
+            <td align = "center" valign="Top">러닝크루 리스트</td>
+            <td align = "center" valign="Top">러닝크루 상세</td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="러닝크루 리스트.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="러닝크루 상세.png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">러닝크루 신청완료</td>
+            <td align = "center" valign="Top"> </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="러닝크루 신청 완료.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img>
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">크루 어드민 최초</td>
+            <td align = "center" valign="Top">크루 어드민(크루 관리자) </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="크루 어드민 페이지_초기(대회관리자).png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="크루 어드민 페이지(크루관리자).png">
+            </td>
+        </tr>   
+        <tr>
+            <td align = "center" valign="Top">크루 등록(크루관리자)</td>
+            <td align = "center" valign="Top">크루 등록 완료 </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="크루 등록(크루관리자).png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="크루등록 완료.png">
+            </td>
+        </tr>   
+    </tbody>
+</table>
+
+
+* 게시판 앱
+
+<table>
+    <tbody>
+        <tr>
+            <td align = "center" valign="Top">게시글 리스트</td>
+            <td align = "center" valign="Top">게시글 상세 </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="게시글 리스트.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="게시글 상세.png">
+            </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">게시글 작성</td>
+            <td align = "center" valign="Top"> </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="게시글 작성.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img  >
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+* 대회 앱
+
+<table>
+    <tbody>
+        <tr>
+            <td align = "center" valign="Top">대회 리스트</td>
+            <td align = "center" valign="Top">대회 상세 </td>
+        </tr>
+        <tr>
+            <td align = "center" valign="Top">
+                <img src="대회 리스트.png">
+            </td>
+            <td align = "center" valign="Top">
+                <img src="대회 상세.png" >
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
 
 ## 7. 데이터베이스 모델링(ERD)
 pass
