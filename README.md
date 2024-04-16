@@ -485,7 +485,8 @@ pass
 
 
 ## 7. 데이터베이스 모델링(ERD)
-![스크린샷 2024-04-16 122731](https://github.com/orm-final-101/dalim_api/assets/144616336/ab93fdc0-0aad-4b0b-8bf6-a556335ab59d)
+![dallim](https://github.com/orm-final-101/dalim_api/assets/144616336/8d788c20-06d8-472d-81c0-ca3a16a14f7c)
+
 
 ## 8. Architecture
 pass
