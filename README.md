@@ -333,7 +333,7 @@ pass
 
 ### 6.2 화면 설계
 
-* 어카운트 앱
+💠 어카운트 앱
  
 <table>
     <tbody>
@@ -376,7 +376,7 @@ pass
     </tbody>
 </table>
 
-* 크루 앱
+💠 크루 앱
 <table>
     <tbody>
         <tr>
@@ -431,7 +431,7 @@ pass
 </table>
 
 
-* 게시판 앱
+💠 게시판 앱
 
 <table>
     <tbody>
@@ -463,7 +463,7 @@ pass
 </table>
 
 
-* 대회 앱
+💠 대회 앱
 
 <table>
     <tbody>
@@ -508,7 +508,141 @@ pass
 - 크루 멤버 관리 기능을 통해 크루 회원들의 상태를 효율적으로 관리할 수 있음.
 
 ## 10. 에러와 에러 해결
-pass
+### 💠 최은선 
+1. 프론트엔드 와 연결 시 반복되는 500에러 
+    - 문제 원인 : url 끝의 “/” 유무
+    - 해결 방법 : 프론트에서 요청하는 URL 수정
+2. 회원가입 시 username, nickname과 같은 값을 입력해 줬음에도 DB에 들어오지 않는 현상
+    - 문제원인 : dj_rest_auth.registration.urls로 만든 signup과 customUser 모델이 연결되지 않음
+    - 해결방법 :CustomRegisterView과 CustomRegisterSerializer 를 만들어 signup URL에 연결
+```python
+[기존코드]
+# accounts/urls.py
+urlpatterns = [
+    path("signup/", include("dj_rest_auth.registration.urls")),
+    ...
+]
+
+
+[수정된 코드]
+# accounts/urls.py
+urlpatterns = [
+    path("signup/", views.CustomRegisterView.as_view(), name="account_signup"),
+
+    ...
+]
+
+
+# accounts/views.py
+from dj_rest_auth.registration.views import RegisterView
+
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
+    
+# accounts/serializers.py
+from dj_rest_auth.registration.serializers import RegisterSerializer
+
+class CustomRegisterSerializer(RegisterSerializer):
+    email = serializers.EmailField(required=True)
+    nickname = serializers.CharField(required=True)
+    birth_date = serializers.DateField(required=True)
+    gender = serializers.CharField(required=True)
+    user_type = serializers.CharField(required=True)
+    location_city = serializers.CharField(required=True)
+    location_district = serializers.CharField(required=True)
+    phone_number = serializers.CharField(required=True)
+
+    def custom_signup(self, request, user):
+        user.email = self.validated_data.get('email')
+        user.nickname = self.validated_data.get('nickname')
+        user.birth_date = self.validated_data.get('birth_date')
+        user.gender = self.validated_data.get('gender')
+        user.user_type = self.validated_data.get('user_type')
+        user.location_city = self.validated_data.get('location_city')
+        user.location_district = self.validated_data.get('location_district')
+        user.phone_number = self.validated_data.get('phone_number')
+        user.save()
+```
+
+
+### 💠 지민경
+1. url 작성 시 더블슬래쉬 오류.
+    - 문제 원인 : URL 패턴 매칭 순서. Django의 url 라우터는 첫 번째로 일치하는 패턴에 대해 해당 뷰를 호출하는 특징이 있음.
+    - 해결 방법 : url 선언 순서 변경. 구체적인 패턴순서대로 내림차순 정렬해줌. 
+
+```python
+router = DefaultRouter()
+router.register(r"manage/(?P<crew_id>\d+)/members", views.CrewMemberViewSet, basename="joinedcrew")
+router.register(r"(?P<crew_id>\d+)/reviews", views.CrewReviewViewSet, basename="crewreview")
+router.register("manage", views.ManagerCrewViewSet, basename="manage_crew")
+```
+
+2. Django에서 선언해준 자료형 값과 swagger ui에서 확인한 자료형값이 다른 문제.
+    - 문제 원인 : Django에서 SerializerMethodField를 사용할 때, 해당 메서드가 반환하는 값의 타입(자료형)을 명시적으로 지정하지 않으면 문자열로 간주.
+    - 해결 방법 : 없음. 실질적으로 문제가 되는 코드가 아니었다.
+    - 추가 설명 : 
+      . Django 코드 내에서는 SerializerMethodField를 사용하여 커스텀 필드를 정의할 때, 해당 메서드에서 반환하는 값의 ‘실제’ 타입을 사용.
+      . 하지만 Swagger ui는 기본적으로 문자열(string)으로 간주한다.
+      . 따라서 예시 데이터값을 request하지 않는 한 SerializerMethodField를 사용한 필드는 문자열로 표시됨.
+      
+```python
+class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
+    is_opened = serializers.CharField(source="get_status_display")
+    meet_days = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
+    member_count = serializers.SerializerMethodField()
+    favorite_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Crew
+        fields = ["id", "name", "thumbnail_image", "member_count", "is_favorite", "location_city", "location_district", "meet_days", "meet_time", "is_opened", "favorite_count"]
+```
+
+            
+### 💠 임재철
+1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 api가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
+    - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 해당하는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함. 
+    - 해결 방법 : API가 나오는데 꼭 필요하다고 생각한 LikeSerializers 를 삭제하고,PostListSerializers의 코드를 정리함.
+<img width="1162" alt="재철 10 1" src="https://github.com/orm-final-101/dalim_api/assets/155033413/9b143780-2932-41a9-afd0-ac2c4ff3aeb2">
+
+
+### 💠 유유선
+1. SerializerMethodField(대회 코스) 의 값이 하나만 있는 경우, (리스트가 아닌) string 값으로 전달됨.  
+    - 문제 원인 : 시리얼라이저에서 해당 메쏘드가 정의되지 않았음. 
+    - 해결 방법 : 시리얼라이저에서 필드를 정의하고 get_ method 로 추가함.
+ 
 
 ## 11. 개발하며 느낀점 (회고록)
-pass
+### 💠 최은선
+이전에 개발자로 근무하고 사이드프로젝트를 진행하며 개인적으로 좋다고 느꼈던 개발문화와 리모트 협업의 팁을 팀원분들과 최대한 나누고자 했습니다. 실제로 잘 따라와주셔서 예상 일정을 맞출 수 있었고, 함께 만족할 수 있는 프로젝트 경험이 된 것 같아 기쁩니다.
+
+저 또한 혼자 코딩을 잘 치는 개발자보다는 협업을 잘 하는 개발자가 되는 것의 중요성을 체감했습니다.
+
+또한 fbv로 작성한 코드를 viewset으로 리팩토링 하며 viewset을 이용했을 때 적합한 URL 패턴을 이해하게 된 점이 만족스럽습니다. 앞으로 새로 하게 될 프로젝트가 기대됩니다.
+
+
+### 💠 지민경
+개인 프로젝트할때에도 느꼈던거지만 초반 계획 수립, 기능 정의 부분이 중요한것같습니다.
+‘얼마나 세밀하고 구체적으로 계획했는가’에 따라 개발 속도가 달라지는것같아요.
+
+또 나무보다는 숲을 보는 능력을 키우게 된 것 같습니다. 한가지 기능에 매달려 끙끙대다가 충분히 할 수 있었던 기능들도 못끝내는 경우가 있었는데, 이번에는 팀원분들 덕분에 그런 상황을 면할 수 있었습니다.
+
+한가지 더 적자면 AI를 이용해 코딩을 하는게 맞는가? 라는 의문점이 했었으나 조금은 풀린듯합니다. 내가 더 많이 알수록 AI에게 하는 질문도 예리해지고 구체적으로 변하는 느낌을 받았거든요.
+
+좋은 팀원분들과 함께 할 수 있어서 행복했습니다.
+
+
+### 💠 임재철
+처음에는 어렵게만 느껴졌던 코딩이였습니다. 
+
+그러나 앉아서 멈추지 않고 계속 두드렸고 하나를 풀면 또 모르는 것이 하나가 나오지만, 하나하나 문제를 해결 하는 과정을 겪고 나니 개발이 저의 적성이 맞다는 걸 느꼈습니다.
+
+부트캠프가 끝난 이후에도 이러한 시행착오를 계속 겪게 되겠지만, 프로젝트를 성공적으로 끝 마칠 수 있어서 자신감을 얻는 시간 이였습니다. 
+
+같이 하며 도움 주신 팀원분, 멘토님, 강사님 감사드립니다. 
+
+
+### 💠 유유선 
+초기에 주제를 정한 후, 와이어프레임 작업을 통해서 작업 범위를 구체적으로 볼 수 있었던 점이 프로젝트 범위를 정하는 데 많이 도움이 되었습니다. 범위를 현실적으로 잡아서 제 시간에 마무리가 가능했다고 느꼈습니다. 
+개인적으로는 팀원들이 기다려줘서 고마웠습니다. 
+
