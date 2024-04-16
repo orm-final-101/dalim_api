@@ -31,7 +31,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             set -e
-            cd /home/ubuntu/drf_ci-cd
+            cd /home/ubuntu/dalim_api
             git pull origin main
             
             echo "SECRET_KEY=\"${{ secrets.SECRET_KEY }}\"" > .env
@@ -40,7 +40,7 @@ jobs:
             source venv/bin/activate
 
             pip install -r requirements.txt
-            cd /home/ubuntu/drf_ci-cd/drf_test
+            cd /home/ubuntu/dalim_api
             
             python3 manage.py collectstatic --noinput
             sudo systemctl restart site.service
