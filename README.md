@@ -60,7 +60,7 @@
 ### 2.2 배포 URL
 
 - 사이트 URL : https://dalim-main.vercel.app/
-- Swagger URL : https://dalim-main.vercel.app/
+- Swagger URL : http://dalim.duckdns.org/api/schema/swagger-ui/
 - 테스트용 계정
     
     ```
