@@ -1,9 +1,11 @@
 from django.contrib import admin
 from .models import Post, Comment, Like
 
+
 class CommentInline(admin.TabularInline):
     model = Comment
     extra = 1
+
 
 class LikeInline(admin.TabularInline):
     model = Like
@@ -16,6 +18,7 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ("title", "author", "post_classification", "category", "created_at", "updated_at")
     list_filter = ("post_classification", "category", "created_at", "updated_at")
     search_fields = ("title", "author__username", "contents")
+
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):

@@ -2,7 +2,8 @@ from django.db import models
 from django.conf import settings
 from config.constants import CLASSIFICATION_CHOICES, CATEGORY_CHOICES
 
-    
+
+# 좋아요
 class Like(models.Model):
     
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="liked_posts")
@@ -13,13 +14,15 @@ class Like(models.Model):
         unique_together = ("author", "post")
 
 
+# 댓글
 class Comment(models.Model):
 
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="commented_posts")
     post = models.ForeignKey("Post", on_delete=models.CASCADE, related_name="posted_comments")
     contents = models.TextField()
-    
 
+
+# 게시물
 class Post(models.Model):
     
     title = models.CharField(max_length=128)
