@@ -23,5 +23,5 @@ router.register("", views.PublicCrewViewSet, basename="public_crew")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("top6/", views.PublicCrewViewSet.as_view({"get": "top6"}), name="crew-top6"),
+    path("top6/", views.PublicCrewViewSet.as_view({"get": "top6"}), name="crew_top6"),
 ]
