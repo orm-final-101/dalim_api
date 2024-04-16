@@ -14,12 +14,12 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiPara
 # Pagination
 class CustomPagination(PageNumberPagination):
     page_size = 10
-    page_size_query_param = 'size'
+    page_size_query_param = "size"
     max_page_size = 1000
     def get_paginated_response(self, data):
         return Response({
-            'count': self.page.paginator.count,
-            'results': data
+            "count": self.page.paginator.count,
+            "results": data
         })
 
 # Post
@@ -73,9 +73,9 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ["create"]:
             return PostCreateSerializer
-        elif self.action in ['retrieve']:
+        elif self.action in ["retrieve"]:
             return PostDetailSerializer
-        elif self.action in ['update', 'partial_update']:
+        elif self.action in ["update", "partial_update"]:
             return PostUpdateSerializer
         return super().get_serializer_class()
     
@@ -95,7 +95,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 # LIKE API
-@api_view(['GET', 'POST'])
+@api_view(["GET", "POST"])
 def like_post(request, post_id):
 
     post = get_object_or_404(Post, pk=post_id)
@@ -131,7 +131,7 @@ def like_post(request, post_id):
     
     
 # Category, post_classification API
-@api_view(['GET'])
+@api_view(["GET"])
 def get_category_choices(request):
     post_classification_choices = [
         {"value": choice[0], "label": choice[1]}
@@ -156,7 +156,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        post_id = self.kwargs['post_id']
+        post_id = self.kwargs["post_id"]
         return Comment.objects.filter(post_id=post_id)
 
     def retrieve(self, request, *args, **kwargs):

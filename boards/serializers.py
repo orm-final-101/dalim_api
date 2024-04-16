@@ -11,19 +11,19 @@ class CommentSerializer(serializers.ModelSerializer):
 
 # 게시물 전체 보기
 class PostListSerializer(serializers.ModelSerializer):
-    author_nickname = serializers.CharField(source='author.nickname')
+    author_nickname = serializers.CharField(source="author.nickname")
     comment_count = serializers.SerializerMethodField()
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post
         fields = [
-            'id', 'author_id', 'author_nickname', 'title', 'thumbnail_image',
-            'post_classification', 'category', 'view_count', 'comment_count',
-            'created_at', 'updated_at',
+            "id", "author_id", "author_nickname", "title", "thumbnail_image",
+            "post_classification", "category", "view_count", "comment_count",
+            "created_at", "updated_at",
         ]
 
-        order_by = ['-created_at']
+        order_by = ["-created_at"]
 
     def get_comment_count(self, obj):
         return obj.posted_comments.count()
@@ -31,19 +31,20 @@ class PostListSerializer(serializers.ModelSerializer):
     def get_delete_message(self, obj):
         return "게시글을 삭제했습니다."
 
+
 # 게시글 상세 보기
 class PostDetailSerializer(serializers.ModelSerializer):
-    author_nickname = serializers.CharField(source='author.nickname', read_only=True)
+    author_nickname = serializers.CharField(source="author.nickname", read_only=True)
     likes = serializers.SerializerMethodField()
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'author_id', 'author_nickname', 'title', 'contents', 'thumbnail_image',
-                'post_classification', 'category', 'view_count', 'created_at', 'updated_at', 'likes']
+        fields = ["id", "author_id", "author_nickname", "title", "contents", "thumbnail_image",
+                "post_classification", "category", "view_count", "created_at", "updated_at", "likes"]
 
     def get_likes(self, obj):
-        user = self.context['request'].user
+        user = self.context["request"].user
         if user.is_authenticated:
             is_liked = Like.objects.filter(post=obj, author=user).exists()
             return {
@@ -61,14 +62,14 @@ class PostUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['title', 'contents', 'thumbnail_image', 'post_classification', 'category']
+        fields = ["title", "contents", "thumbnail_image", "post_classification", "category"]
 
     def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.contents = validated_data.get('contents', instance.contents)
-        instance.thumbnail_image = validated_data.get('thumbnail_image', instance.thumbnail_image)
-        instance.post_classification = validated_data.get('post_classification', instance.post_classification)
-        instance.category = validated_data.get('category', instance.category)
+        instance.title = validated_data.get("title", instance.title)
+        instance.contents = validated_data.get("contents", instance.contents)
+        instance.thumbnail_image = validated_data.get("thumbnail_image", instance.thumbnail_image)
+        instance.post_classification = validated_data.get("post_classification", instance.post_classification)
+        instance.category = validated_data.get("category", instance.category)
         instance.save()
         return instance
 
@@ -80,12 +81,12 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['title', 'contents', 'category', 'post_classification', 'thumbnail_image']
+        fields = ["title", "contents", "category", "post_classification", "thumbnail_image"]
 
     def create(self, validated_data):
-        request = self.context.get('request')
+        request = self.context.get("request")
         if request.user.is_authenticated:
-            validated_data['author'] = request.user
+            validated_data["author"] = request.user
             post = Post.objects.create(**validated_data)
             return post
         else:
@@ -103,30 +104,31 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['id'] = instance.id
+        representation["id"] = instance.id
         return representation
 
 
+# 댓글
 class CommentSerializer(serializers.ModelSerializer):
-    author_nickname = serializers.CharField(source='author.nickname', read_only=True)
+    author_nickname = serializers.CharField(source="author.nickname", read_only=True)
     created_at = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%SZ", read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'author_id', 'author_nickname', 'contents', 'created_at']
+        fields = ["id", "author_id", "author_nickname", "contents", "created_at"]
 
     def save(self, **kwargs):
         # 로그인된 사용자 정보 설정
-        if self.context['request'].user.is_authenticated:
-            kwargs['author'] = self.context['request'].user
+        if self.context["request"].user.is_authenticated:
+            kwargs["author"] = self.context["request"].user
         else:
             raise serializers.ValidationError("로그인이 필요합니다.")
 
-        kwargs['post'] = Post.objects.get(id=self.context['view'].kwargs['post_id'])
+        kwargs["post"] = Post.objects.get(id=self.context["view"].kwargs["post_id"])
         return super().save(**kwargs)
 
     def get_queryset(self):
-        post_id = self.context['view'].kwargs['post_id']
+        post_id = self.context["view"].kwargs["post_id"]
         return Comment.objects.filter(post_id=post_id)
 
 
@@ -145,6 +147,7 @@ class ProfileCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["post", "comment"]
+
 
 # 유저 오픈프로필에서 내가 좋아한 게시글 볼 때 사용
 class ProfileLikedPostSerializer(serializers.ModelSerializer):
