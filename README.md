@@ -5,10 +5,9 @@
 ### 1.1 목표
 - Django DRF(Django Rest Framework)를 활용해 안정적이고 효율적인 웹 사이트 개발
 - 국내의 러닝 애호가들, 전문 선수들을 위해 종합적인 서비스 제공
-- 크루, 대회, 상품 등 러닝과 관련된 서비스 제공
-- 러닝 커뮤니티의 활성화와 발전
+    - 크루, 대회, 상품 등 러닝과 관련된 서비스 제공
+- 러닝 커뮤니티의 활성화와 발전 → 러닝 문화 확산
     - 러닝과 관련된 최신 정보 공유 및 소통 플랫폼 구축
-- 러닝 문화 확산
 
 ### 1.2 기능
 - 회원가입 시 "일반회원", "크루 관리자" 로 나누어 사용자의 선택에 따른 서비스 제공
@@ -189,67 +188,7 @@ pass
 
 ### 4.1 개발 일정(WBS)
 
-- Google spreadsheet로 관리 👉
-[Dalim-WBS](https://docs.google.com/spreadsheets/d/1reCekeUWcgPSnhlVgcOmrSEXiSXDZB-qdogkP0DkCxk/edit?usp=sharing)
-
-- Gantt 차트
-
-```mermaid
-gantt
-    title 달림(Dalim, 런닝 커뮤니티)
-    dateFormat  YY-MM-DD
-
-    section 기획/환경설정/공통업무
-    주제선정, 화면설계   :24-03-29, 1d
-    앱 분리 및 업무분장 : a1, 24-03-30, 1d
-    프론트, 백엔드 repo 생성: a2, 24-04-01, 1d
-    문서화 마무리, 발표준비: 24-04-14, 2d
-
-    section 프론트엔드(FE)
-    작업시작(상품게시판제외): 24-04-01, 1d
-    로그인, 회원가입, 메인 완료:24-04-02, 1d
-    마이페이지,사용자 홈 완료:24-04-03, 1d
-    크루리스트, 상세/대화 리스트, 상세 완료:24-04-04, 1d
-    대화 어드민, 게시판: 24-04-05, 1d
-    퍼블리싱 완료: milestone, isadded, 24-04-06, 0d
-    작업된 API 연결(1차): 24-04-11, 1d 
-    작업된 API 연결(2차): 24-04-13, 1d
-    
-    section 백엔드(BE)- 공통 
-    앱별 모델 작성: b1, 24-04-01, 1d
-    url fix하고 내려주는 모양 확정(1차):after b1, 24-04-02, 1d
-    url fix하고 내려주는 모양 확정(1차):after b1, 24-04-03, 1d
-    모델 초안 작성 및 공유: after b1, 24-04-01, 1d
-    모델 초안 작성 및 공유: after b1, 24-04-01, 1d
-    모델 확정: milestone, isadded, 24-04-04, 0d
-    프론트엔드-API 연결 완료: milestone, isadded, 24-04-14, 0d   
-
-    section 메인, 유저, 프로모션 앱
-    모델 확정:after b1, 24-04-03, 1d
-    테스트코드 작성: b2, 24-04-08, 1d    
-    API(cbv viewset) 작성 및 테스트: after b2, 24-04-08, 4d    
-
-    section 크루 앱
-    모델 확정:after a2, 24-04-03, 1d
-    API(fbv) 작성 및 테스트: c1, 24-04-05, 2d    
-    API(cbv) 작성 및 테스트: after c1, 24-04-07, 2d 
-    기능 수정 및 테스트: 24-04-10, 1d   
-    코드 리팩토링, 문서화: 24-04-12, 2d    
-
-    section 게시판 앱 
-    모델 확정:after a1, 24-04-03, 1d
-    API 작성 및 테스트: 24-04-05, 7d
-    기능 수정 및 ERD 작성: 24-04-12, 2d
-
-    section 대회 앱 
-    모델 확정: after a1, 24-04-03, 1d
-    API 작성 및 테스트: 24-04-05, 6d
-    테스트코드 작성 및 실행: 24-04-12, 2d
-
-    section 배포
-    배포 : 24-04-14, 2d
-    배포 최종: milestone, isadded, 24-04-16, 0d
-```
+- Google spreadsheet로 관리 👉 [Dalim-WBS](https://docs.google.com/spreadsheets/d/1reCekeUWcgPSnhlVgcOmrSEXiSXDZB-qdogkP0DkCxk/edit?usp=sharing)
 
 ## 5. 역할 분담
 pass

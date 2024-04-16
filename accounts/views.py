@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import viewsets
-from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.exceptions import MethodNotAllowed, NotFound
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -32,34 +32,34 @@ class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
 
 
-# mypage/info는 일단 fbv로 작업 - 완
-@extend_schema(
-    methods=["PATCH"],
-    request=ProfileSerializer
-)
-@api_view(["GET", "PATCH"])
-@permission_classes([IsAuthenticated])
-def mypage_info(request):
-    try:
-        user = CustomUser.objects.get(pk=request.user.pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
-    
-    if request.method == "GET":
-        user = CustomUser.objects.get(pk=request.user.pk)
+# mypage/info/ : 유저 정보 CRUD
+class UserInfoViewSet(viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+
+    def get_object(self):
+        try:
+            return CustomUser.objects.get(pk=self.request.user.pk)
+        except CustomUser.DoesNotExist:
+            raise NotFound("User not found")
+
+    @extend_schema(request=ProfileSerializer)
+    def list(self, request, *args, **kwargs):
+        user = self.get_object()
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
-    elif request.method == "PATCH":
+
+    @extend_schema(request=ProfileSerializer)
+    def partial_update(self, request, *args, **kwargs):
+        user = self.get_object()
         serializer = ProfileSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-    
-    raise MethodNotAllowed(request.method)
      
 
-# mypage/record CRUD는 뷰셋으로 작업 - 완
+# mypage/record/ : 달림 기록 CRUD
 @extend_schema(
     methods=["POST", "PATCH"],
     request=RecordSerialiser
@@ -98,26 +98,30 @@ class RecordViewSet(viewsets.ViewSet):
             return Response({"error": "Record not found"}, status=404)
         
         record.delete()
+        serializers = RecordSerialiser()
+        serializers.update_user_level(request.user)
         return Response(status=204)
 
 
-# /mypage/crew 내가 신청한 크루 현황
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def mypage_crew(request):
-    try:
-        user = CustomUser.objects.get(pk=request.user.pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
+# /mypage/crew/ : 내가 가입한 크루 목록
+class MypageCrewViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
-    if request.method == "GET":
+    def get_object(self):
+        try:
+            return CustomUser.objects.get(pk=self.request.user.pk)
+        except CustomUser.DoesNotExist:
+            raise NotFound("User not found")
+
+    def list(self, request, *args, **kwargs):
+        user = self.get_object()
         joined_crews = JoinedCrew.objects.filter(user=user)
         serializer = JoinedCrewSerializer(joined_crews, many=True)
         return Response(serializer.data)
 
 
-# /mypage/race 내가 신청한 대회 내역 : GET, POST
-# /mypage/race/<int:joined_race_id> 내 대회 기록 : PATCH, DELETE
+# /mypage/race/ : 내가 신청한 대회 내역
+# /mypage/race/<int:joined_race_id> : 내 대회 기록
 @extend_schema(
     methods=["GET", "POST", "PATCH", "DELETE"]
 )
@@ -195,59 +199,60 @@ class RaceViewSet(viewsets.ViewSet):
         return Response(status=204)
         
     
-# /mypage/favorites : GET
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def mypage_favorites(request):
-    try:
-        user = CustomUser.objects.get(pk=request.user.pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "사용자를 찾을 수 없습니다."}, status=404)
+# /mypage/favorites/ : 내가 찜한 크루, 대회 목록
+class MypageFavoritesViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
-    if request.method == "GET":
+    def get_object(self):
+        try:
+            return CustomUser.objects.get(pk=self.request.user.pk)
+        except CustomUser.DoesNotExist:
+            raise NotFound("사용자를 찾을 수 없습니다.")
+
+    def list(self, request, *args, **kwargs):
+        user = self.get_object()
         favorite_crews = [favorite.crew for favorite in user.favorite_crews.all()]
         favorite_races = [favorite.race for favorite in user.favorite_races.all()]
 
         crew_serializer = CrewListSerializer(favorite_crews, many=True, context={"request": request})
         race_serializer = RaceListSerializer(favorite_races, many=True, context={"request": request})
 
-        respnse_data = {
+        response_data = {
             "crew": crew_serializer.data,
             "race": race_serializer.data
         }
 
-        return Response(respnse_data)
-    
-    
-    raise MethodNotAllowed(request.method)
+        return Response(response_data)
 
-# /<int:pk>/profile : GET
-@api_view(["GET"])
-def profile(request, pk):
-    try:
-        user = CustomUser.objects.get(pk=pk)
-    except CustomUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
-    
-    user_serializer = OpenProfileSerializer(user)
-    post_serializer = PostListSerializer(Post.objects.filter(author=user), many=True)
-    comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
-    crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
-    race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
-    
-    fin_data = {
-        "user" : user_serializer.data,
-        "posts" : post_serializer.data,
-        "comments" : comments_serializer.data,
-        "reviews" : {
-            "crew" : crew_review_serializer.data,
-            "race" : race_review_serializer.data
+
+# /<int:pk>/profile/ : 유저 오픈프로필 조회
+class ProfileViewSet(viewsets.ViewSet):
+
+    def retrieve(self, request, pk=None):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+
+        user_serializer = OpenProfileSerializer(user)
+        post_serializer = PostListSerializer(Post.objects.filter(author=user), many=True)
+        comments_serializer = ProfileCommentSerializer(Comment.objects.filter(author=user), many=True)
+        crew_review_serializer = ProfileCrewReviewSerializer(CrewReview.objects.filter(author=user), many=True)
+        race_review_serializer = ProfileRaceReviewSerializer(RaceReview.objects.filter(author=user), many=True) 
+
+        fin_data = {
+            "user" : user_serializer.data,
+            "posts" : post_serializer.data,
+            "comments" : comments_serializer.data,
+            "reviews" : {
+                "crew" : crew_review_serializer.data,
+                "race" : race_review_serializer.data
+            }
         }
-    }
 
-    # request.user와 pk가 일치하는 경우에만 'likes' 항목을 추가
-    if request.user.pk == user.pk:
-        liked_post_serializer = ProfileLikedPostSerializer(Like.objects.filter(author=user), many=True)
-        fin_data["likes"] = liked_post_serializer.data
+        # request.user와 pk가 일치하는 경우에만 'likes' 항목을 추가
+        if request.user.pk == user.pk:
+            liked_post_serializer = ProfileLikedPostSerializer(Like.objects.filter(author=user), many=True)
+            fin_data["likes"] = liked_post_serializer.data
 
-    return Response(fin_data)
+        return Response(fin_data)

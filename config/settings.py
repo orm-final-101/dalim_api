@@ -8,10 +8,6 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
-
 # .env 파일의 경로 설정
 dotenv_path = os.path.join(BASE_DIR, '.env')
 # .env 파일 로드
@@ -21,13 +17,12 @@ load_dotenv(dotenv_path)
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG')
 
 ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,7 +52,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  # 최상단 추가
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -149,9 +144,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -178,24 +170,6 @@ ACCOUNT_EMAIL_VERIFICATION = 'none' # email 인증 필수 여부
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    # 'ROTATE_REFRESH_TOKENS': False,
-    # 'BLACKLIST_AFTER_ROTATION': True,
-    # 'UPDATE_LAST_LOGIN': False,
-    # 'ALGORITHM': 'HS256',
-    # 'SIGNING_KEY': SECRET_KEY,
-    # 'VERIFYING_KEY': None,
-    # 'AUDIENCE': None,
-    # 'ISSUER': None,
-    # 'AUTH_HEADER_TYPES': ('Bearer',),
-    # 'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    # 'USER_ID_FIELD': 'id',
-    # 'USER_ID_CLAIM': 'user_id',
-    # 'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    # 'TOKEN_TYPE_CLAIM': 'token_type',
-    # 'JTI_CLAIM': 'jti',
-    # 'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    # 'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    # 'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
 # swagger 설정
