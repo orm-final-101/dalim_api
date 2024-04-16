@@ -626,6 +626,8 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 
             
 ### 💠 임재철
+1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 API가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
+    - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 맞는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함. 
 1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 api가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
     - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 맞는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함.
     - 해결 방법 : API가 나오는데 꼭 필요하다고 생각한 LikeSerializers 를 삭제하고,PostListSerializers의 코드를 정리함.
@@ -659,16 +661,11 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 
 
 ### 💠 임재철
-처음에는 어렵게만 느껴졌던 코딩이였습니다. 
+처음에는 어렵게만 느껴졌던 코딩이였습니다. 그러나 멈추지 않고 계속 두드렸고 하나를 풀면 또 모르는 것이 하나가 나오지만, 하나하나 문제를 해결 하는 과정을 겪고 나니 개발이 저의 적성이 맞다는 걸 느꼈습니다.
 
-그러나 멈추지 않고 계속 두드렸고 하나를 풀면 또 모르는 것이 하나가 나오지만, 하나하나 문제를 해결 하는 과정을 겪고 나니 개발이 저의 적성이 맞다는 걸 느꼈습니다.
-
-부트캠프가 끝난 이후에도 이러한 시행착오를 계속 겪게 되겠지만, 프로젝트를 성공적으로 끝 마칠 수 있어서 자신감을 얻는 시간 이였습니다. 
-
-같이 하며 도움 주신 팀원분, 멘토님, 강사님 감사드립니다. 
+부트캠프가 끝난 이후에도 이러한 시행착오를 계속 겪게 되겠지만, 프로젝트를 성공적으로 끝 마칠 수 있어서 자신감을 얻는 시간 이였습니다. 같이 하며 도움 주신 팀원분, 멘토님, 강사님 감사드립니다. 
 
 
 ### 💠 유유선 
 초기에 주제를 정한 후, 와이어프레임 작업을 통해서 작업 범위를 구체적으로 볼 수 있었던 점이 프로젝트 범위를 정하는 데 많이 도움이 되었습니다. 범위를 현실적으로 잡아서 제 시간에 마무리가 가능했다고 느꼈습니다. 
 개인적으로는 팀원들이 기다려줘서 고마웠습니다. 
-
