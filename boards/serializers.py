@@ -9,6 +9,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ["id", "author", "post", "contents"]
 
+
 # 게시물 전체 보기
 class PostListSerializer(serializers.ModelSerializer):
     author_nickname = serializers.CharField(source="author.nickname")
@@ -55,6 +56,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "count": obj.likes.count(),
             "is_liked": False
         }
+
 
 # 게시글 수정
 class PostUpdateSerializer(serializers.ModelSerializer):

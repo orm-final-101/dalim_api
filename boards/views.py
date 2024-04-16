@@ -11,6 +11,7 @@ from rest_framework.decorators import api_view
 from rest_framework import viewsets, status
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
+
 # Pagination
 class CustomPagination(PageNumberPagination):
     page_size = 10
@@ -21,6 +22,7 @@ class CustomPagination(PageNumberPagination):
             "count": self.page.paginator.count,
             "results": data
         })
+
 
 # Post
 @extend_schema_view(
