@@ -22,7 +22,7 @@
 | 이름 | 역할분담 | Github-link |
 | :-: | --- | --- |
 | **유유선** | races 앱 담당<br>프로젝트 문서화 | [@northeast23](https://github.com/northeast23) |
-| **임재철** | boards 앱 담당<br>notion 템플릿, ERD 작성 | [@refelim](https://github.com/refelim) |
+| **임재철** | boards 앱 담당, wiki 작성<br>notion 템플릿, ERD 작성 | [@refelim](https://github.com/refelim) |
 | **지민경** | crews 앱 담당<br>프로젝트 문서화 | [@jiminkyung](https://github.com/jiminkyung) |
 | **최은선**<br>(팀장) | UI 설계<br>accounts, promotion 앱 담당<br>프론트엔드 개발 및 배포 | [@escape1001](https://github.com/escape1001) |
 
@@ -60,6 +60,7 @@
 ### 2.2 배포 URL
 
 - 사이트 URL : https://dalim-main.vercel.app/
+(https://cors-anywhere.herokuapp.com/ 사용 필요)
 - Swagger URL : http://dalim.duckdns.org/api/schema/swagger-ui/
 - 테스트용 계정
     
