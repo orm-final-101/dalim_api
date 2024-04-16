@@ -534,12 +534,12 @@ gantt
 
 ## 9. 에러와 에러 해결
 ### 💠 최은선 
-1. 프론트엔드 와 연결 시 반복되는 500에러 
-    - 문제 원인 : url 끝의 “/” 유무
-    - 해결 방법 : 프론트에서 요청하는 URL 수정
+1. 프론트엔드와 연결 시 반복되는 500에러 
+    - 문제 원인: url 끝의 “/” 유무
+    - 해결 방법: 프론트에서 요청하는 URL 수정
 2. 회원가입 시 username, nickname과 같은 값을 입력해 줬음에도 DB에 들어오지 않는 현상
-    - 문제원인 : dj_rest_auth.registration.urls로 만든 signup과 customUser 모델이 연결되지 않음
-    - 해결방법 :CustomRegisterView과 CustomRegisterSerializer 를 만들어 signup URL에 연결
+    - 문제원인: dj_rest_auth.registration.urls로 만든 signup과 customUser 모델이 연결되지 않음
+    - 해결방법:CustomRegisterView과 CustomRegisterSerializer 를 만들어 signup URL에 연결
 
 ```python
 [기존코드]
@@ -593,9 +593,9 @@ class CustomRegisterSerializer(RegisterSerializer):
 
 
 ### 💠 지민경
-1. url 작성 시 더블슬래쉬 오류.
-    - 문제 원인 : URL 패턴 매칭 순서. Django의 url 라우터는 첫 번째로 일치하는 패턴에 대해 해당 뷰를 호출하는 특징이 있음.
-    - 해결 방법 : url 선언 순서 변경. 구체적인 패턴순서대로 내림차순 정렬해줌. 
+1. url 작성 시 더블슬래쉬 오류(`//`)
+    - 문제 원인: URL 패턴 매칭 순서. Django의 URL 라우터는 첫 번째로 일치하는 패턴에 대해 해당 뷰를 호출하는 특징이 있음.
+    - 해결 방법: URL 선언 순서 변경. 구체적인 패턴순으로 내림차순 정렬해줌. 
 
 ```python
 router = DefaultRouter()
@@ -656,7 +656,7 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 
 또 나무보다는 숲을 보는 능력을 키우게 된 것 같습니다. 한가지 기능에 매달려 끙끙대다가 충분히 할 수 있었던 기능들도 못끝내는 경우가 있었는데, 이번에는 팀원분들 덕분에 그런 상황을 면할 수 있었습니다.
 
-한가지 더 적자면 AI를 이용해 코딩을 하는게 맞는가? 라는 의문점이 했었으나 조금은 풀린듯합니다. 내가 더 많이 알수록 AI에게 하는 질문도 예리해지고 구체적으로 변하는 느낌을 받았거든요.
+한가지 더 적자면 AI를 이용해 코딩을 하는게 맞는건가? 라는 의문점이 들곤 했었으나 조금은 해소된 듯 합니다. 내가 더 많이 알수록 AI에게 하는 질문도 예리해지고 구체적으로 변하는 느낌을 받았거든요.
 
 좋은 팀원분들과 함께 할 수 있어서 행복했습니다.
 
