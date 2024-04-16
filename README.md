@@ -18,11 +18,14 @@
 - 각 대회의 접수 시작/마감일, 대회 시작/마감일과 접수 d-day기능 제공
 - 러닝 관련 상품, 해당 상품의 후기 제공
 
-### 1.3 팀 구성
+### 1.3 팀 구성 및 역할분담
 
-| 이름 | 유유선 | 임재철 | 지민경 | 최은선 |
-| :-- | --- | --- | --- | --- |
-| **GitHub-Link** | [@northeast23](https://github.com/northeast23) | [@refelim](https://github.com/refelim) | [@jiminkyung](https://github.com/jiminkyung) | [@escape1001](https://github.com/escape1001) |
+| 이름 | 역할분담 | Github-link |
+| :-: | --- | --- |
+| **유유선** | races 앱 담당<br>프로젝트 문서화 | [@northeast23](https://github.com/northeast23) |
+| **임재철** | boards 앱 담당<br>notion 템플릿, ERD 작성 | [@refelim](https://github.com/refelim) |
+| **지민경** | crews 앱 담당<br>프로젝트 문서화 | [@jiminkyung](https://github.com/jiminkyung) |
+| **최은선**<br>(팀장) | UI 설계<br>accounts, promotion 앱 담당<br>프론트엔드 개발 및 배포 | [@escape1001](https://github.com/escape1001) |
 
 ## 2. 개발 환경 및 배포 URL
 
