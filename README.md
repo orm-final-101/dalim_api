@@ -346,10 +346,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-		<img src="메인 페이지.png">
+		<img src="./media/readme/메인 페이지.png">
             </td>
             <td align = "center" valign="Top">
-                <img src="회원가입.png">
+                <img src="./media/readme/회원가입.png">
             </td>
         </tr>
         <tr>
@@ -358,10 +358,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="마이페이지(일반유저).png">
+                <img src="./media/readme/마이페이지(일반유저).png">
             </td>
             <td align = "center" valign="Top">
-                <img src="유저 상세페이지(퍼블릭).png">
+                <img src="./media/readme/유저 상세페이지(퍼블릭).png">
             </td>
         </tr>
         <tr>
@@ -370,10 +370,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="로그인.png">
+                <img src="./media/readme/로그인.png">
             </td>
             <td align = "center" valign="Top">
-                <img src="404.png">
+                <img src="./media/readme/404.png">
             </td>
         </tr>  
     </tbody>
@@ -388,10 +388,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="러닝크루 리스트.png">
+                <img src="./media/readme/러닝크루 리스트.png">
             </td>
             <td align = "center" valign="Top">
-                <img src="러닝크루 상세.png">
+                <img src="./media/readme/러닝크루 상세.png">
             </td>
         </tr>
         <tr>
@@ -400,7 +400,7 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="러닝크루 신청 완료.png">
+                <img src="./media/readme/러닝크루 신청 완료.png">
             </td>
             <td align = "center" valign="Top">
                 <img>
@@ -412,10 +412,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="크루 어드민 페이지_초기(대회관리자).png">
+                <img src="./media/readme/크루 어드민 페이지_초기(대회관리자).png">
             </td>
             <td align = "center" valign="Top">
-                <img src="크루 어드민 페이지(크루관리자).png">
+                <img src="./media/readme/크루 어드민 페이지(크루관리자).png">
             </td>
         </tr>   
         <tr>
@@ -424,10 +424,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="크루 등록(크루관리자).png">
+                <img src="./media/readme/크루 등록(크루관리자).png">
             </td>
             <td align = "center" valign="Top">
-                <img src="크루등록 완료.png">
+                <img src="./media/readme/크루등록 완료.png">
             </td>
         </tr>   
     </tbody>
@@ -444,10 +444,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="게시글 리스트.png">
+                <img src="./media/readme/게시글 리스트.png">
             </td>
             <td align = "center" valign="Top">
-                <img src="게시글 상세.png">
+                <img src="./media/readme/게시글 상세.png">
             </td>
         </tr>
         <tr>
@@ -456,7 +456,7 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="게시글 작성.png">
+                <img src="./media/readme/게시글 작성.png">
             </td>
             <td align = "center" valign="Top">
                 <img  >
@@ -476,10 +476,10 @@ pass
         </tr>
         <tr>
             <td align = "center" valign="Top">
-                <img src="대회 리스트.png">
+                <img src="./media/readme/대회 리스트.png">
             </td>
             <td align = "center" valign="Top">
-                <img src="대회 상세.png" >
+                <img src="./media/readme/대회 상세.png" >
             </td>
         </tr>
     </tbody>
