@@ -292,7 +292,7 @@ pass
 ## 6. 와이어프레임 / UI / BM
 
 ### 6.1 와이어프레임
-![image](https://github.com/orm-final-101/dalim_api/assets/155033413/76323a7a-c911-4992-93bc-51bdb49ce2b5)
+![Figma](https://github.com/orm-final-101/dalim_api/assets/155033413/20c2f199-efbb-4919-a5bb-88c2ef47ef71)
 
 ### 6.2 화면 설계
 
