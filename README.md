@@ -501,14 +501,67 @@ pass
 2. 회원가입 시 username, nickname과 같은 값을 입력해 줬음에도 DB에 들어오지 않는 현상
     - 문제원인 : dj_rest_auth.registration.urls로 만든 signup과 customUser 모델이 연결되지 않음
     - 해결방법 :CustomRegisterView과 CustomRegisterSerializer 를 만들어 signup URL에 연결
-<img width="1180" alt="은선 10 2" src="https://github.com/orm-final-101/dalim_api/assets/155033413/b9d61a31-f189-4667-ae0e-af072ba0f1f8">
+```python
+[기존코드]
+# accounts/urls.py
+urlpatterns = [
+    path("signup/", include("dj_rest_auth.registration.urls")),
+    ...
+]
+
+
+[수정된 코드]
+# accounts/urls.py
+urlpatterns = [
+    path("signup/", views.CustomRegisterView.as_view(), name="account_signup"),
+
+    ...
+]
+
+
+# accounts/views.py
+from dj_rest_auth.registration.views import RegisterView
+
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
+    
+# accounts/serializers.py
+from dj_rest_auth.registration.serializers import RegisterSerializer
+
+class CustomRegisterSerializer(RegisterSerializer):
+    email = serializers.EmailField(required=True)
+    nickname = serializers.CharField(required=True)
+    birth_date = serializers.DateField(required=True)
+    gender = serializers.CharField(required=True)
+    user_type = serializers.CharField(required=True)
+    location_city = serializers.CharField(required=True)
+    location_district = serializers.CharField(required=True)
+    phone_number = serializers.CharField(required=True)
+
+    def custom_signup(self, request, user):
+        user.email = self.validated_data.get('email')
+        user.nickname = self.validated_data.get('nickname')
+        user.birth_date = self.validated_data.get('birth_date')
+        user.gender = self.validated_data.get('gender')
+        user.user_type = self.validated_data.get('user_type')
+        user.location_city = self.validated_data.get('location_city')
+        user.location_district = self.validated_data.get('location_district')
+        user.phone_number = self.validated_data.get('phone_number')
+        user.save()
+```
+
 
 ### 💠 지민경
 1. url 작성 시 더블슬래쉬 오류.
     - 문제 원인 : URL 패턴 매칭 순서. Django의 url 라우터는 첫 번째로 일치하는 패턴에 대해 해당 뷰를 호출하는 특징이 있음.
     - 해결 방법 : url 선언 순서 변경. 구체적인 패턴순서대로 내림차순 정렬해줌. 
-<img width="844" alt="민경 10 1" src="https://github.com/orm-final-101/dalim_api/assets/155033413/7d616049-c49c-4e48-8c7e-27fc5e3c8f87">
 
+```python
+router = DefaultRouter()
+router.register(r"manage/(?P<crew_id>\d+)/members", views.CrewMemberViewSet, basename="joinedcrew")
+router.register(r"(?P<crew_id>\d+)/reviews", views.CrewReviewViewSet, basename="crewreview")
+router.register("manage", views.ManagerCrewViewSet, basename="manage_crew")
+```
 
 2. Django에서 선언해준 자료형 값과 swagger ui에서 확인한 자료형값이 다른 문제.
     - 문제 원인 : Django에서 SerializerMethodField를 사용할 때, 해당 메서드가 반환하는 값의 타입(자료형)을 명시적으로 지정하지 않으면 문자열로 간주.
@@ -517,7 +570,19 @@ pass
       . Django 코드 내에서는 SerializerMethodField를 사용하여 커스텀 필드를 정의할 때, 해당 메서드에서 반환하는 값의 ‘실제’ 타입을 사용.
       . 하지만 Swagger ui는 기본적으로 문자열(string)으로 간주한다.
       . 따라서 예시 데이터값을 request하지 않는 한 SerializerMethodField를 사용한 필드는 문자열로 표시됨.
-<img width="924" alt="민경 10 2" src="https://github.com/orm-final-101/dalim_api/assets/155033413/1ea27946-1099-4271-b938-ad6d1474919c">
+      
+```python
+class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
+    is_opened = serializers.CharField(source="get_status_display")
+    meet_days = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
+    member_count = serializers.SerializerMethodField()
+    favorite_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Crew
+        fields = ["id", "name", "thumbnail_image", "member_count", "is_favorite", "location_city", "location_district", "meet_days", "meet_time", "is_opened", "favorite_count"]
+```
 
             
 ### 💠 임재철
