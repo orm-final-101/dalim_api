@@ -24,6 +24,7 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
+    'corsheaders', # cors 최상단에 위치
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     'races',
     # install app
     'rest_framework',
-    'corsheaders',
     'rest_framework.authtoken', # 토큰 인증
     'rest_framework_simplejwt',
     'dj_rest_auth',
