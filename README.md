@@ -29,7 +29,10 @@
 ## 2. 개발 환경 및 배포 URL
 
 ### 2.1 개발 환경
+#### FE
+- vercel, Next.js 14/styled-components
 
+#### BE
 - **Tools**
 
     ![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white) ![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
@@ -80,15 +83,15 @@
 | logout/ | POST | 로그아웃 | ✅ |  |  |
 | token/refresh/ | POST | 토큰 재발급 | ✅ |  |  |
 | mypage/info | GET | 회원정보 | ✅ | ✅ |  |
-| mypage/info/\<int:user_id\>/ | PATCH, PUT | 회원정보 수정 | ✅ | ✅ |  |
+| mypage/info/\<int:user_id\>/ | PATCH | 회원정보 수정 | ✅ | ✅ |  |
 | mypage/record | GET | 달린 기록 보기 | ✅ |  |  |
 | mypage/record | POST | 달린 거리 기록 | ✅ |  |  |
-| mypage/record/\<int:record_id\>/ | PATCH, PUT | 달린 거리 수정 | ✅ | ✅ |  |
+| mypage/record/\<int:record_id\>/ | PATCH | 달린 거리 수정 | ✅ | ✅ |  |
 | mypage/record/\<int:record_id\>/ | DELETE | 달린 거리 삭제 | ✅ | ✅ |  |
 | mypage/crew/ | GET | 내가 신청한 크루 현황 | ✅ |  |  |
 | mypage/race/ | GET | 내가 신청한 대회 내역 | ✅ |  |  |
 | mypage/race/ | POST | 내 대회 기록 추가 | ✅ |  |  |
-| mypage/race/\<int:joined_race_id\>/ | PATCH, PUT | 내 대회 기록 추가/수정 | ✅ | ✅ |  |
+| mypage/race/\<int:joined_race_id\>/ | PATCH | 내 대회 기록 추가/수정 | ✅ | ✅ |  |
 | mypage/race/\<int:joined_race_id\>/ | DELETE | 내 대회 기록 삭제 | ✅ | ✅ |  |
 | mypage/favorites | GET | 나의 관심 리스트 | ✅ |  |  |
 | profile/\<int:pk\>/ | GET | 유저 오픈프로필 |  |  |  |
@@ -102,7 +105,7 @@
 | \<int:race_id\>/ | GET | 대회 상세 |  |  |  |
 | \<int:race_id\>/reviews/ | GET | 대회 리뷰 리스트 |  |  |  |
 | \<int:race_id\>/reviews/ | POST | 대회 리뷰 작성 | ✅ |  |  |
-| \<int:race_id\>/reviews/\<int:review_id\> | PATCH, PUT | 대회 리뷰 수정 | ✅ | ✅ |  |
+| \<int:race_id\>/reviews/\<int:review_id\> | PATCH | 대회 리뷰 수정 | ✅ | ✅ |  |
 | \<int:race_id\>/reviews/\<int:review_id\> | DELETE | 대회 리뷰 삭제 | ✅ | ✅ |  |
 | \<int:race_id\>/favorite/ | POST | 대회 즐겨찾기 추가/해제 | ✅ |  |  |
 
@@ -135,10 +138,12 @@
 | \<int:post_id\>/ | GET | 게시글 상세 |  |  |  |
 | \<int:post_id\>/ | PATCH, PUT | 게시글 수정 | ✅ | ✅ |  |
 | \<int:post_id\>/ | DELETE | 게시글 삭제 | ✅ | ✅ |  |
-| \<int:post_id\>/comments/ |  | 댓글 리스트 |  |  |  |
-| \<int:post_id\>/comments/ |  | 댓글 작성 | ✅ |  |  |
-| \<int:post_id\>/comments/\<int:commet_id\>/ |  | 댓글 수정 | ✅ | ✅ |  |
-| \<int:post_id\>/comments/\<int:comment_id\>/ |  | 댓글 삭제 | ✅ | ✅ |  |
+| \<int:post_id\>/comments/ | GET | 댓글 리스트 |  |  |  |
+| \<int:post_id\>/comments/ | POST | 댓글 작성 | ✅ |  |  |
+| \<int:post_id\>/comments/\<int:commet_id\>/ | GET | 댓글 가져오기 | ✅ | |  |
+| \<int:post_id\>/comments/\<int:commet_id\>/ | PATCH, PUT | 댓글 수정 | ✅ | ✅ |  |
+| \<int:post_id\>/comments/\<int:comment_id\>/ | DELETE | 댓글 삭제 | ✅ | ✅ |  |
+| \<int:post_id\>/like/ | GET | 게시글 좋아요여부 | ✅ |  |  |
 | \<int:post_id\>/like/ | POST | 게시글에 좋아요 추가/해제 | ✅ |  |  |
 
 **💠 promotions**
@@ -520,7 +525,7 @@ gantt
 - 크루 관리자는 크루를 생성, 크루의 정보를 수정할 수 있는 권한을 가지고 있습니다.
 - 또한 크루 멤버 관리 기능을 통해 크루 회원들의 상태를 효율적으로 관리할 수 있도록 하였습니다.
 
-### 8-4.
+### 8-4. 러닝 기록 및 레벨시스템
 <img src="./media/readme/9-4.gif" width="100%"><br/>
 - 회원이 자신의 러닝 거리를 기록하고, 수정 및 삭제할 수 있습니다.
 - 이 러닝 기록을 바탕으로 회원은 본인의 러닝 패턴, 진척도를 파악 할 수 있습니다.
@@ -601,10 +606,10 @@ router.register("manage", views.ManagerCrewViewSet, basename="manage_crew")
 2. Django에서 선언해준 자료형 값과 swagger ui에서 확인한 자료형값이 다른 문제.
     - 문제 원인 : Django에서 SerializerMethodField를 사용할 때, 해당 메서드가 반환하는 값의 타입(자료형)을 명시적으로 지정하지 않으면 문자열로 간주.
     - 해결 방법 : 없음. 실질적으로 문제가 되는 코드가 아니었다.
-    - 추가 설명 : 
-      . Django 코드 내에서는 SerializerMethodField를 사용하여 커스텀 필드를 정의할 때, 해당 메서드에서 반환하는 값의 ‘실제’ 타입을 사용.
-      . 하지만 Swagger ui는 기본적으로 문자열(string)으로 간주한다.
-      . 따라서 예시 데이터값을 request하지 않는 한 SerializerMethodField를 사용한 필드는 문자열로 표시됨.
+    - 추가 설명
+        - Django 코드 내에서는 SerializerMethodField를 사용하여 커스텀 필드를 정의할 때, 해당 메서드에서 반환하는 값의 ‘실제’ 타입을 사용.
+        - 하지만 Swagger ui는 기본적으로 문자열(string)으로 간주한다.
+        - 따라서 예시 데이터값을 request하지 않는 한 SerializerMethodField를 사용한 필드는 문자열로 표시됨.
       
 ```python
 class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
@@ -623,6 +628,8 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 ### 💠 임재철
 1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 API가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
     - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 맞는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함. 
+1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 api가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
+    - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 맞는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함.
     - 해결 방법 : API가 나오는데 꼭 필요하다고 생각한 LikeSerializers 를 삭제하고,PostListSerializers의 코드를 정리함.
 <img width="1162" alt="재철 10 1" src="https://github.com/orm-final-101/dalim_api/assets/155033413/9b143780-2932-41a9-afd0-ac2c4ff3aeb2">
 
