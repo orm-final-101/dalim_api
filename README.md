@@ -3,10 +3,9 @@
 ## 1. 목표와 기능
 
 ### 1.1 목표
-- Django DRF(Django Rest Framework)를 활용해 안정적이고 효율적인 웹 사이트 개발
-- 국내의 러닝 애호가들, 전문 선수들을 위해 종합적인 서비스 제공
-    - 크루, 대회, 상품 등 러닝과 관련된 서비스 제공
-- 러닝 커뮤니티의 활성화와 발전 → 러닝 문화 확산
+- Django DRF(Django Rest Framework)를 활용한 웹 사이트 개발
+- 국내의 러닝 애호가들을 위해 종합적인 서비스 제공
+    - 크루, 대회, 커뮤니티 등 러닝과 관련된 서비스 제공
     - 러닝과 관련된 최신 정보 공유 및 소통 플랫폼 구축
 
 ### 1.2 기능
@@ -16,7 +15,7 @@
 - 사용자가 지정한 필터링에 따라 크루를 조회하고 가입, 즐겨찾기, 리뷰 가능
 - 또는 사용자 본인이 직접 크루를 생성할 수 있음
 - 각 대회의 접수 시작/마감일, 대회 시작/마감일과 접수 d-day기능 제공
-- 러닝 관련 상품, 해당 상품의 후기 제공
+- 러닝 커뮤니티 게시판과 후기, 훈련일지 등 다양한 카테고리 제공
 
 ### 1.3 팀 구성 및 역할분담
 
@@ -57,12 +56,18 @@
 
 ### 2.2 배포 URL
 
-- [배포 URL](https://github.com/orm-final-101/dalim_api)
+- 사이트 URL : https://dalim-main.vercel.app/
+- Swagger URL : https://dalim-main.vercel.app/
 - 테스트용 계정
     
     ```
-    id : test@test.test
-    pw : test11!!
+    [일반 유저]
+    id : test@test.com
+    pw : test1234!
+
+    [크루장 유저]
+    id : crew@test.com
+    pw : test1234!
     ```
 
 ### 2.3 URL 구조(마이크로식)
@@ -180,10 +185,13 @@
     - 댓글 CRUD 기능
     - 좋아요 기능, 좋아요 갯수 표시
 - 프로모션
-    - 
+    - 메인 페이지 배너에 들어갈 내용 리스트
+    - 메인 페이지에 들어갈 포스트 리스트
+
+### 3.2 기능 요구사항
+<img src="./media/readme/기능 요구사항.png">
 
 ## 4. 프로젝트 구조와 개발 일정
-
 ### 4.1 프로젝트 구조
 
 ``` 
@@ -323,193 +331,194 @@ gantt
     배포 최종: milestone, isadded, 24-04-16, 0d
 ```
 
-## 5. 역할 분담
-pass
+## 5. 와이어프레임 / UI / BM
 
-## 6. 와이어프레임 / UI / BM
+### 5.1 와이어프레임
+[Figma](https://www.figma.com/file/LQwXLQmLMsmwibWOZLfKVp/orm_final?type=design&node-id=0-1&mode=design&t=PUgyi3Lb3lJeJlQ9-0)
 
-### 6.1 와이어프레임
-![Figma](https://github.com/orm-final-101/dalim_api/assets/155033413/20c2f199-efbb-4919-a5bb-88c2ef47ef71)
+<img src="./media/readme/와이어프레임.png">
 
-### 6.2 화면 설계
+### 5.2 화면 설계
 
-💠 어카운트 앱
- 
-<table>
-    <tbody>
-        <tr>
-            <td align = "center">메인페이지</td>
-            <td align = "center">회원가입</td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-		<img src="./media/readme/메인 페이지.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/회원가입.png">
-            </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">마이페이지(일반유저)</td>
-            <td align = "center" valign="Top">유저 상세페이지(퍼블릭)</td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/마이페이지(일반유저).png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/유저 상세페이지(퍼블릭).png">
-            </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">로그인</td>
-            <td align = "center" valign="Top">404</td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/로그인.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/404.png">
-            </td>
-        </tr>  
-    </tbody>
-</table>
+<details>
+    <summary>💠 어카운트 앱</summary>
+    <table>
+        <tbody>
+            <tr>
+                <td align = "center">메인페이지</td>
+                <td align = "center">회원가입</td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+            <img src="./media/readme/메인 페이지.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/회원가입.png">
+                </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">마이페이지(일반유저)</td>
+                <td align = "center" valign="Top">유저 상세페이지(퍼블릭)</td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/마이페이지(일반유저).png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/유저 상세페이지(퍼블릭).png">
+                </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">로그인</td>
+                <td align = "center" valign="Top">404</td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/로그인.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/404.png">
+                </td>
+            </tr>  
+        </tbody>
+    </table>
+</details>
 
-💠 크루 앱
-<table>
-    <tbody>
-        <tr>
-            <td align = "center" valign="Top">러닝크루 리스트</td>
-            <td align = "center" valign="Top">러닝크루 상세</td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/러닝크루 리스트.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/러닝크루 상세.png">
-            </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">러닝크루 신청완료</td>
-            <td align = "center" valign="Top"> </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/러닝크루 신청 완료.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img>
-            </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">크루 어드민 최초</td>
-            <td align = "center" valign="Top">크루 어드민(크루 관리자) </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/크루 어드민 페이지_초기(대회관리자).png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/크루 어드민 페이지(크루관리자).png">
-            </td>
-        </tr>   
-        <tr>
-            <td align = "center" valign="Top">크루 등록(크루관리자)</td>
-            <td align = "center" valign="Top">크루 등록 완료 </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/크루 등록(크루관리자).png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/크루등록 완료.png">
-            </td>
-        </tr>   
-    </tbody>
-</table>
+<details>
+    <summary>💠 크루 앱</summary>
+    <table>
+        <tbody>
+            <tr>
+                <td align = "center" valign="Top">러닝크루 리스트</td>
+                <td align = "center" valign="Top">러닝크루 상세</td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/러닝크루 리스트.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/러닝크루 상세.png">
+                </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">러닝크루 신청완료</td>
+                <td align = "center" valign="Top"> </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/러닝크루 신청 완료.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img>
+                </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">크루 어드민 최초</td>
+                <td align = "center" valign="Top">크루 어드민(크루 관리자) </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/크루 어드민 페이지_초기(대회관리자).png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/크루 어드민 페이지(크루관리자).png">
+                </td>
+            </tr>   
+            <tr>
+                <td align = "center" valign="Top">크루 등록(크루관리자)</td>
+                <td align = "center" valign="Top">크루 등록 완료 </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/크루 등록(크루관리자).png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/크루등록 완료.png">
+                </td>
+            </tr>   
+        </tbody>
+    </table>
+</details> 
+
+<details>
+    <summary>💠 게시판 앱</summary>
+    <table>
+        <tbody>
+            <tr>
+                <td align = "center" valign="Top">게시글 리스트</td>
+                <td align = "center" valign="Top">게시글 상세 </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/게시글 리스트.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/게시글 상세.png">
+                </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">게시글 작성</td>
+                <td align = "center" valign="Top"> </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/게시글 작성.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img  >
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</details> 
+
+<details>
+    <summary>💠 대회 앱</summary>
+    <table>
+        <tbody>
+            <tr>
+                <td align = "center" valign="Top">대회 리스트</td>
+                <td align = "center" valign="Top">대회 상세 </td>
+            </tr>
+            <tr>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/대회 리스트.png">
+                </td>
+                <td align = "center" valign="Top">
+                    <img src="./media/readme/대회 상세.png" >
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</details> 
 
 
-💠 게시판 앱
 
-<table>
-    <tbody>
-        <tr>
-            <td align = "center" valign="Top">게시글 리스트</td>
-            <td align = "center" valign="Top">게시글 상세 </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/게시글 리스트.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/게시글 상세.png">
-            </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">게시글 작성</td>
-            <td align = "center" valign="Top"> </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/게시글 작성.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img  >
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-
-💠 대회 앱
-
-<table>
-    <tbody>
-        <tr>
-            <td align = "center" valign="Top">대회 리스트</td>
-            <td align = "center" valign="Top">대회 상세 </td>
-        </tr>
-        <tr>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/대회 리스트.png">
-            </td>
-            <td align = "center" valign="Top">
-                <img src="./media/readme/대회 상세.png" >
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-
-
-## 7. 데이터베이스 모델링(ERD)
+## 6. 데이터베이스 모델링(ERD)
 ![dallim](https://github.com/orm-final-101/dalim_api/assets/144616336/8d788c20-06d8-472d-81c0-ca3a16a14f7c)
 [Dalim ERD 바로가기](https://www.erdcloud.com/d/ZSCKyEmWjLbwPY2vc)
 
+## 7. Architecture
+<img src="./media/readme/아키텍쳐.png">
 
-## 8. Architecture
-pass
-
-## 9. 메인 기능
-### 9-1. 크루 서치 및 가입 기능
-![9_1](https://github.com/orm-final-101/dalim_api/assets/128216954/d740af0e-8ee7-4311-901c-f73a1280dcac)
+## 8. 메인 기능
+### 8-1. 크루 서치 및 가입 기능
+![8_1](https://github.com/orm-final-101/dalim_api/assets/128216954/d740af0e-8ee7-4311-901c-f73a1280dcac)
 - 현재 "모집중"인 크루 리스트를 보여줌. 검색 기능과 요일/지역 필터링 기능을 통해 원하는 크루를 쉽게 찾을 수 있음.
 - 크루 상세 페이지에서는 크루의 상세 정보를 확인할 수 있으며, 관심 있는 크루에 가입 신청을 할 수 있음.
 - 크루 즐겨찾기 기능을 통해 마음에 드는 크루를 저장하고, 마이페이지에서 빠르게 접근 가능.
 
-### 9-2. 크루 리뷰 기능
-![9_2](https://github.com/orm-final-101/dalim_api/assets/128216954/c81a3c01-910f-403f-9b68-a97013fb8656)
+### 8-2. 크루 리뷰 기능
+![8_2](https://github.com/orm-final-101/dalim_api/assets/128216954/c81a3c01-910f-403f-9b68-a97013fb8656)
 - 크루 회원들은 크루 활동에 대한 리뷰를 작성 가능. 이를 통해 크루에 대한 피드백을 공유하고, 다른 사용자들에게 참고 정보를 제공.
 - 리뷰는 작성자만 수정 및 삭제할 수 있어 리뷰의 신뢰성을 유지함.
 
-### 9-3. 크루 관리
-![9_3](https://github.com/orm-final-101/dalim_api/assets/128216954/b03741c2-4b86-41f4-90bf-429c0e4c54c9)
+### 8-3. 크루 관리
+![8_3](https://github.com/orm-final-101/dalim_api/assets/128216954/b03741c2-4b86-41f4-90bf-429c0e4c54c9)
 - 크루 관리자는 크루를 생성, 수정, 삭제할 수 있는 권한을 가지고 있음.
 - 크루 멤버 관리 기능을 통해 크루 회원들의 상태를 효율적으로 관리할 수 있음.
 
-## 10. 에러와 에러 해결
+## 9. 에러와 에러 해결
 ### 💠 최은선 
 1. 프론트엔드 와 연결 시 반복되는 500에러 
     - 문제 원인 : url 끝의 “/” 유무
@@ -517,6 +526,7 @@ pass
 2. 회원가입 시 username, nickname과 같은 값을 입력해 줬음에도 DB에 들어오지 않는 현상
     - 문제원인 : dj_rest_auth.registration.urls로 만든 signup과 customUser 모델이 연결되지 않음
     - 해결방법 :CustomRegisterView과 CustomRegisterSerializer 를 만들어 signup URL에 연결
+
 ```python
 [기존코드]
 # accounts/urls.py
@@ -524,8 +534,9 @@ urlpatterns = [
     path("signup/", include("dj_rest_auth.registration.urls")),
     ...
 ]
+```
 
-
+```python
 [수정된 코드]
 # accounts/urls.py
 urlpatterns = [
