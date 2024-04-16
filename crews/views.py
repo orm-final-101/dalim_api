@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
-from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewListSerializer, CrewReviewCreateSerializer, CrewReviewUpdateSerializer, CrewCreateSerializer, JoinedCrewSerializer
+from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewListSerializer, CrewReviewCreateSerializer, CrewReviewUpdateSerializer, CrewCreateSerializer, JoinedCrewSerializer, CrewUpdateSerializer
 from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
@@ -20,6 +20,10 @@ import functools, operator
 - 검색, 필터링 기능
 - 해당 크루의 상세 페이지
 - 크루 가입 신청, 즐겨찾기 추가/제거 기능
+    - 이미 신청한 상태("keeping")
+    - 미승인 상태("non_keeping")
+    - 이미 멤버인 상태("member")
+    는 거절 메시지 반환.
 """
 @extend_schema_view(
     list=extend_schema(
@@ -79,7 +83,7 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
                 functools.reduce(operator.and_, (Q(meet_days__contains=day) for day in selected_meet_days))
             )
         return queryset
-    
+
     # 크루 가입 신청 기능
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def join(self, request, pk=None):
@@ -137,14 +141,24 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "retrieve":
             return CrewDetailSerializer
-        elif self.action in ["create", "update", "partial_update"]:
+        elif self.action == "create":
             return CrewCreateSerializer
+        elif self.action in ["update", "partial_update"]:
+            return CrewUpdateSerializer
         return super().get_serializer_class()
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"request": self.request})
-        return context
+    """
+    - partial 파라미터 처리
+    - update나 partial_update 액션인 경우 partial 파라미터를 True로 설정
+    - 이를 통해 부분 업데이트가 가능해짐
+    """
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs.setdefault("context", self.get_serializer_context())      
+        # partial 파라미터 처리
+        if self.action in ["update", "partial_update"]:
+            kwargs["partial"] = True
+        return serializer_class(*args, **kwargs)
 
     # 현재 사용자가 소유한 크루만 조회
     def get_queryset(self):
@@ -154,7 +168,7 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
 
     # 크루 생성 시 owner 설정
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        serializer.save(owner=self.request.user, is_opened=True)
 
     # 크루 수정 시 권한 체크
     def get_permissions(self):
