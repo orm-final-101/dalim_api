@@ -233,9 +233,6 @@
  ┃ ┣ 📜views.py
  ┃ ┗ 📜__init__.py
  ┣ 📂media
- ┃ ┣ 📂accounts
- ┃ ┣ 📂crews
- ┃ ┣ 📂races
  ┃ ┗ 📂README
  ┣ 📂promotions
  ┃ ┣ 📂migrations
