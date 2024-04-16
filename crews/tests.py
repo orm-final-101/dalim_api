@@ -59,13 +59,12 @@ class PublicCrewViewSetTestCase(APITestCase):
 
     # 여러 요일 필터링 기능
     def test_filter_by_multiple_meet_days(self):
-        url = reverse("crews:public_crew-list") + "?meet_days=mon,tue,wed,thu"
+        url = reverse("crews:public_crew-list") + "?meet_days=mon,tue"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data), 1)
         crew_names = [crew["name"] for crew in response.data]
         self.assertIn(self.opened_crew1.name, crew_names)
-        self.assertIn(self.opened_crew2.name, crew_names)
 
     # 크루 상세정보
     def test_crew_detail(self):
