@@ -124,6 +124,15 @@ class CrewCreateSerializer(serializers.ModelSerializer):
 
 
 """
+크루 정보 수정 시 사용되는 시리얼라이저
+"""
+class CrewUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crew
+        fields = ["name", "location_city", "location_district", "meet_days", "meet_time", "description", "thumbnail_image", "sns_link", "is_opened"]
+
+
+"""
 가입된 크루 조회 시 사용되는 시리얼라이저
 
 - username: 사용자 아이디 (읽기 전용)
