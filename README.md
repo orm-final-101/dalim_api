@@ -525,7 +525,7 @@ gantt
 - 크루 관리자는 크루를 생성, 크루의 정보를 수정할 수 있는 권한을 가지고 있습니다.
 - 또한 크루 멤버 관리 기능을 통해 크루 회원들의 상태를 효율적으로 관리할 수 있도록 하였습니다.
 
-### 8-4.
+### 8-4. 러닝 기록 및 레벨시스템
 <img src="./media/readme/9-4.gif" width="100%"><br/>
 - 회원이 자신의 러닝 거리를 기록하고, 수정 및 삭제할 수 있습니다.
 - 이 러닝 기록을 바탕으로 회원은 본인의 러닝 패턴, 진척도를 파악 할 수 있습니다.
@@ -606,10 +606,10 @@ router.register("manage", views.ManagerCrewViewSet, basename="manage_crew")
 2. Django에서 선언해준 자료형 값과 swagger ui에서 확인한 자료형값이 다른 문제.
     - 문제 원인 : Django에서 SerializerMethodField를 사용할 때, 해당 메서드가 반환하는 값의 타입(자료형)을 명시적으로 지정하지 않으면 문자열로 간주.
     - 해결 방법 : 없음. 실질적으로 문제가 되는 코드가 아니었다.
-    - 추가 설명 : 
-      . Django 코드 내에서는 SerializerMethodField를 사용하여 커스텀 필드를 정의할 때, 해당 메서드에서 반환하는 값의 ‘실제’ 타입을 사용.
-      . 하지만 Swagger ui는 기본적으로 문자열(string)으로 간주한다.
-      . 따라서 예시 데이터값을 request하지 않는 한 SerializerMethodField를 사용한 필드는 문자열로 표시됨.
+    - 추가 설명
+        - Django 코드 내에서는 SerializerMethodField를 사용하여 커스텀 필드를 정의할 때, 해당 메서드에서 반환하는 값의 ‘실제’ 타입을 사용.
+        - 하지만 Swagger ui는 기본적으로 문자열(string)으로 간주한다.
+        - 따라서 예시 데이터값을 request하지 않는 한 SerializerMethodField를 사용한 필드는 문자열로 표시됨.
       
 ```python
 class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
