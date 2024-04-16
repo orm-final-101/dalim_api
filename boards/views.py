@@ -46,7 +46,8 @@ class PostViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context.update({"request": self.request})
         return context
-
+    
+    # 게시물 전체 보기 및 쿼리스트림 
     def list(self, request):
         queryset = super().get_queryset()
         search_keyword = self.request.GET.get("search", "")
@@ -72,6 +73,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
         return paginator.get_paginated_response(serializer.data)
 
+    # 직렬화 연결
     def get_serializer_class(self):
         if self.action in ["create"]:
             return PostCreateSerializer
@@ -80,14 +82,16 @@ class PostViewSet(viewsets.ModelViewSet):
         elif self.action in ["update", "partial_update"]:
             return PostUpdateSerializer
         return super().get_serializer_class()
-    
+
+    # 조회수 증가    
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.view_count += 1
         instance.save()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    
+
+    # 삭제 시 메세지 출력
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -96,13 +100,14 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response({"message": delete_message}, status=status.HTTP_200_OK)
 
 
-# LIKE API
+# LIKE API /boards/{post_id}/like
 @api_view(["GET", "POST"])
 def like_post(request, post_id):
 
     post = get_object_or_404(Post, pk=post_id)
     author = request.user
 
+    # POST 접근
     if request.method == "POST":
         if not author.is_authenticated:
             return JsonResponse({"error": "User is not authenticated"}, status=400)
@@ -130,8 +135,8 @@ def like_post(request, post_id):
             "is_liked": is_liked
         }
         return JsonResponse(response_data)
-    
-    
+
+
 # Category, post_classification API
 @api_view(["GET"])
 def get_category_choices(request):
