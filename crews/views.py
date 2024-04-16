@@ -10,6 +10,7 @@ from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewLis
 from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+import functools, operator
 
 
 """
@@ -74,10 +75,9 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
             selected_meet_days = selected_meet_days.split(",")
             valid_meet_days = [day[0] for day in MEET_DAY_CHOICES]
             selected_meet_days = [day for day in selected_meet_days if day in valid_meet_days]
-            query = Q()
-            for day in selected_meet_days:
-                query |= Q(meet_days__contains=day)
-            queryset = queryset.filter(query)
+            queryset = queryset.filter(
+                functools.reduce(operator.and_, (Q(meet_days__contains=day) for day in selected_meet_days))
+            )
         return queryset
     
     # 크루 가입 신청 기능
@@ -149,7 +149,7 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
     # 현재 사용자가 소유한 크루만 조회
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(owner=self.request.user)
+        queryset = queryset.filter(owner=self.request.user).order_by("-id")
         return queryset
 
     # 크루 생성 시 owner 설정
