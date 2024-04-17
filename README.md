@@ -30,7 +30,7 @@
 
 ### 2.1 개발 환경
 #### FE
-- vercel, Next.js 14/styled-components
+- Vercel, Next.js 14/styled-components
 
 #### BE
 - **Tools**
@@ -69,7 +69,7 @@
     id : test@test.com
     pw : test1234!
 
-    [크루장 유저]
+    [크루 관리자 유저]
     id : crew@test.com
     pw : test1234!
     ```
