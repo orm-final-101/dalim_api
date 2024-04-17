@@ -30,7 +30,7 @@
 
 ### 2.1 개발 환경
 #### FE
-- vercel, Next.js 14/styled-components
+- Vercel, Next.js 14/styled-components
 
 #### BE
 - **Tools**
@@ -69,7 +69,7 @@
     id : test@test.com
     pw : test1234!
 
-    [크루장 유저]
+    [크루 관리자 유저]
     id : crew@test.com
     pw : test1234!
     ```
@@ -95,9 +95,7 @@
 | mypage/race/\<int:joined_race_id\>/ | PATCH | 내 대회 기록 추가/수정 | ✅ | ✅ |  |
 | mypage/race/\<int:joined_race_id\>/ | DELETE | 내 대회 기록 삭제 | ✅ | ✅ |  |
 | mypage/favorites | GET | 나의 관심 리스트 | ✅ |  |  |
-| profile/\<int:pk\>/ | GET | 유저 오픈프로필 |  |  |  |
-| \<int:pk\>/likes/ | GET | 해당 유저가 좋아요한 글(본인만 볼 수 있음) | ✅ |  | 유저 본인만 가능 |
-| \<int:pk\>/reviews/ | GET | 해당 유저가 남긴 크루/대회 후기 |  |  |  |
+| profile/\<int:pk\>/ | GET | 유저 오픈프로필 | likes 항목에만 필요 |  |  |
 
 **💠 races**
 | app: races | HTTP Method | 설명 | 로그인 권한 필요 | 작성자 권한 필요 | 추가 권한 |
@@ -641,7 +639,7 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
     - 해결 방법 : 시리얼라이저에서 필드를 정의하고 get_ method 로 추가함.
  
 
-## 11. 개발하며 느낀점 (회고록)
+## 10. 개발하며 느낀점 (회고록)
 ### 💠 최은선
 이전에 개발자로 근무하고 사이드프로젝트를 진행하며 개인적으로 좋다고 느꼈던 개발문화와 리모트 협업의 팁을 팀원분들과 최대한 나누고자 했습니다. 실제로 잘 따라와주셔서 예상 일정을 맞출 수 있었고, 함께 만족할 수 있는 프로젝트 경험이 된 것 같아 기쁩니다.
 
