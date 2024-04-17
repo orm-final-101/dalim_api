@@ -625,8 +625,6 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 
             
 ### 💠 임재철
-1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 API가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
-    - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 맞는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함. 
 1. Get /boards/{post_id} 에 로그인을 안하고 들어가면 문제 없이 api가 나오는데 로그인을 하고 Get /boards/{post_id} 들어가면 "AttributeError at /boards/1/ 'ManyRelatedManager' object has no attribute 'posted_likes' " 오류 발생
     - 해결 과정 : 많은 사람들에게 문제를 공유하고 이에 맞는 코칭을 받음. 그래도 정리가 되지 않아서 API 주고 받는 과정을 도식화(아래 그림 참고). 도식화를 그리니 생각했던 로직과 코딩이 다르다고 한 눈에 파악됨. 그리고 Serializer로 타 model에 있는 값들 주고 받지 않는 점, def get_함수 의 쓰임새를 참고해서 코드 경량화에 도전함.
     - 해결 방법 : API가 나오는데 꼭 필요하다고 생각한 LikeSerializers 를 삭제하고,PostListSerializers의 코드를 정리함.
