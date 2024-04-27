@@ -60,8 +60,7 @@
 ### 2.2 배포 URL
 
 - 사이트 URL : https://dalim-main.vercel.app/
-(https://cors-anywhere.herokuapp.com/ 사용 필요)
-- Swagger URL : http://dalim.duckdns.org/api/schema/swagger-ui/
+- Swagger URL : https://dalim.duckdns.org/api/schema/swagger-ui/
 - 테스트용 계정
     
     ```
@@ -588,6 +587,11 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.phone_number = self.validated_data.get('phone_number')
         user.save()
 ```
+
+3. 프론트에서 fetch 요청 시 CORS에러 발생
+    - 문제 원인 : vercel을 사용한 프론트는 https, lightsail를 사용한 백엔드는 http로 배포되어 프로토콜이 일치하지 않음.
+    - 임시 해결 : 프론트에서 프록시 서버(https://cors-anywhere.herokuapp.com/)를 백엔드 url 앞에 붙여 요청. 로직은 작동하나 이미지 제대로 출력되지 않는 이슈 있음.
+    - 최종 해결 : certbot 사용해 ssl 인증서 발급 후 nginx에서 연결. 자세한 내용 [Github Wiki](https://github.com/orm-final-101/dalim_api/wiki/%F0%9F%94%97-%EC%84%9C%EB%B2%84-https-%EB%B2%A0%ED%8F%AC-%EB%A7%A4%EB%89%B4%EC%96%BC)에 작성
 
 
 ### 💠 지민경
