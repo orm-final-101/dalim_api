@@ -6,7 +6,16 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCrewOwner, IsCrewAdmin, IsCrewMemberOrQuit
-from .serializers import CrewListSerializer, CrewDetailSerializer, CrewReviewListSerializer, CrewReviewCreateSerializer, CrewReviewUpdateSerializer, CrewCreateSerializer, JoinedCrewSerializer, CrewUpdateSerializer
+from .serializers import (
+    CrewListSerializer,
+    CrewDetailSerializer,
+    CrewReviewListSerializer,
+    CrewReviewCreateSerializer,
+    CrewReviewUpdateSerializer,
+    CrewCreateSerializer,
+    JoinedCrewSerializer,
+    CrewUpdateSerializer,
+)
 from config.constants import MEET_DAY_CHOICES, LOCATION_CITY_CHOICES
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
@@ -25,12 +34,20 @@ import functools, operator
     - 이미 멤버인 상태("member")
     는 거절 메시지 반환.
 """
+
+
 @extend_schema_view(
     list=extend_schema(
         parameters=[
-            OpenApiParameter(name="search", description="검색 키워드", required=False, type=str),
-            OpenApiParameter(name="location_city", description="도시 선택", required=False, type=str),
-            OpenApiParameter(name="meet_days", description="요일 선택", required=False, type=str),
+            OpenApiParameter(
+                name="search", description="검색 키워드", required=False, type=str
+            ),
+            OpenApiParameter(
+                name="location_city", description="도시 선택", required=False, type=str
+            ),
+            OpenApiParameter(
+                name="meet_days", description="요일 선택", required=False, type=str
+            ),
         ]
     )
 )
@@ -64,13 +81,17 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
         # 검색어 필터링
         if search_keyword:
             queryset = queryset.filter(
-                Q(name__icontains=search_keyword) |
-                Q(description__icontains=search_keyword)
+                Q(name__icontains=search_keyword)
+                | Q(description__icontains=search_keyword)
             )
 
         # 지역 필터링
         if selected_location_city:
-            selected_location_city = [city[0] for city in LOCATION_CITY_CHOICES if city[0] == selected_location_city]
+            selected_location_city = [
+                city[0]
+                for city in LOCATION_CITY_CHOICES
+                if city[0] == selected_location_city
+            ]
             if selected_location_city:
                 queryset = queryset.filter(location_city=selected_location_city[0])
 
@@ -78,9 +99,14 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
         if selected_meet_days:
             selected_meet_days = selected_meet_days.split(",")
             valid_meet_days = [day[0] for day in MEET_DAY_CHOICES]
-            selected_meet_days = [day for day in selected_meet_days if day in valid_meet_days]
+            selected_meet_days = [
+                day for day in selected_meet_days if day in valid_meet_days
+            ]
             queryset = queryset.filter(
-                functools.reduce(operator.and_, (Q(meet_days__contains=day) for day in selected_meet_days))
+                functools.reduce(
+                    operator.and_,
+                    (Q(meet_days__contains=day) for day in selected_meet_days),
+                )
             )
         return queryset
 
@@ -93,20 +119,33 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
         if JoinedCrew.objects.filter(user=user, crew=crew).exists():
             joined_crew = JoinedCrew.objects.get(user=user, crew=crew)
             if joined_crew.status == "member":
-                return Response({"error": "이미 회원입니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "이미 회원입니다."}, status=status.HTTP_400_BAD_REQUEST
+                )
             elif joined_crew.status == "non_keeping":
-                return Response({"error": "신청할 수 없는 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "신청할 수 없는 크루입니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             elif joined_crew.status == "quit":
                 joined_crew.status = "keeping"
                 joined_crew.save()
-                return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
+                return Response(
+                    {"message": "가입 신청이 완료되었습니다."},
+                    status=status.HTTP_200_OK,
+                )
             elif joined_crew.status == "keeping":
-                return Response({"error": "이미 신청한 크루입니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "이미 신청한 크루입니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         JoinedCrew.objects.create(user=user, crew=crew, status="keeping")
-        return Response({"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "가입 신청이 완료되었습니다."}, status=status.HTTP_200_OK
+        )
 
-    # 크루 즐겨찾기 추가/제거 기능 
+    # 크루 즐겨찾기 추가/제거 기능
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
         crew = self.get_object()
@@ -117,12 +156,16 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
         else:
             CrewFavorite.objects.create(user=user, crew=crew)
         return Response(status=status.HTTP_200_OK)
-    
+
     # 즐겨찾기 수 기준 상위 6개 크루 조회
     @action(detail=False, methods=["get"])
     def top6(self, request):
         queryset = self.filter_queryset(self.get_queryset())
-        queryset = queryset.filter(is_opened=True).annotate(favorite_count=Count("crewfavorite")).order_by("-favorite_count")[:6]
+        queryset = (
+            queryset.filter(is_opened=True)
+            .annotate(favorite_count=Count("crewfavorite"))
+            .order_by("-favorite_count")[:6]
+        )
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -133,6 +176,8 @@ class PublicCrewViewSet(viewsets.ReadOnlyModelViewSet):
 - 크루 관리자만 접근 가능
 - 크루 생성/수정/삭제 기능
 """
+
+
 class ManagerCrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewListSerializer
@@ -152,9 +197,10 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
     - update나 partial_update 액션인 경우 partial 파라미터를 True로 설정
     - 이를 통해 부분 업데이트가 가능해짐
     """
+
     def get_serializer(self, *args, **kwargs):
         serializer_class = self.get_serializer_class()
-        kwargs.setdefault("context", self.get_serializer_context())      
+        kwargs.setdefault("context", self.get_serializer_context())
         # partial 파라미터 처리
         if self.action in ["update", "partial_update"]:
             kwargs["partial"] = True
@@ -187,9 +233,11 @@ class ManagerCrewViewSet(viewsets.ModelViewSet):
 - 리뷰 수정/삭제: 해당 작성자만 가능
 """
 
+
 # 크루 회원 또는 탈퇴한 회원인지 확인하는 메서드
 def has_permission_to_create(self, crew):
     return IsCrewMemberOrQuit().has_object_permission(self.request, self, crew)
+
 
 # 권한 체크 로직을 담고 있는 믹스인 클래스
 class CrewReviewPermissionMixin:
@@ -223,12 +271,17 @@ class CrewReviewViewSet(CrewReviewPermissionMixin, viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         crew = get_object_or_404(Crew, id=self.kwargs.get("crew_id"))
         if not self.has_permission_to_create(crew):
-            return Response({"error": "리뷰 작성 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "리뷰 작성 권한이 없습니다."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     # 리뷰 작성 시 저장 로직
     def perform_create(self, serializer):
@@ -238,13 +291,19 @@ class CrewReviewViewSet(CrewReviewPermissionMixin, viewsets.ModelViewSet):
     # 리뷰 수정 기능
     def perform_update(self, serializer):
         if not self.has_permission_to_update_or_destroy(serializer.instance):
-            return Response({"error": "리뷰 작성자만 수정할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "리뷰 작성자만 수정할 수 있습니다."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         serializer.save()
 
     # 리뷰 삭제 기능
     def perform_destroy(self, instance):
         if not self.has_permission_to_update_or_destroy(instance):
-            return Response({"error": "리뷰 작성자만 삭제할 수 있습니다."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "리뷰 작성자만 삭제할 수 있습니다."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         instance.delete()
 
 
@@ -254,7 +313,11 @@ class CrewReviewViewSet(CrewReviewPermissionMixin, viewsets.ModelViewSet):
 - 크루 관리자만 접근 가능
 - 크루 회원들의 상태(member, quit, keeping 등)를 관리
 """
-class CrewMemberViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+
+
+class CrewMemberViewSet(
+    mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet
+):
     queryset = JoinedCrew.objects.all()
     serializer_class = JoinedCrewSerializer
     permission_classes = [IsAuthenticated, IsCrewAdmin]

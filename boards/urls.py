@@ -15,5 +15,5 @@ urlpatterns = [
     path("", include(router.urls)),
     # 좋아요 기능을 위한 URL 패턴
     path("<int:post_id>/like", like_post, name="like_post"),
-    path("category", get_category_choices, name="category_choices")
+    path("category", get_category_choices, name="category_choices"),
 ]

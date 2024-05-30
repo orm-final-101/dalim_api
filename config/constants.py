@@ -1,7 +1,7 @@
 CREW_CHOICES = (
-	("keeping", "심사중"),
-	("member", "승인"),
-	("not_member", "미승인"),
+    ("keeping", "심사중"),
+    ("member", "승인"),
+    ("not_member", "미승인"),
     ("quit", "탈퇴"),
 )
 
@@ -52,7 +52,10 @@ MEET_DAY_CHOICES = (
 )
 
 TIME_CHOICES = [
-    (f"{hour:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}", f"{hour % 12 or 12:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}")
+    (
+        f"{hour:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}",
+        f"{hour % 12 or 12:02d}:{minute:02d} {'AM' if hour < 12 else 'PM'}",
+    )
     for hour in range(24)
     for minute in (0, 30)
 ]

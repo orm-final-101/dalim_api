@@ -15,7 +15,14 @@ class LikeInline(admin.TabularInline):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     inlines = [LikeInline, CommentInline]
-    list_display = ("title", "author", "post_classification", "category", "created_at", "updated_at")
+    list_display = (
+        "title",
+        "author",
+        "post_classification",
+        "category",
+        "created_at",
+        "updated_at",
+    )
     list_filter = ("post_classification", "category", "created_at", "updated_at")
     search_fields = ("title", "author__username", "contents")
 

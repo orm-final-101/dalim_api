@@ -13,7 +13,7 @@ class JoinedRaceInline(admin.TabularInline):
     model = JoinedRace
     extra = 0
     readonly_fields = ("created_at", "updated_at")
-    
+
 
 class RecordInline(admin.TabularInline):
     model = Record
@@ -26,8 +26,11 @@ class CustomUserAdmin(admin.ModelAdmin):
     readonly_fields = ("total_distance",)
 
     def total_distance(self, obj):
-        return obj.records.aggregate(total_distance=Sum('distance'))['total_distance'] or 0
-    total_distance.short_description = 'Total Distance'
+        return (
+            obj.records.aggregate(total_distance=Sum("distance"))["total_distance"] or 0
+        )
+
+    total_distance.short_description = "Total Distance"
 
 
 admin.site.register(LevelStep)
