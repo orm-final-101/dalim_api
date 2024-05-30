@@ -10,6 +10,7 @@ def check_is_favorite(user, crew):
         return crew.is_favorite(user)
     return False
 
+
 """
 크루 시리얼라이저에서 공통으로 사용되는 메서드 정의
 
@@ -17,6 +18,8 @@ def check_is_favorite(user, crew):
 - get_is_favorite: 크루의 즐겨찾기 여부 반환
 - get_member_count: 크루의 멤버 수를 반환
 """
+
+
 class CrewSerializerMixin:
     def get_meet_days(self, obj):
         return obj.meet_days
@@ -24,7 +27,7 @@ class CrewSerializerMixin:
     def get_is_favorite(self, obj):
         user = self.context["request"].user
         return check_is_favorite(user, obj)
-    
+
     def get_member_count(self, obj):
         return JoinedCrew.objects.filter(crew=obj, status="member").count()
 
@@ -38,6 +41,8 @@ class CrewSerializerMixin:
 - member_count: 해당 크루의 총 멤버 수
 - favorite_count: 해당 크루의 총 즐겨찾기 수 (top6에 사용됨)
 """
+
+
 class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
     is_opened = serializers.CharField(source="get_status_display")
     meet_days = serializers.SerializerMethodField()
@@ -47,7 +52,19 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Crew
-        fields = ["id", "name", "thumbnail_image", "member_count", "is_favorite", "location_city", "location_district", "meet_days", "meet_time", "is_opened", "favorite_count"]
+        fields = [
+            "id",
+            "name",
+            "thumbnail_image",
+            "member_count",
+            "is_favorite",
+            "location_city",
+            "location_district",
+            "meet_days",
+            "meet_time",
+            "is_opened",
+            "favorite_count",
+        ]
 
 
 """
@@ -58,6 +75,8 @@ class CrewListSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 - is_favorite: 해당 크루에 대한 즐겨찾기 여부
 - member_count: 해당 크루의 총 멤버 수
 """
+
+
 class CrewDetailSerializer(CrewSerializerMixin, serializers.ModelSerializer):
     is_opened = serializers.CharField(source="get_status_display")
     meet_days = serializers.SerializerMethodField()
@@ -66,7 +85,20 @@ class CrewDetailSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Crew
-        fields = ["id", "name", "location_city", "location_district", "meet_days", "meet_time", "description", "thumbnail_image", "sns_link", "is_favorite", "is_opened", "member_count"]
+        fields = [
+            "id",
+            "name",
+            "location_city",
+            "location_district",
+            "meet_days",
+            "meet_time",
+            "description",
+            "thumbnail_image",
+            "sns_link",
+            "is_favorite",
+            "is_opened",
+            "member_count",
+        ]
 
 
 """
@@ -75,13 +107,22 @@ class CrewDetailSerializer(CrewSerializerMixin, serializers.ModelSerializer):
 - author_id: 해당 리뷰를 쓴 유저의 id(pk)값
 - author_nickname = 해당 리뷰를 쓴 유저의 닉네임
 """
+
+
 class CrewReviewListSerializer(serializers.ModelSerializer):
     author_id = serializers.CharField(source="author.id", read_only=True)
     author_nickname = serializers.CharField(source="author.nickname", read_only=True)
 
     class Meta:
         model = CrewReview
-        fields = ["id", "author_id", "author_nickname", "contents", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "author_id",
+            "author_nickname",
+            "contents",
+            "created_at",
+            "updated_at",
+        ]
 
 
 """
@@ -90,6 +131,8 @@ class CrewReviewListSerializer(serializers.ModelSerializer):
 - contents: 댓글 내용
 - "id", "author_id", "author_nickname", "created_at", "updated_at" 는 자동 할당
 """
+
+
 class CrewReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CrewReview
@@ -102,6 +145,8 @@ class CrewReviewCreateSerializer(serializers.ModelSerializer):
 - contents: 댓글 내용
 - "id", "author_id", "author_nickname", "created_at", "updated_at" 는 자동 할당
 """
+
+
 class CrewReviewUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CrewReview
@@ -114,22 +159,46 @@ class CrewReviewUpdateSerializer(serializers.ModelSerializer):
 - meet_days: 크루 모임 요일 (다중 선택 가능)
 - meet_time: 크루 모임 시간대
 """
+
+
 class CrewCreateSerializer(serializers.ModelSerializer):
     meet_days = serializers.MultipleChoiceField(choices=MEET_DAY_CHOICES)
     meet_time = serializers.ChoiceField(choices=TIME_CHOICES)
 
     class Meta:
         model = Crew
-        fields = ["name", "location_city", "location_district", "meet_days", "meet_time", "description", "thumbnail_image", "sns_link", "is_opened"]
+        fields = [
+            "name",
+            "location_city",
+            "location_district",
+            "meet_days",
+            "meet_time",
+            "description",
+            "thumbnail_image",
+            "sns_link",
+            "is_opened",
+        ]
 
 
 """
 크루 정보 수정 시 사용되는 시리얼라이저
 """
+
+
 class CrewUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crew
-        fields = ["name", "location_city", "location_district", "meet_days", "meet_time", "description", "thumbnail_image", "sns_link", "is_opened"]
+        fields = [
+            "name",
+            "location_city",
+            "location_district",
+            "meet_days",
+            "meet_time",
+            "description",
+            "thumbnail_image",
+            "sns_link",
+            "is_opened",
+        ]
 
 
 """
@@ -139,6 +208,8 @@ class CrewUpdateSerializer(serializers.ModelSerializer):
 - email: 사용자 이메일 (읽기 전용)
 - updated_at: 사용자 최근 로그인 시간 (읽기 전용)
 """
+
+
 class JoinedCrewSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
     email = serializers.CharField(source="user.email", read_only=True)
@@ -155,6 +226,8 @@ class JoinedCrewSerializer(serializers.ModelSerializer):
 - crew_id: 크루 ID
 - title: 크루 이름
 """
+
+
 class ProfileCrewReviewSerializer(serializers.ModelSerializer):
     crew_id = serializers.IntegerField(source="crew.id")
     title = serializers.CharField(source="crew.name")

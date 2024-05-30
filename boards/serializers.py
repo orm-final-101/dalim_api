@@ -19,9 +19,17 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            "id", "author_id", "author_nickname", "title", "thumbnail_image",
-            "post_classification", "category", "view_count", "comment_count",
-            "created_at", "updated_at",
+            "id",
+            "author_id",
+            "author_nickname",
+            "title",
+            "thumbnail_image",
+            "post_classification",
+            "category",
+            "view_count",
+            "comment_count",
+            "created_at",
+            "updated_at",
         ]
 
         order_by = ["-created_at"]
@@ -41,21 +49,27 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ["id", "author_id", "author_nickname", "title", "contents", "thumbnail_image",
-                "post_classification", "category", "view_count", "created_at", "updated_at", "likes"]
+        fields = [
+            "id",
+            "author_id",
+            "author_nickname",
+            "title",
+            "contents",
+            "thumbnail_image",
+            "post_classification",
+            "category",
+            "view_count",
+            "created_at",
+            "updated_at",
+            "likes",
+        ]
 
     def get_likes(self, obj):
         user = self.context["request"].user
         if user.is_authenticated:
             is_liked = Like.objects.filter(post=obj, author=user).exists()
-            return {
-                "count": obj.likes.count(),
-                "is_liked": is_liked
-            }
-        return {
-            "count": obj.likes.count(),
-            "is_liked": False
-        }
+            return {"count": obj.likes.count(), "is_liked": is_liked}
+        return {"count": obj.likes.count(), "is_liked": False}
 
 
 # 게시글 수정
@@ -64,26 +78,45 @@ class PostUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ["title", "contents", "thumbnail_image", "post_classification", "category"]
+        fields = [
+            "title",
+            "contents",
+            "thumbnail_image",
+            "post_classification",
+            "category",
+        ]
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get("title", instance.title)
         instance.contents = validated_data.get("contents", instance.contents)
-        instance.thumbnail_image = validated_data.get("thumbnail_image", instance.thumbnail_image)
-        instance.post_classification = validated_data.get("post_classification", instance.post_classification)
+        instance.thumbnail_image = validated_data.get(
+            "thumbnail_image", instance.thumbnail_image
+        )
+        instance.post_classification = validated_data.get(
+            "post_classification", instance.post_classification
+        )
         instance.category = validated_data.get("category", instance.category)
         instance.save()
         return instance
 
+
 # 게시글 작성
 class PostCreateSerializer(serializers.ModelSerializer):
     thumbnail_image = serializers.ImageField(required=False, allow_null=True)
-    post_classification = serializers.ChoiceField(required=True, choices=CLASSIFICATION_CHOICES)
+    post_classification = serializers.ChoiceField(
+        required=True, choices=CLASSIFICATION_CHOICES
+    )
     category = serializers.ChoiceField(required=True, choices=CATEGORY_CHOICES)
 
     class Meta:
         model = Post
-        fields = ["title", "contents", "category", "post_classification", "thumbnail_image"]
+        fields = [
+            "title",
+            "contents",
+            "category",
+            "post_classification",
+            "thumbnail_image",
+        ]
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -92,8 +125,10 @@ class PostCreateSerializer(serializers.ModelSerializer):
             post = Post.objects.create(**validated_data)
             return post
         else:
-            raise serializers.ValidationError("User must be authenticated to create a post.")
-        
+            raise serializers.ValidationError(
+                "User must be authenticated to create a post."
+            )
+
     def validate_post_classification(self, value):
         if value not in [choice[0] for choice in CLASSIFICATION_CHOICES]:
             raise serializers.ValidationError("Invalid post classification.")
@@ -143,7 +178,7 @@ class ProfileCommentSerializer(serializers.ModelSerializer):
         return {
             "id": obj.post.id,
             "title": obj.post.title,
-            "author": obj.post.author.nickname
+            "author": obj.post.author.nickname,
         }
 
     class Meta:

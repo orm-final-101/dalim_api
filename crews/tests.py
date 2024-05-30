@@ -8,20 +8,43 @@ from accounts.models import JoinedCrew
 
 User = get_user_model()
 
+
 # 일반 크루 페이지
 class PublicCrewViewSetTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(email="testuser@example.com", password="testpassword")
-        self.opened_crew1 = Crew.objects.create(name="Test Crew 1", location_city="seoul", meet_days=["mon", "tue"], is_opened=True, owner=self.user)
-        self.opened_crew2 = Crew.objects.create(name="Test Crew 2", location_city="busan", meet_days=["wed", "thu"], is_opened=True, owner=self.user)
-        self.closed_crew = Crew.objects.create(name="Test Crew 3", location_city="seoul", meet_days=["fri", "sat"], is_opened=False, owner=self.user)
+        self.user = User.objects.create_user(
+            email="testuser@example.com", password="testpassword"
+        )
+        self.opened_crew1 = Crew.objects.create(
+            name="Test Crew 1",
+            location_city="seoul",
+            meet_days=["mon", "tue"],
+            is_opened=True,
+            owner=self.user,
+        )
+        self.opened_crew2 = Crew.objects.create(
+            name="Test Crew 2",
+            location_city="busan",
+            meet_days=["wed", "thu"],
+            is_opened=True,
+            owner=self.user,
+        )
+        self.closed_crew = Crew.objects.create(
+            name="Test Crew 3",
+            location_city="seoul",
+            meet_days=["fri", "sat"],
+            is_opened=False,
+            owner=self.user,
+        )
 
         # 크루 즐겨찾기 데이터 추가 (top6)
         CrewFavorite.objects.create(user=self.user, crew=self.opened_crew1)
         CrewFavorite.objects.create(user=self.user, crew=self.opened_crew2)
         for _ in range(5):
-            user = User.objects.create_user(email=f"testuser{_}@example.com", password="testpassword")
+            user = User.objects.create_user(
+                email=f"testuser{_}@example.com", password="testpassword"
+            )
             CrewFavorite.objects.create(user=user, crew=self.opened_crew1)
 
     # 크루 리스트에서 모집중인 크루만 표시
@@ -80,7 +103,11 @@ class PublicCrewViewSetTestCase(APITestCase):
         url = reverse("crews:public_crew-join", kwargs={"pk": self.opened_crew1.pk})
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(JoinedCrew.objects.filter(user=self.user, crew=self.opened_crew1, status="keeping").exists())
+        self.assertTrue(
+            JoinedCrew.objects.filter(
+                user=self.user, crew=self.opened_crew1, status="keeping"
+            ).exists()
+        )
 
     # 크루 즐겨찾기 추가/해제
     def test_crew_favorite(self):
@@ -89,7 +116,9 @@ class PublicCrewViewSetTestCase(APITestCase):
         url = reverse("crews:public_crew-favorite", kwargs={"pk": self.opened_crew1.pk})
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(CrewFavorite.objects.filter(user=self.user, crew=self.opened_crew1).exists())
+        self.assertTrue(
+            CrewFavorite.objects.filter(user=self.user, crew=self.opened_crew1).exists()
+        )
 
     # top6
     def test_top6_crews(self):
@@ -105,7 +134,9 @@ class PublicCrewViewSetTestCase(APITestCase):
     # 크루 리뷰 작성
     def test_crew_review_list_create(self):
         self.client.force_authenticate(user=self.user)
-        JoinedCrew.objects.create(user=self.user, crew=self.opened_crew1, status="member")
+        JoinedCrew.objects.create(
+            user=self.user, crew=self.opened_crew1, status="member"
+        )
         url = reverse("crews:crewreview-list", kwargs={"crew_id": self.opened_crew1.pk})
         data = {"contents": "Test review"}
         response = self.client.post(url, data)
@@ -115,8 +146,13 @@ class PublicCrewViewSetTestCase(APITestCase):
     # 크루 리뷰 수정/삭제
     def test_crew_review_update_delete(self):
         self.client.force_authenticate(user=self.user)
-        review = CrewReview.objects.create(crew=self.opened_crew1, author=self.user, contents="Test review")
-        url = reverse("crews:crewreview-detail", kwargs={"crew_id": self.opened_crew1.pk, "pk": review.pk})
+        review = CrewReview.objects.create(
+            crew=self.opened_crew1, author=self.user, contents="Test review"
+        )
+        url = reverse(
+            "crews:crewreview-detail",
+            kwargs={"crew_id": self.opened_crew1.pk, "pk": review.pk},
+        )
         data = {"contents": "Updated review"}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -129,15 +165,22 @@ class PublicCrewViewSetTestCase(APITestCase):
     # 탈퇴("quit")유저의 리뷰 작성/수정/삭제 가능여부
     def test_crew_review_permission_allowed_for_quit_user(self):
         self.client.force_authenticate(user=self.user)
-        review = CrewReview.objects.create(crew=self.opened_crew1, author=self.user, contents="Test review")
-        url = reverse("crews:crewreview-detail", kwargs={"crew_id": self.opened_crew1.pk, "pk": review.pk})
+        review = CrewReview.objects.create(
+            crew=self.opened_crew1, author=self.user, contents="Test review"
+        )
+        url = reverse(
+            "crews:crewreview-detail",
+            kwargs={"crew_id": self.opened_crew1.pk, "pk": review.pk},
+        )
         data = {"contents": "Updated review"}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     # 일반 회원이 모집마감 크루 상세페이지 접근 가능 여부
     def test_normal_user_can_access_closed_crew_detail(self):
-        normal_user = User.objects.create_user(email="normaluser@example.com", password="testpassword")
+        normal_user = User.objects.create_user(
+            email="normaluser@example.com", password="testpassword"
+        )
         self.client.force_authenticate(user=normal_user)
         url = reverse("crews:public_crew-detail", kwargs={"pk": self.closed_crew.pk})
         response = self.client.get(url)
@@ -149,11 +192,30 @@ class PublicCrewViewSetTestCase(APITestCase):
 class ManagerCrewViewSetTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.crew_user = User.objects.create_user(email="crewuser@example.com", password="testpassword", user_type="crew")
-        self.normal_user = User.objects.create_user(email="normaluser@example.com", password="testpassword", user_type="normal")
-        self.crew1 = Crew.objects.create(name="Test Crew 1", location_city="seoul", meet_days=["mon", "tue"], owner=self.crew_user)
-        self.crew2 = Crew.objects.create(name="Test Crew 2", location_city="busan", meet_days=["wed", "thu"], owner=self.crew_user)
-        self.crew3 = Crew.objects.create(name="Test Crew 3", location_city="seoul", meet_days=["fri", "sat"], owner=self.normal_user)
+        self.crew_user = User.objects.create_user(
+            email="crewuser@example.com", password="testpassword", user_type="crew"
+        )
+        self.normal_user = User.objects.create_user(
+            email="normaluser@example.com", password="testpassword", user_type="normal"
+        )
+        self.crew1 = Crew.objects.create(
+            name="Test Crew 1",
+            location_city="seoul",
+            meet_days=["mon", "tue"],
+            owner=self.crew_user,
+        )
+        self.crew2 = Crew.objects.create(
+            name="Test Crew 2",
+            location_city="busan",
+            meet_days=["wed", "thu"],
+            owner=self.crew_user,
+        )
+        self.crew3 = Crew.objects.create(
+            name="Test Crew 3",
+            location_city="seoul",
+            meet_days=["fri", "sat"],
+            owner=self.normal_user,
+        )
 
     # 크루 목록
     def test_crew_list_for_crew_admin(self):
@@ -199,7 +261,7 @@ class ManagerCrewViewSetTestCase(APITestCase):
             "description": "Test description",
             "thumbnail_image": "",
             "sns_link": "http://example.com",
-            "is_opened": True
+            "is_opened": True,
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -227,11 +289,21 @@ class ManagerCrewViewSetTestCase(APITestCase):
 class CrewMemberViewSetTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        self.crew_user = User.objects.create_user(email="crewuser@example.com", password="testpassword", user_type="crew")
-        self.normal_user = User.objects.create_user(email="normaluser@example.com", password="testpassword", user_type="normal")
-        self.crew = Crew.objects.create(name="Test Crew", location_city="seoul", owner=self.crew_user)
-        self.member = User.objects.create_user(email="testmember@example.com", password="testpassword")
-        self.joined_crew = JoinedCrew.objects.create(user=self.member, crew=self.crew, status="member")
+        self.crew_user = User.objects.create_user(
+            email="crewuser@example.com", password="testpassword", user_type="crew"
+        )
+        self.normal_user = User.objects.create_user(
+            email="normaluser@example.com", password="testpassword", user_type="normal"
+        )
+        self.crew = Crew.objects.create(
+            name="Test Crew", location_city="seoul", owner=self.crew_user
+        )
+        self.member = User.objects.create_user(
+            email="testmember@example.com", password="testpassword"
+        )
+        self.joined_crew = JoinedCrew.objects.create(
+            user=self.member, crew=self.crew, status="member"
+        )
 
     # 크루 멤버 목록
     def test_crew_member_list(self):
@@ -244,7 +316,10 @@ class CrewMemberViewSetTestCase(APITestCase):
     # 크루 멤버 상태 수정
     def test_crew_member_update(self):
         self.client.force_authenticate(user=self.crew_user)
-        url = reverse("crews:joinedcrew-detail", kwargs={"crew_id": self.crew.pk, "pk": self.joined_crew.pk})
+        url = reverse(
+            "crews:joinedcrew-detail",
+            kwargs={"crew_id": self.crew.pk, "pk": self.joined_crew.pk},
+        )
         data = {"status": "quit"}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -253,7 +328,10 @@ class CrewMemberViewSetTestCase(APITestCase):
     # 일반회원("normal") 접근 가능여부
     def test_crew_member_update_permission_denied(self):
         self.client.force_authenticate(user=self.normal_user)
-        url = reverse("crews:joinedcrew-detail", kwargs={"crew_id": self.crew.pk, "pk": self.joined_crew.pk})
+        url = reverse(
+            "crews:joinedcrew-detail",
+            kwargs={"crew_id": self.crew.pk, "pk": self.joined_crew.pk},
+        )
         data = {"status": "quit"}
         response = self.client.patch(url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
