@@ -111,10 +111,14 @@ class JoinedCrewSerializer(serializers.ModelSerializer):
     location_district = serializers.CharField(source="crew.location_district")
     meet_days = serializers.SerializerMethodField()
     meet_time = serializers.CharField(source="crew.meet_time")
-    thumbnail_image = serializers.ImageField(source="crew.thumbnail_image")
+    thumbnail_image = serializers.SerializerMethodField()
 
     def get_meet_days(self, obj):
         return obj.crew.meet_days
+
+    def get_thumbnail_image(self, obj):
+        request = self.context.get("request")
+        return request.build_absolute_uri(obj.crew.thumbnail_image.url)
 
     class Meta:
         model = JoinedCrew
@@ -144,10 +148,14 @@ class JoinedRaceGetSerializer(serializers.ModelSerializer):
     reg_end_date = serializers.DateField(source="race.reg_end_date")
     courses = serializers.SerializerMethodField()
     record = serializers.CharField(source="race_record")
-    thumbnail_image = serializers.ImageField(source="race.thumbnail_image")
+    thumbnail_image = serializers.SerializerMethodField()
 
     def get_courses(self, obj):
         return obj.race.courses
+
+    def get_thumbnail_image(self, obj):
+        request = self.context.get("request")
+        return request.build_absolute_uri(obj.race.thumbnail_image.url)
 
     class Meta:
         model = JoinedRace
