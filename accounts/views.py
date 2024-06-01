@@ -113,7 +113,9 @@ class MypageCrewViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         user = self.get_object()
         joined_crews = JoinedCrew.objects.filter(user=user)
-        serializer = JoinedCrewSerializer(joined_crews, many=True)
+        serializer = JoinedCrewSerializer(
+            joined_crews, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
 
@@ -125,7 +127,9 @@ class RaceViewSet(viewsets.ViewSet):
 
     def list(self, request):
         queryset = JoinedRace.objects.filter(user=request.user)
-        serializer = JoinedRaceGetSerializer(queryset, many=True)
+        serializer = JoinedRaceGetSerializer(
+            queryset, many=True, context={"request": request}
+        )
         return Response(serializer.data)
 
     @extend_schema(
